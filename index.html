@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion">
+<html class="theme-next mist use-motion">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -72,7 +72,7 @@
 <script type="text/javascript" id="hexo.configuration">
   var NexT = window.NexT || {};
   var CONFIG = {
-    scheme: 'Muse',
+    scheme: 'Mist',
     sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
@@ -199,15 +199,104 @@
 
     
     
+
+    
       
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/sora-blog/2016/01/28/qiniu-音视频处理/" itemprop="url">
+                  qiniu 音视频处理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-01-28T18:37:17+08:00" content="2016-01-28">
+              2016-01-28
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
-        
-        
-        
       
 
       
-    
+        
+          
+            <blockquote>
+<p>本篇文章主要介绍基于Qiniu的音视频存储及切片和转换处理的ruby实现。<br>Qiniu的SDK源码：<a href="https://github.com/qiniu/ruby-sdk" target="_blank" rel="external">ruby-sdk</a></p>
+</blockquote>
+<h4 id="u5B89_u88C5_u4F7F_u7528"><a href="#u5B89_u88C5_u4F7F_u7528" class="headerlink" title="安装使用"></a>安装使用</h4><p>安装和配置很简单，<a href="http://developer.qiniu.com/docs/v6/sdk/ruby-sdk.html" target="_blank" rel="external">qiniu-doc</a>中介绍的很清楚，这里就不做赘述</p>
+<h4 id="u97F3_u89C6_u9891_u7684_u5904_u7406"><a href="#u97F3_u89C6_u9891_u7684_u5904_u7406" class="headerlink" title="音视频的处理"></a>音视频的处理</h4><p>音视频的处理过程发生在qiniu服务器端，整个流程是这样的：<br>首先调用qiniu的上传API，音视频上传完毕后<strong>触发事件</strong>并把音视频的转换/切片等处理任务放入一个<strong>队列</strong>中，<br>qiniu服务器从队列中取出任务处理，处理完毕后会将处理结果以回调的形式发送到我们自己的服务器。</p>
+<ul>
+<li>qiniu上传策略</li>
+</ul>
+<p>上传策略是资源上传时附带的一组配置设定，这组设定指明上传什么资源，上传到哪个空间，资源成功上传后是否执行持久化，是否需要设置反馈信息的内容，以及授权上传的截止时间等等。</p>
+<ul>
+<li>persistentOps</li>
+</ul>
+<p>qiniu的API文档对上传策略中的参数都有解释，这里只对persistentOps展开说明。</p>
+<p>persistentOps: 资源成功上传后执行的持久化指令列表,每个指令是一个API规格字符串，多个指令用“;”分隔。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">put_policy.persistentOps = <span class="string">"avthumb/mp4|saveas/cWJ1Y2tldDpxa2V5;avthumb/flv|saveas/cWJ1Y2tldDpxa2V5"</span></span><br><span class="line">put_policy.persistentNotifyUrl = <span class="string">"<span class="subst">#&#123;server.host&#125;</span>/<span class="subst">#&#123;api_path&#125;</span>"</span></span><br></pre></td></tr></table></figure>
+<h4 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h4>
+          
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -344,13 +433,20 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">1</span>
+              <span class="site-state-item-count">2</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
           
           
 
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
           
 
         </nav>
@@ -399,7 +495,7 @@
 <div class="theme-info">
   Theme -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Muse
+    NexT.Mist
   </a>
 </div>
 
