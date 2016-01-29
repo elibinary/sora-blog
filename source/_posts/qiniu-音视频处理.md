@@ -4,6 +4,7 @@ date: 2016-01-28 18:37:17
 tags:
 - Qiniu
 - Ruby
+description: 本篇文章主要介绍基于Qiniu的音视频存储及切片和转换处理的ruby实现。
 ---
 
 > 本篇文章主要介绍基于Qiniu的音视频存储及切片和转换处理的ruby实现。
