@@ -1,9 +1,10 @@
 ---
-title: '[NetWork Flow Problem]Maximum Flow'
+title: NetWork Flow Problem - Maximum Flow
 date: 2016-01-31 11:00:43
 tags:
 - Algorithm
 - Ruby
+description: 这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。
 ---
 
 > 不只是网络流，很多场景都会涉及到流量问题。这里介绍一种计算流系统中最大流的
@@ -19,7 +20,9 @@ tags:
     +  斜对称
     假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。
     +  流量守恒
+    ```ruby
     Σ F<v,x> = Σ F<x,u>
+    ```
 -  残余网络
 通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。
 -  增广路径
