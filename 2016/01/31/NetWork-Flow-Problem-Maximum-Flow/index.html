@@ -63,7 +63,7 @@
 <meta property="og:url" content="http://elibinary.com/2016/01/31/NetWork-Flow-Problem-Maximum-Flow/index.html">
 <meta property="og:site_name" content="Sora">
 <meta property="og:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
-<meta property="og:updated_time" content="2016-02-01T03:28:01.000Z">
+<meta property="og:updated_time" content="2016-02-01T03:32:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NetWork Flow Problem - Maximum Flow">
 <meta name="twitter:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
@@ -267,13 +267,16 @@
 </blockquote>
 <p>在介绍Ford-Fulkerson方法之前需要先理解几个基本概念：<br>对于一个流网络，该网络由一个源点s、一个汇点t和源点与汇点间的众节点以及各点间的边组成。</p>
 <ul>
-<li>网络流<br>网络流有几个性质：<ul>
+<li><p>网络流<br>网络流有几个性质：</p>
+<ul>
 <li>容量限制<br>设C为每条边的容量，F为每条边的流量。<br>显然 F&lt;=C，一条边的流不超过它自身的容量。</li>
 <li>斜对称<br>假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。</li>
-<li>流量守恒<br>Σ F<v,x> = Σ F<x,u></x,u></v,x></li>
+<li>流量守恒<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Σ <span class="constant">F</span>&lt;v,x&gt; = Σ <span class="constant">F</span>&lt;x,u&gt;</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 </li>
-<li>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</li>
+<li><p>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</p>
+</li>
 <li>增广路径<br>增广路径就是残余网络中从源点到汇点的一条简单路径。形象的理解为从s到t存在一条不违反边容量的路径，向这条路径压入流量，可以增加整个网络的流值。</li>
 <li>割<br>这里有一个最大流等于最小割的定理。<br>先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。<br>由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）</li>
 </ul>
