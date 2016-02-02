@@ -32,4 +32,89 @@ description: 这里介绍一种计算流系统中最大流的方法，解法使�
 先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。
 由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）
 
+
 #### TODO
+
+```ruby
+# 1. 构建有向图
+# 2. 使用BFS算法找到一条增广路径（假设起初为0）
+# 3. 找到这条增广路径中限流最小的边
+# 4. 该增广路径中每条边流量减掉3中最小边流量
+# 5. maxflow加3中最小边流量（此路径为有效路径）
+# 6. 迭代（重复2，3，4，5）
+#    条件边界：找不到增广路径则退出
+
+class GraphTheoryMaxflow
+  # edge: 边数
+  # spot: 交点数
+  # graph: 有向图（二维数组）
+  def initialize(edge, spot, graph)
+    @graph = graph
+    @edge = edge
+    @spot = spot
+  end
+
+  def max_flow
+    max_num = 0
+    rgraph = @graph
+    boundary, path = augmentation_path(rgraph, 0, @spot-1)
+    while boundary
+      min_flow = 65535     # 这里给你个限制的最大值（65535为16位int表示最大值）
+
+      v = @spot - 1
+      while !path[v].nil?
+        u = path[v]
+        min_flow = [min_flow, rgraph[u][v]].min
+        v = u
+        puts v
+      end
+
+      v = @spot - 1
+      while !path[v].nil?
+        u = path[v]
+        rgraph[u][v] -= min_flow
+        rgraph[v][u] += min_flow
+        v = u
+        puts v
+      end
+      max_num += min_flow
+      boundary, path = augmentation_path(rgraph, 0, @spot-1)
+    end
+    max_num
+  end
+
+  # s: 源点
+  # t: 终点
+  def augmentation_path(rgraph, s, t)
+    path = {}           # 路径
+    visited = {}        # 标记是否访问过点
+    queue = []          # 存续bfs中遍历用节点
+
+    queue << s
+    visited[s] = true
+    # BFS算法找出增广路径
+    while queue.size > 0
+      top = queue.shift
+      (0..@spot-1).each do |i|
+        if visited[i] != true && rgraph[top][i] > 0
+          path[i] = top
+          visited[i] = true
+          queue << i
+        end
+      end
+      puts path
+    end
+    # 此路径是否是通路
+    [visited[t] == true, path]
+  end
+end
+
+# graph = [
+#   [0, 40, 0, 20],
+#   [0, 0, 30, 20],
+#   [0, 0, 0, 10],
+#   [0, 0, 0, 0]
+# ]
+# gtm = GraphTheoryMaxflow.new(5, 4, graph)
+# gtm.max_flow
+```
