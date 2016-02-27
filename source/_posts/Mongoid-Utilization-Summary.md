@@ -1,11 +1,12 @@
 ---
-title: [Mongoid]使用总结之一些查询方法
-date: 2016-02-26 09:03:29
-tags: MongoDB 
+title: Mongoid 使用总结之一些查询方法
+date: 2016-02-27 09:03:29
+tags:  
 - MongoDB
 - db
 description: 本篇文章主要介绍Mongoid的一些查询命令。
 ---
+
 > MongoDB 的数据是用JSON格式存储的
 
 同时MongoDB支持丰富的查询方式，查询指令使用JSON形式的标记，能够对document中的embed对象及array对象进行很方便的检索
