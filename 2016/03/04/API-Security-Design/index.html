@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Algorithm,Ruby," />
+  <meta name="keywords" content="Security," />
 
 
 
@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="description" content="本篇文章主要简单介绍一些api安全设计的方案。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NetWork Flow Problem - Maximum Flow">
-<meta property="og:url" content="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/index.html">
+<meta property="og:title" content="API Security Design">
+<meta property="og:url" content="http://elibinary.com/2016/03/04/API-Security-Design/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
-<meta property="og:updated_time" content="2016-02-19T07:56:47.000Z">
+<meta property="og:description" content="本篇文章主要简单介绍一些api安全设计的方案。">
+<meta property="og:updated_time" content="2016-03-10T11:13:47.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NetWork Flow Problem - Maximum Flow">
-<meta name="twitter:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="twitter:title" content="API Security Design">
+<meta name="twitter:description" content="本篇文章主要简单介绍一些api安全设计的方案。">
 
 
 
@@ -84,7 +84,7 @@
   };
 </script>
 
-  <title> NetWork Flow Problem - Maximum Flow | Sora </title>
+  <title> API Security Design | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +224,7 @@
             
             
               
-                NetWork Flow Problem - Maximum Flow
+                API Security Design
               
             
           </h1>
@@ -236,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-02-19T20:00:43+08:00" content="2016-02-19">
-              2016-02-19
+            <time itemprop="dateCreated" datetime="2016-03-04T22:34:00+08:00" content="2016-03-04">
+              2016-03-04
             </time>
           </span>
 
@@ -263,35 +263,31 @@
 
       
         <blockquote>
-<p>不只是网络流，很多场景都会涉及到流量问题。这里介绍一种计算流系统中最大流的<br>方法，解法使用Ford-Fulkerson方法的基本思想。</p>
+<p>REST API, REST(Representational State Transfer)是一种设计风格，REST API就在此理解为符合REST设计原则和约束条件的HTTP和HTTPS服务端接口。</p>
 </blockquote>
-<p>在介绍Ford-Fulkerson方法之前需要先理解几个基本概念：<br>对于一个流网络，该网络由一个源点s、一个汇点t和源点与汇点间的众节点以及各点间的边组成。</p>
-<ul>
-<li><p>网络流<br>网络流有几个性质：</p>
-<ul>
-<li>容量限制<br>设C为每条边的容量，F为每条边的流量。<br>显然 F&lt;=C，一条边的流不超过它自身的容量。</li>
-<li>斜对称<br>假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。</li>
-<li>流量守恒<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Σ <span class="constant">F</span>&lt;v,x&gt; = Σ <span class="constant">F</span>&lt;x,u&gt;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</p>
-</li>
-<li>增广路径<br>增广路径就是残余网络中从源点到汇点的一条简单路径。形象的理解为从s到t存在一条不违反边容量的路径，向这条路径压入流量，可以增加整个网络的流值。</li>
-<li>割<br>这里有一个最大流等于最小割的定理。<br>先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。<br>由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）</li>
-</ul>
-<p>问题的解法思路：</p>
-<ol>
-<li>构建有向图</li>
-<li>使用BFS算法找到一条增广路径（假设起初为0）</li>
-<li>找到这条增广路径中限流最小的边</li>
-<li>该增广路径中每条边流量减掉3中最小边流量</li>
-<li>maxflow加3中最小边流量（此路径为有效路径）</li>
-<li>迭代（重复2，3，4，5）</li>
-<li>条件边界：找不到增广路径则退出</li>
-</ol>
-<p>上代码：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphTheoryMaxflow</span></span></span><br><span class="line">  <span class="comment"># edge: 边数</span></span><br><span class="line">  <span class="comment"># spot: 交点数</span></span><br><span class="line">  <span class="comment"># graph: 有向图（二维数组）</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(edge, spot, graph)</span></span></span><br><span class="line">    <span class="variable">@graph</span> = graph</span><br><span class="line">    <span class="variable">@edge</span> = edge</span><br><span class="line">    <span class="variable">@spot</span> = spot</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">max_flow</span></span></span><br><span class="line">    max_num = <span class="number">0</span></span><br><span class="line">    rgraph = <span class="variable">@graph</span></span><br><span class="line">    boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> boundary</span><br><span class="line">      min_flow = <span class="number">65535</span>     <span class="comment"># 这里给你个限制的最大值（65535为16位int表示最大值）</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        min_flow = [min_flow, rgraph[u][v]].min</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        rgraph[u][v] -= min_flow</span><br><span class="line">        rgraph[v][u] += min_flow</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      max_num += min_flow</span><br><span class="line">      boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    max_num</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># s: 源点</span></span><br><span class="line">  <span class="comment"># t: 终点</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">augmentation_path</span><span class="params">(rgraph, s, t)</span></span></span><br><span class="line">    path = &#123;&#125;           <span class="comment"># 路径</span></span><br><span class="line">    visited = &#123;&#125;        <span class="comment"># 标记是否访问过点</span></span><br><span class="line">    queue = []          <span class="comment"># 存续bfs中遍历用节点</span></span><br><span class="line"></span><br><span class="line">    queue &lt;&lt; s</span><br><span class="line">    visited[s] = <span class="keyword">true</span></span><br><span class="line">    <span class="comment"># BFS算法找出增广路径</span></span><br><span class="line">    <span class="keyword">while</span> queue.size &gt; <span class="number">0</span></span><br><span class="line">      top = queue.shift</span><br><span class="line">      (<span class="number">0</span>..<span class="variable">@spot</span>-<span class="number">1</span>).each <span class="keyword">do</span> |i|</span><br><span class="line">        <span class="keyword">if</span> visited[i] != <span class="keyword">true</span> &amp;&amp; rgraph[top][i] &gt; <span class="number">0</span></span><br><span class="line">          path[i] = top</span><br><span class="line">          visited[i] = <span class="keyword">true</span></span><br><span class="line">          queue &lt;&lt; i</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      puts path</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># 此路径是否是通路</span></span><br><span class="line">    [visited[t] == <span class="keyword">true</span>, path]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># graph = [</span></span><br><span class="line"><span class="comment">#   [0, 40, 0, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 30, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 10],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 0]</span></span><br><span class="line"><span class="comment"># ]</span></span><br><span class="line"><span class="comment"># gtm = GraphTheoryMaxflow.new(5, 4, graph)</span></span><br><span class="line"><span class="comment"># gtm.max_flow</span></span><br></pre></td></tr></table></figure>
+<p>在client-server应用系统中，REST重要原则是客户端和服务器之间的交互在请求之间是无状态的，每次请求都得附带身份认证信息。我们需要为它加上各种所需的安全防护。</p>
+<h4 id="About_HTTP_Basic"><a href="#About_HTTP_Basic" class="headerlink" title="About HTTP Basic"></a>About HTTP Basic</h4><p>HTTP Basic认证实现起来非常简单，基本形式是客户端在发起请求时提供用户名和口令等身份验证信息。<br>先把认证信息排列成以下形式：user:pwd，然后再对其进行URL安全的Base64编码。</p>
+<p>这种方式在客户端要求很低，服务器端实现也很简单，不过相对的安全性也是很低的。Base64编码这一步骤的目的并不是安全与隐私，而是为将用户名和口令中的不兼容的字符转换为均与HTTP协议兼容的字符集。这种认证方式需要保证客户端和服务器主机之间的连接是安全可信的，不然就是裸奔了。</p>
+<h4 id="About_HTTP_Digest"><a href="#About_HTTP_Digest" class="headerlink" title="About HTTP Digest"></a>About HTTP Digest</h4><p>Digest认证方式相比Basic认证，增强了其安全性。它在身份认证信息发出前会对其进行MD5加密，相较于HTTP Basic发送明文而言更加安全。</p>
+<p>其加密的大致步骤是这样的：</p>
+<p>首先先把身份认证信息排列成下列形式<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"user:realm:passwd"</span></span><br></pre></td></tr></table></figure></p>
+<p>对其进行MD5加密生成 <em>HA1</em> 字符串<br>然后是接口信息<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"method:DigestURI"</span></span><br></pre></td></tr></table></figure></p>
+<p>对其进行MD5加密生成 <em>HA2</em> 字符串<br>然后把所有信息排列如下<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"HA1:nonce:HA2"</span></span><br></pre></td></tr></table></figure></p>
+<p>对其进行MD5加密生成最后的验证信息</p>
+<blockquote>
+<p>其中第一步里面的 <em>realm</em> 到底是什么呢，<a href="http://tools.ietf.org/html/rfc2617#page-3" target="_blank" rel="external">RFC 2617</a>中给出这样的描述：</p>
+<p>The realm directive (case-insensitive) is required for all<br>   authentication schemes that issue a challenge. The realm value<br>   (case-sensitive), in combination with the canonical root URL (the<br>   absoluteURI for the server whose abs_path is empty; see section 5.1.2<br>   of [2]) of the server being accessed, defines the protection space.<br>   These realms allow the protected resources on a server to be<br>   partitioned into a set of protection spaces, each with its own<br>   authentication scheme and/or authorization database. The realm value<br>   is a string, generally assigned by the origin server, which may have<br>   additional semantics specific to the authentication scheme. Note that<br>   there may be multiple challenges with the same auth-scheme but<br>   different realms.</p>
+<p>看起来类似于空间的意思简单地说就是相同的realm是可以共用credentials的。</p>
+<p>第三步中的 <em>nonce</em> 是一个随机数，生成随机数时还可以加入时间戳以防止重放攻击。</p>
+</blockquote>
+<p>由于MD5算法是不可逆的，以此来保障身份信息的安全性。当然，这样并不能保障因密码简单而被暴力破解的方法靠穷举来试出密码，现在有很多现成的字典可以减少穷举次数减小破解难度。</p>
+<h4 id="About_API_KEY"><a href="#About_API_KEY" class="headerlink" title="About API KEY"></a>About API KEY</h4><p>API KEY就是服务器端颁发给客户端的key，一般有两个api_key和security_key。客户端使用将使用这两个key对身份验证信息进行签名。</p>
+<p>首先Client端会对api_key、时间戳、rest_uri进行组合并编码，然后使用security_key作为密钥使用HMAC对其进行加密生成sign。最后的请求类似如下：<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"/restapi/interface?api_key=xxx&amp;timestrap=xxx&amp;sign=xxx"</span></span><br></pre></td></tr></table></figure></p>
+<p>服务器端收到请求后，首先验证api_key是否存在，存在则获取其对应的security_key，然后对api_key、时间戳、rest_uri进行组合并编码，然后使用security_key作为密钥使用HMAC对其进行加密生成sign，最后把生成的sign与client端传过来的sign进行比较完成身份认证。其中时间戳可以用来防止重放攻击。</p>
+<p><br><br><br> </p>
+<hr>
+<p>PS: 后续会对 Oauth 协议进行介绍</p>
+
       
     </div>
 
@@ -299,9 +295,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
-          
-            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+            <a href="/tags/Security/" rel="tag">#Security</a>
           
         </div>
       
@@ -310,16 +304,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/28/Qiniu-Video-Audio-Processing/" rel="next" title="qiniu 音视频处理">
-                <i class="fa fa-chevron-left"></i> qiniu 音视频处理
+              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="next" title="Mongoid 使用总结之一些查询方法">
+                <i class="fa fa-chevron-left"></i> Mongoid 使用总结之一些查询方法
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="prev" title="Mongoid 使用总结之一些查询方法">
-                Mongoid 使用总结之一些查询方法 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/03/12/An-Introduction-To-Oauth2-P1/" rel="prev" title="An Introduction To OAuth2 - P1">
+                An Introduction To OAuth2 - P1 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -431,7 +425,7 @@
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#About_HTTP_Basic"><span class="nav-number">1.</span> <span class="nav-text">About HTTP Basic</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#About_HTTP_Digest"><span class="nav-number">2.</span> <span class="nav-text">About HTTP Digest</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#About_API_KEY"><span class="nav-number">3.</span> <span class="nav-text">About API KEY</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">

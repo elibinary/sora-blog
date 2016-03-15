@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Algorithm,Ruby," />
+  <meta name="keywords" content="Security," />
 
 
 
@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="description" content="本篇文章主要简单介绍OAuth2（开放授权）。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NetWork Flow Problem - Maximum Flow">
-<meta property="og:url" content="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/index.html">
+<meta property="og:title" content="An Introduction To OAuth2 - P1">
+<meta property="og:url" content="http://elibinary.com/2016/03/12/An-Introduction-To-Oauth2-P1/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
-<meta property="og:updated_time" content="2016-02-19T07:56:47.000Z">
+<meta property="og:description" content="本篇文章主要简单介绍OAuth2（开放授权）。">
+<meta property="og:updated_time" content="2016-03-15T10:39:05.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NetWork Flow Problem - Maximum Flow">
-<meta name="twitter:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="twitter:title" content="An Introduction To OAuth2 - P1">
+<meta name="twitter:description" content="本篇文章主要简单介绍OAuth2（开放授权）。">
 
 
 
@@ -84,7 +84,7 @@
   };
 </script>
 
-  <title> NetWork Flow Problem - Maximum Flow | Sora </title>
+  <title> An Introduction To OAuth2 - P1 | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +224,7 @@
             
             
               
-                NetWork Flow Problem - Maximum Flow
+                An Introduction To OAuth2 - P1
               
             
           </h1>
@@ -236,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-02-19T20:00:43+08:00" content="2016-02-19">
-              2016-02-19
+            <time itemprop="dateCreated" datetime="2016-03-12T09:17:16+08:00" content="2016-03-12">
+              2016-03-12
             </time>
           </span>
 
@@ -263,35 +263,38 @@
 
       
         <blockquote>
-<p>不只是网络流，很多场景都会涉及到流量问题。这里介绍一种计算流系统中最大流的<br>方法，解法使用Ford-Fulkerson方法的基本思想。</p>
+<p>OAuth是一个开放标准，它提供一种方案使用户可以在不提供账户密码信息的情况下，允许第三方获取用户在某服务器存储的资源。</p>
 </blockquote>
-<p>在介绍Ford-Fulkerson方法之前需要先理解几个基本概念：<br>对于一个流网络，该网络由一个源点s、一个汇点t和源点与汇点间的众节点以及各点间的边组成。</p>
+<p>在传统的client-server模式中，如果用户想要让第三方获取指定受保护服务器上的资源时，需要提供账户密码信息给第三方。<br>而第三方存储账户密码信息有很多问题，首先这样是不安全的，并且任意第三方程序被破解，都将导致账户密码的泄露；第三方持有<br>用户账户密码的情况下，将拥有用户在指定服务器上完整的权限；用户撤回授权也将变得麻烦，或许不得不修改密码。</p>
+<h4 id="OAuth2__u7684_u57FA_u672C_u5DE5_u4F5C_u6D41_u7A0B"><a href="#OAuth2__u7684_u57FA_u672C_u5DE5_u4F5C_u6D41_u7A0B" class="headerlink" title="OAuth2 的基本工作流程"></a>OAuth2 的基本工作流程</h4><p>在介绍 Protocol Flow 之前，先看一下OAuth2的角色分工：</p>
 <ul>
-<li><p>网络流<br>网络流有几个性质：</p>
-<ul>
-<li>容量限制<br>设C为每条边的容量，F为每条边的流量。<br>显然 F&lt;=C，一条边的流不超过它自身的容量。</li>
-<li>斜对称<br>假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。</li>
-<li>流量守恒<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Σ <span class="constant">F</span>&lt;v,x&gt; = Σ <span class="constant">F</span>&lt;x,u&gt;</span><br></pre></td></tr></table></figure>
+<li><p>resource owner:<br>授权别人去指定服务器存取受保护资源的角色，这里就是指用户</p>
+</li>
+<li><p>client:<br>被 resource owner 授权去存取指定服务器受保护资源的角色，这里就是指第三方应用程序</p>
+</li>
+<li><p>resource server:<br>存放受保护资源的服务器</p>
+</li>
+<li><p>authorization server:<br>认证 resource owner 并经 resource owner 授权后核发 access tokens 的服务器</p>
 </li>
 </ul>
-</li>
-<li><p>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</p>
-</li>
-<li>增广路径<br>增广路径就是残余网络中从源点到汇点的一条简单路径。形象的理解为从s到t存在一条不违反边容量的路径，向这条路径压入流量，可以增加整个网络的流值。</li>
-<li>割<br>这里有一个最大流等于最小割的定理。<br>先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。<br>由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）</li>
-</ul>
-<p>问题的解法思路：</p>
-<ol>
-<li>构建有向图</li>
-<li>使用BFS算法找到一条增广路径（假设起初为0）</li>
-<li>找到这条增广路径中限流最小的边</li>
-<li>该增广路径中每条边流量减掉3中最小边流量</li>
-<li>maxflow加3中最小边流量（此路径为有效路径）</li>
-<li>迭代（重复2，3，4，5）</li>
-<li>条件边界：找不到增广路径则退出</li>
-</ol>
-<p>上代码：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphTheoryMaxflow</span></span></span><br><span class="line">  <span class="comment"># edge: 边数</span></span><br><span class="line">  <span class="comment"># spot: 交点数</span></span><br><span class="line">  <span class="comment"># graph: 有向图（二维数组）</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(edge, spot, graph)</span></span></span><br><span class="line">    <span class="variable">@graph</span> = graph</span><br><span class="line">    <span class="variable">@edge</span> = edge</span><br><span class="line">    <span class="variable">@spot</span> = spot</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">max_flow</span></span></span><br><span class="line">    max_num = <span class="number">0</span></span><br><span class="line">    rgraph = <span class="variable">@graph</span></span><br><span class="line">    boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> boundary</span><br><span class="line">      min_flow = <span class="number">65535</span>     <span class="comment"># 这里给你个限制的最大值（65535为16位int表示最大值）</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        min_flow = [min_flow, rgraph[u][v]].min</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        rgraph[u][v] -= min_flow</span><br><span class="line">        rgraph[v][u] += min_flow</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      max_num += min_flow</span><br><span class="line">      boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    max_num</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># s: 源点</span></span><br><span class="line">  <span class="comment"># t: 终点</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">augmentation_path</span><span class="params">(rgraph, s, t)</span></span></span><br><span class="line">    path = &#123;&#125;           <span class="comment"># 路径</span></span><br><span class="line">    visited = &#123;&#125;        <span class="comment"># 标记是否访问过点</span></span><br><span class="line">    queue = []          <span class="comment"># 存续bfs中遍历用节点</span></span><br><span class="line"></span><br><span class="line">    queue &lt;&lt; s</span><br><span class="line">    visited[s] = <span class="keyword">true</span></span><br><span class="line">    <span class="comment"># BFS算法找出增广路径</span></span><br><span class="line">    <span class="keyword">while</span> queue.size &gt; <span class="number">0</span></span><br><span class="line">      top = queue.shift</span><br><span class="line">      (<span class="number">0</span>..<span class="variable">@spot</span>-<span class="number">1</span>).each <span class="keyword">do</span> |i|</span><br><span class="line">        <span class="keyword">if</span> visited[i] != <span class="keyword">true</span> &amp;&amp; rgraph[top][i] &gt; <span class="number">0</span></span><br><span class="line">          path[i] = top</span><br><span class="line">          visited[i] = <span class="keyword">true</span></span><br><span class="line">          queue &lt;&lt; i</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      puts path</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># 此路径是否是通路</span></span><br><span class="line">    [visited[t] == <span class="keyword">true</span>, path]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># graph = [</span></span><br><span class="line"><span class="comment">#   [0, 40, 0, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 30, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 10],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 0]</span></span><br><span class="line"><span class="comment"># ]</span></span><br><span class="line"><span class="comment"># gtm = GraphTheoryMaxflow.new(5, 4, graph)</span></span><br><span class="line"><span class="comment"># gtm.max_flow</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+--------+                               +---------------+&#10;|        |--(A)- Authorization Request -&#62;|   Resource    |&#10;|        |                               |     Owner     |&#10;|        |&#60;-(B)-- Authorization Grant ---|               |&#10;|        |                               +---------------+&#10;|        |&#10;|        |                               +---------------+&#10;|        |--(C)-- Authorization Grant --&#62;| Authorization |&#10;| Client |                               |     Server    |&#10;|        |&#60;-(D)----- Access Token -------|               |&#10;|        |                               +---------------+&#10;|        |&#10;|        |                               +---------------+&#10;|        |--(E)----- Access Token ------&#62;|    Resource   |&#10;|        |                               |     Server    |&#10;|        |&#60;-(F)--- Protected Resource ---|               |&#10;+--------+                               +---------------+</span><br></pre></td></tr></table></figure>
+<p>以上是协议流程，摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Abstract Protocol Flow</a></p>
+<p>(A). Client 向Resource Owner请求授权</p>
+<p>(B). Client 从Resource Owner得到 Authorization Grant ，这个Grant代表Resource Owner的授权许可。规范中定义了四中Grant Types，<br>     分别是: authorization code, implicit, resource owner password credentials, client credentials. 同时规范中还定义了<br>     四种内建流程分别与之对应。</p>
+<p>(C). Client 使用 Authorization Grant 向 Authorization Server 申请 Access Token </p>
+<p>(D). Authorization Server 认证 Client 及 Authorization Grant ，通过后核发 Access Token </p>
+<p>(E). Client 使用 Authorization Grant 向 Resource Server 申请资源</p>
+<p>(F). Resource Server 验证 Access Token ，通过后开放资源给 Client</p>
+<h4 id="Refresh_Token"><a href="#Refresh_Token" class="headerlink" title="Refresh Token"></a>Refresh Token</h4><p>当 Access Token 过期或失效了， Refresh Token 就被用来向 Authorization Server 重新申请一个 Access Token。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+--------+                                           +---------------+&#10;|        |--(A)------- Authorization Grant ---------&#62;|               |&#10;|        |                                           |               |&#10;|        |&#60;-(B)----------- Access Token -------------|               |&#10;|        |               &#38; Refresh Token             |               |&#10;|        |                                           |               |&#10;|        |                            +----------+   |               |&#10;|        |--(C)---- Access Token ----&#62;|          |   |               |&#10;|        |                            |          |   |               |&#10;|        |&#60;-(D)- Protected Resource --| Resource |   | Authorization |&#10;| Client |                            |  Server  |   |     Server    |&#10;|        |--(E)---- Access Token ----&#62;|          |   |               |&#10;|        |                            |          |   |               |&#10;|        |&#60;-(F)- Invalid Token Error -|          |   |               |&#10;|        |                            +----------+   |               |&#10;|        |                                           |               |&#10;|        |--(G)----------- Refresh Token -----------&#62;|               |&#10;|        |                                           |               |&#10;|        |&#60;-(H)----------- Access Token -------------|               |&#10;+--------+           &#38; Optional Refresh Token        +---------------+</span><br></pre></td></tr></table></figure></p>
+<p>以上是协议流程，摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Refreshing an Expired Access Token</a></p>
+<p>如允许使用 Refresh Token ，则 Authorization Server 将在核发 Access Token 的同时核发 Refresh Token。当然也可以禁用 Refresh Token，<br>一些内建流程也会禁用 Refresh Token，如 Implicit Grant。</p>
+<p>从图中可以看出当 Access Token 失效后，Client 可以使用 Refresh Token 直接向 Authorization Server 申请新的 Access Token 而无需再一次向<br>Resource Owner 请求授权。</p>
+<p>Refresh Token 一般会在很长一段时间有效，建议将其与被授权的 Client 绑定。申请新的 Access Token 时也可以一并返回新的 Refresh Token 给 Client<br>，Client 和 Authorization Server 更新新的 Refresh Token 替换旧的。</p>
+<p>请注意使用 Refresh Token 获取新的 Access Token 的 scope 应该是 Refresh Token 的子集（也就是被包含的关系），而若返回新的 Refresh Token 其 scope 也应与旧的 Refresh Token 一致或是其子集。</p>
+<p><br><br><br> </p>
+<hr>
+<p>PS: 下篇介绍 OAuth2 的四种 Grant Flows</p>
+
       
     </div>
 
@@ -299,9 +302,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
-          
-            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+            <a href="/tags/Security/" rel="tag">#Security</a>
           
         </div>
       
@@ -310,17 +311,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/28/Qiniu-Video-Audio-Processing/" rel="next" title="qiniu 音视频处理">
-                <i class="fa fa-chevron-left"></i> qiniu 音视频处理
+              <a href="/2016/03/04/API-Security-Design/" rel="next" title="API Security Design">
+                <i class="fa fa-chevron-left"></i> API Security Design
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="prev" title="Mongoid 使用总结之一些查询方法">
-                Mongoid 使用总结之一些查询方法 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -431,7 +428,7 @@
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#OAuth2__u7684_u57FA_u672C_u5DE5_u4F5C_u6D41_u7A0B"><span class="nav-number">1.</span> <span class="nav-text">OAuth2 的基本工作流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Refresh_Token"><span class="nav-number">2.</span> <span class="nav-text">Refresh Token</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
