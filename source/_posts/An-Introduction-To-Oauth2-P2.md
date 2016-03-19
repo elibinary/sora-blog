@@ -1,6 +1,6 @@
 ---
 title: An Introduction To Oauth2 - P2
-date: 2016-03-18 09:10:34
+date: 2016-03-18 22:10:34
 tags:
 - Security
 description: 本篇文章主要简单介绍OAuth2（开放授权）的四种 grant types 。
