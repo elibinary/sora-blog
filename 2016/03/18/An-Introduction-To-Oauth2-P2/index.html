@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Algorithm,Ruby," />
+  <meta name="keywords" content="Security," />
 
 
 
@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="description" content="本篇文章主要简单介绍OAuth2（开放授权）的四种 grant types 。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NetWork Flow Problem - Maximum Flow">
-<meta property="og:url" content="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/index.html">
+<meta property="og:title" content="An Introduction To Oauth2 - P2">
+<meta property="og:url" content="http://elibinary.com/2016/03/18/An-Introduction-To-Oauth2-P2/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
-<meta property="og:updated_time" content="2016-02-19T07:56:47.000Z">
+<meta property="og:description" content="本篇文章主要简单介绍OAuth2（开放授权）的四种 grant types 。">
+<meta property="og:updated_time" content="2016-03-22T09:21:09.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NetWork Flow Problem - Maximum Flow">
-<meta name="twitter:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="twitter:title" content="An Introduction To Oauth2 - P2">
+<meta name="twitter:description" content="本篇文章主要简单介绍OAuth2（开放授权）的四种 grant types 。">
 
 
 
@@ -84,7 +84,7 @@
   };
 </script>
 
-  <title> NetWork Flow Problem - Maximum Flow | Sora </title>
+  <title> An Introduction To Oauth2 - P2 | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +224,7 @@
             
             
               
-                NetWork Flow Problem - Maximum Flow
+                An Introduction To Oauth2 - P2
               
             
           </h1>
@@ -236,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-02-19T20:00:43+08:00" content="2016-02-19">
-              2016-02-19
+            <time itemprop="dateCreated" datetime="2016-03-18T22:10:34+08:00" content="2016-03-18">
+              2016-03-18
             </time>
           </span>
 
@@ -263,35 +263,61 @@
 
       
         <blockquote>
-<p>不只是网络流，很多场景都会涉及到流量问题。这里介绍一种计算流系统中最大流的<br>方法，解法使用Ford-Fulkerson方法的基本思想。</p>
+<p>OAuth defines four grant types: authorization code, implicit, resource owner password credentials, and client credentials</p>
 </blockquote>
-<p>在介绍Ford-Fulkerson方法之前需要先理解几个基本概念：<br>对于一个流网络，该网络由一个源点s、一个汇点t和源点与汇点间的众节点以及各点间的边组成。</p>
-<ul>
-<li><p>网络流<br>网络流有几个性质：</p>
-<ul>
-<li>容量限制<br>设C为每条边的容量，F为每条边的流量。<br>显然 F&lt;=C，一条边的流不超过它自身的容量。</li>
-<li>斜对称<br>假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。</li>
-<li>流量守恒<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Σ <span class="constant">F</span>&lt;v,x&gt; = Σ <span class="constant">F</span>&lt;x,u&gt;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</p>
-</li>
-<li>增广路径<br>增广路径就是残余网络中从源点到汇点的一条简单路径。形象的理解为从s到t存在一条不违反边容量的路径，向这条路径压入流量，可以增加整个网络的流值。</li>
-<li>割<br>这里有一个最大流等于最小割的定理。<br>先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。<br>由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）</li>
-</ul>
-<p>问题的解法思路：</p>
+<p>当然也提供扩展机制，可以自定义 grant types ，不同的流程都有不同的处理细节。<br>在这些流程中会把 Client 角色细分成两类：confidential clients 和 public clients ，主要是根据有没有保密 Client Credentials 来区分，<br>像是 Server 上的应用可以保证 Client Credentials 保密就是 confidential，如 Native App、In-Browser App 等无法保证 Client Credentials 保密<br>的就是 public 。不同角色的 Client 所能使用的 grant type 是不同的，比如 Native App 就不能使用 client credentials grant 。</p>
+<h4 id="Authorization_Code_Grant"><a href="#Authorization_Code_Grant" class="headerlink" title="Authorization Code Grant"></a>Authorization Code Grant</h4><p>Authorization Code Grant Type 允许获取 access tokens 和 refresh tokens 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">             +----------+&#10;             | Resource |&#10;             |   Owner  |&#10;             |          |&#10;             +----------+&#10;                  ^&#10;                  |&#10;                 (B)&#10;             +----|-----+          Client Identifier      +---------------+&#10;             |         -+----(A)-- &#38; Redirection URI ----&#62;|               |&#10;             |  User-   |                                 | Authorization |&#10;             |  Agent  -+----(B)-- User authenticates ---&#62;|     Server    |&#10;             |          |                                 |               |&#10;             |         -+----(C)-- Authorization Code ---&#60;|               |&#10;             +-|----|---+                                 +---------------+&#10;               |    |                                         ^      v&#10;              (A)  (C)                                        |      |&#10;               |    |                                         |      |&#10;               ^    v                                         |      |&#10;             +---------+                                      |      |&#10;             |         |&#62;---(D)-- Authorization Code ---------&#39;      |&#10;             |  Client |          &#38; Redirection URI                  |&#10;             |         |                                             |&#10;             |         |&#60;---(E)----- Access Token -------------------&#39;&#10;             +---------+       (w/ Optional Refresh Token)&#10;&#10;Note: The lines illustrating steps (A), (B), and (C) are broken into&#10;      two parts as they pass through the user-agent.</span><br></pre></td></tr></table></figure>
+<p><em>摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Authorization Code Grant Flow</a></em></p>
 <ol>
-<li>构建有向图</li>
-<li>使用BFS算法找到一条增广路径（假设起初为0）</li>
-<li>找到这条增广路径中限流最小的边</li>
-<li>该增广路径中每条边流量减掉3中最小边流量</li>
-<li>maxflow加3中最小边流量（此路径为有效路径）</li>
-<li>迭代（重复2，3，4，5）</li>
-<li>条件边界：找不到增广路径则退出</li>
+<li><p>首先 Client 把 Resource Owner 的 User-Agent 转到 authorization endpoint ，然后 Authorization Server 验证 Resource Owner 的授权<br>此步骤中 Client 会把 client identifier、申请的 scope、local state 和 redirection URI 一并传给 authorization endpoint。</p>
+</li>
+<li><p>然后 Authorization Server 会把 Resource Owner 的 User-Agent 重定向到 Client 提供的 redirection URI ，同时回传 Authorization Code<br>、许可的 scope 和 local state</p>
+</li>
+<li><p>Client 就可以使用 Authorization Code 去获取 Access Token</p>
+</li>
 </ol>
-<p>上代码：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphTheoryMaxflow</span></span></span><br><span class="line">  <span class="comment"># edge: 边数</span></span><br><span class="line">  <span class="comment"># spot: 交点数</span></span><br><span class="line">  <span class="comment"># graph: 有向图（二维数组）</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(edge, spot, graph)</span></span></span><br><span class="line">    <span class="variable">@graph</span> = graph</span><br><span class="line">    <span class="variable">@edge</span> = edge</span><br><span class="line">    <span class="variable">@spot</span> = spot</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">max_flow</span></span></span><br><span class="line">    max_num = <span class="number">0</span></span><br><span class="line">    rgraph = <span class="variable">@graph</span></span><br><span class="line">    boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> boundary</span><br><span class="line">      min_flow = <span class="number">65535</span>     <span class="comment"># 这里给你个限制的最大值（65535为16位int表示最大值）</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        min_flow = [min_flow, rgraph[u][v]].min</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        rgraph[u][v] -= min_flow</span><br><span class="line">        rgraph[v][u] += min_flow</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      max_num += min_flow</span><br><span class="line">      boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    max_num</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># s: 源点</span></span><br><span class="line">  <span class="comment"># t: 终点</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">augmentation_path</span><span class="params">(rgraph, s, t)</span></span></span><br><span class="line">    path = &#123;&#125;           <span class="comment"># 路径</span></span><br><span class="line">    visited = &#123;&#125;        <span class="comment"># 标记是否访问过点</span></span><br><span class="line">    queue = []          <span class="comment"># 存续bfs中遍历用节点</span></span><br><span class="line"></span><br><span class="line">    queue &lt;&lt; s</span><br><span class="line">    visited[s] = <span class="keyword">true</span></span><br><span class="line">    <span class="comment"># BFS算法找出增广路径</span></span><br><span class="line">    <span class="keyword">while</span> queue.size &gt; <span class="number">0</span></span><br><span class="line">      top = queue.shift</span><br><span class="line">      (<span class="number">0</span>..<span class="variable">@spot</span>-<span class="number">1</span>).each <span class="keyword">do</span> |i|</span><br><span class="line">        <span class="keyword">if</span> visited[i] != <span class="keyword">true</span> &amp;&amp; rgraph[top][i] &gt; <span class="number">0</span></span><br><span class="line">          path[i] = top</span><br><span class="line">          visited[i] = <span class="keyword">true</span></span><br><span class="line">          queue &lt;&lt; i</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      puts path</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># 此路径是否是通路</span></span><br><span class="line">    [visited[t] == <span class="keyword">true</span>, path]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># graph = [</span></span><br><span class="line"><span class="comment">#   [0, 40, 0, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 30, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 10],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 0]</span></span><br><span class="line"><span class="comment"># ]</span></span><br><span class="line"><span class="comment"># gtm = GraphTheoryMaxflow.new(5, 4, graph)</span></span><br><span class="line"><span class="comment"># gtm.max_flow</span></span><br></pre></td></tr></table></figure>
+<p><em>Note: 上述中的 User-Agent 通常是 web browser</em></p>
+<p>这个流程非常适合 confidential clients 类型的 Client 使用，并且支持 Refresh Token 。</p>
+<p>需要注意的是上边 Authorization Code 的设计：这个 code 应该是有有效期的，并且应该是单次使用有效的，如多次使用 Authorization Server 应可以失效掉<br>之前发放的 Access Token ，建议绑定 code、Client 和 redirection URI 三者的关系。</p>
+<p>另外为了防止恶意篡改 Redirection URI 来欺骗 Authorization Server 错误的发放 Access Token 给未经认证及授权的 Client， Authorization Server<br>应该要求 Client 预设 Redirection URIs ，并在之后的请求中验证 Redirection URI 的一致性。</p>
+<h4 id="Implicit_Grant"><a href="#Implicit_Grant" class="headerlink" title="Implicit Grant"></a>Implicit Grant</h4><p>上面 Authorization Code Grant Type 会先返回一个 Authorization Code 给 Client ，然后 Client 使用这个 code 去获取 Access Token ，而<br>Implicit Grant Type 会在授权通过后直接把 Access Token 附加在 Redirection URI 中返回给 User-Agent 。而且 Implicit Grant 是不支持发放<br>Refresh Token 的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+----------+&#10;| Resource |&#10;|  Owner   |&#10;|          |&#10;+----------+&#10;     ^&#10;     |&#10;    (B)&#10;+----|-----+          Client Identifier     +---------------+&#10;|         -+----(A)-- &#38; Redirection URI ---&#62;|               |&#10;|  User-   |                                | Authorization |&#10;|  Agent  -|----(B)-- User authenticates --&#62;|     Server    |&#10;|          |                                |               |&#10;|          |&#60;---(C)--- Redirection URI ----&#60;|               |&#10;|          |          with Access Token     +---------------+&#10;|          |            in Fragment&#10;|          |                                +---------------+&#10;|          |----(D)--- Redirection URI ----&#62;|   Web-Hosted  |&#10;|          |          without Fragment      |     Client    |&#10;|          |                                |    Resource   |&#10;|     (F)  |&#60;---(E)------- Script ---------&#60;|               |&#10;|          |                                +---------------+&#10;+-|--------+&#10;  |    |&#10; (A)  (G) Access Token&#10;  |    |&#10;  ^    v&#10;+---------+&#10;|         |&#10;|  Client |&#10;|         |&#10;+---------+</span><br></pre></td></tr></table></figure>
+<p><em>摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Implicit Grant Flow</a></em></p>
+<ol>
+<li><p>第一步与 Authorization Code Grant 是一样的， Client 把 Resource Owner 的 User-Agent 转到 authorization endpoint ，然后 Authorization Server 验证 Resource Owner 的授权。</p>
+</li>
+<li><p>然后 Authorization Server 会把 Resource Owner 的 User-Agent 重定向到 Client 提供的 redirection URI ，其中会把 Access Token 放到 Fragment 中一起返回。</p>
+</li>
+<li><p>在之后 User-Agent 会依照转址指令去请求 web-hosted client resource ，web-hosted client resource 会回传一个网页（通常是一个嵌入了一段 script 的 html 页面），这个页面会拿到完整的包括 Fragment 信息的 redirection URI ，然后解出 Access Token。</p>
+</li>
+<li><p>User-Agent 将解出的 Access Token 返回给 Client。</p>
+</li>
+</ol>
+<p>这个流程适用于 public client ，同时因为 Access Token 是直接包含在 redirection URI 中的，故 Resource Owner 可以看到 Access Token ，并且其他可以存取<br>User-Agent的应用都可以看到 Access Token 。</p>
+<p>关于 Fragment 可以看下这篇文章<a href="https://blog.httpwatch.com/2011/03/01/6-things-you-should-know-about-fragment-urls/" target="_blank" rel="external">6 Things You Should Know About Fragment URLs</a></p>
+<blockquote>
+<p>题外话: 关于 HTTP redirect 301 302</p>
+<p>Status 301 means that the resource (page) is moved permanently to a new location. The client/browser should not attempt to request the original location but use the new location from now on.</p>
+<p>Status 302 means that the resource is temporarily located somewhere else, and the client/browser should continue requesting the original url.</p>
+<p>以上是在 stackoverflow 上看到的一个解释，说的清晰明了简单粗暴</p>
+</blockquote>
+<h4 id="Resource_Owner_Password_Credentials_Grant"><a href="#Resource_Owner_Password_Credentials_Grant" class="headerlink" title="Resource Owner Password Credentials Grant"></a>Resource Owner Password Credentials Grant</h4><p>在 Resource Owner Password Credentials Grant 流程中， Client 会直接去向 Resource Owner 索取账户密码，然后在凭借得到的账户密码去获取 Access Token。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+----------+&#10;| Resource |&#10;|  Owner   |&#10;|          |&#10;+----------+&#10;     v&#10;     |    Resource Owner&#10;    (A) Password Credentials&#10;     |&#10;     v&#10;+---------+                                  +---------------+&#10;|         |&#62;--(B)---- Resource Owner -------&#62;|               |&#10;|         |         Password Credentials     | Authorization |&#10;| Client  |                                  |     Server    |&#10;|         |&#60;--(C)---- Access Token ---------&#60;|               |&#10;|         |    (w/ Optional Refresh Token)   |               |&#10;+---------+                                  +---------------+</span><br></pre></td></tr></table></figure>
+<p><em>摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Resource Owner Password Credentials Grant</a></em></p>
+<ol>
+<li>首先 Client 会向 Resource Owner 请求账户密码信息。</li>
+<li>然后 Client 通过 Resource Owner 的账户密码信息去 Authorization Server 获取 Access Token</li>
+</ol>
+<p>Resource Owner Password Credentials Grant 是支持发放 Refresh Token 的。</p>
+<p>在此流程中， Client 会去直接获取 Resource Owner 的账户密码信息，Resource Owner 将无法控制授权权限以及范围。<br>Spec中规定， Client 不能存储 Resource Owner 的账户密码信息，再获取到 Access Token 和 Refresh Token 后<br>应该用其替换之。</p>
+<p>应尽量不使用此流程！</p>
+<h4 id="Client_Credentials_Grant"><a href="#Client_Credentials_Grant" class="headerlink" title="Client Credentials Grant"></a>Client Credentials Grant</h4><p>此流程中， Client 仅使用 client credentials 向 Authorization Server 请求 Access Token 。<br>这其实和之前的文章里提到的 API KEY 形式非常相似。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+---------+                                  +---------------+&#10;|         |                                  |               |&#10;|         |&#62;--(A)- Client Authentication ---&#62;| Authorization |&#10;| Client  |                                  |     Server    |&#10;|         |&#60;--(B)---- Access Token ---------&#60;|               |&#10;|         |                                  |               |&#10;+---------+                                  +---------------+</span><br></pre></td></tr></table></figure>
+<p><em>摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Client Credentials Grant</a></em></p>
+<p>从流程中可以看出， Client自己就相当于 Resource Owner ，它可以通过 Authorization Server 颁发的凭证来获取资源。</p>
+<p><br><br><br><br>四种内建流程先介绍到这里，更加详细的资料可以到 RFC 的文档中查看。<br>同时还有关于实做时关于钓鱼攻击、CSRF 以及 Clickjacking 等恶意攻击的防范。</p>
+
       
     </div>
 
@@ -299,9 +325,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
-          
-            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+            <a href="/tags/Security/" rel="tag">#Security</a>
           
         </div>
       
@@ -310,16 +334,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/28/Qiniu-Video-Audio-Processing/" rel="next" title="qiniu 音视频处理">
-                <i class="fa fa-chevron-left"></i> qiniu 音视频处理
+              <a href="/2016/03/12/An-Introduction-To-Oauth2-P1/" rel="next" title="An Introduction To OAuth2 - P1">
+                <i class="fa fa-chevron-left"></i> An Introduction To OAuth2 - P1
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="prev" title="Mongoid 使用总结之一些查询方法">
-                Mongoid 使用总结之一些查询方法 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/03/24/Grasp-Of-Mysql-Index/" rel="prev" title="浅谈MySQL联合索引">
+                浅谈MySQL联合索引 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -431,7 +455,7 @@
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Authorization_Code_Grant"><span class="nav-number">1.</span> <span class="nav-text">Authorization Code Grant</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Implicit_Grant"><span class="nav-number">2.</span> <span class="nav-text">Implicit Grant</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Resource_Owner_Password_Credentials_Grant"><span class="nav-number">3.</span> <span class="nav-text">Resource Owner Password Credentials Grant</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Client_Credentials_Grant"><span class="nav-number">4.</span> <span class="nav-text">Client Credentials Grant</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
