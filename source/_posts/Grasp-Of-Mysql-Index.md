@@ -4,6 +4,7 @@ date: 2016-03-24 17:40:10
 tags:
 - db
 - MySQL
+description: 本篇文章主要介绍MySQL的联合索引。
 ---
 
 > MySQL 提供 MyISAM 、 InnoDB 、 memory(heap) 等多种存储引擎。每种存储引擎对于索引的支持以及实现都不尽相同，
