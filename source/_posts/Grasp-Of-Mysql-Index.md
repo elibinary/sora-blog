@@ -1,5 +1,5 @@
 ---
-title: Grasp-Of-Mysql-Index
+title: 浅谈MySQL联合索引
 date: 2016-03-24 17:40:10
 tags:
 - db
