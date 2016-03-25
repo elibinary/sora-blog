@@ -4,11 +4,11 @@ date: 2016-03-24 17:40:10
 tags:
 - db
 - MySQL
-description: 本篇文章主要介绍MySQL的联合索引。
+description: 本文主要讨论 InnoDB 引擎相关的索引应用。
 ---
 
 > MySQL 提供 MyISAM 、 InnoDB 、 memory(heap) 等多种存储引擎。每种存储引擎对于索引的支持以及实现都不尽相同，
-> 本文主要讨论 InnoDB 引擎相关的复合索引应用。
+> 本文主要讨论 InnoDB 引擎相关的联合索引应用。
 
 #### 为何使用索引
 
@@ -34,7 +34,7 @@ description: 本篇文章主要介绍MySQL的联合索引。
 
 * <，<=，=，>，>=，BETWEEN，IN 可用到索引，<>，not in ，!= 则不行
 
-* like ”%xxxx%” 是可以用到索引的，like "%xxxx" 则不行(like "%xxx%" 同理)
+* like "xxxx%" 是可以用到索引的，like "%xxxx" 则不行(like "%xxx%" 同理)
 
 * NULL会使索引的效果大打折扣
 
@@ -206,7 +206,7 @@ Index Selectivity = Cardinality / Count
 ```
 
 显然选择性的取值范围为(0, 1]，选择性越高的索引价值越大。
-比例越大我们扫描的记录数越少，唯一键的区分度是1，而一些状态、性别字段可能在大数据面前区分度就是0
+比例越大我们扫描的记录数越少，唯一键的区分度是1，而一些状态、性别字段可能在大数据面前区分度就趋近于0
 
 ```
 select count(distinct(rname))/count(*) as selectivity from users;
