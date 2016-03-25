@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="本篇文章主要介绍MySQL的联合索引。">
+<meta name="description" content="本文主要讨论 InnoDB 引擎相关的索引应用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅谈MySQL联合索引">
 <meta property="og:url" content="http://elibinary.com/2016/03/24/Grasp-Of-Mysql-Index/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="本篇文章主要介绍MySQL的联合索引。">
-<meta property="og:updated_time" content="2016-03-24T06:22:27.000Z">
+<meta property="og:description" content="本文主要讨论 InnoDB 引擎相关的索引应用。">
+<meta property="og:updated_time" content="2016-03-25T00:56:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈MySQL联合索引">
-<meta name="twitter:description" content="本篇文章主要介绍MySQL的联合索引。">
+<meta name="twitter:description" content="本文主要讨论 InnoDB 引擎相关的索引应用。">
 
 
 
@@ -263,7 +263,7 @@
 
       
         <blockquote>
-<p>MySQL 提供 MyISAM 、 InnoDB 、 memory(heap) 等多种存储引擎。每种存储引擎对于索引的支持以及实现都不尽相同，<br>本文主要讨论 InnoDB 引擎相关的复合索引应用。</p>
+<p>MySQL 提供 MyISAM 、 InnoDB 、 memory(heap) 等多种存储引擎。每种存储引擎对于索引的支持以及实现都不尽相同，<br>本文主要讨论 InnoDB 引擎相关的联合索引应用。</p>
 </blockquote>
 <h4 id="u4E3A_u4F55_u4F7F_u7528_u7D22_u5F15"><a href="#u4E3A_u4F55_u4F7F_u7528_u7D22_u5F15" class="headerlink" title="为何使用索引"></a>为何使用索引</h4><p>索引用于快速找出在某个列中有一特定值的行。在查询时如果没有应用索引，MySQL 将不得不扫描表以找出符合条件的数据项，我们知道，IO操作是非常耗时的。</p>
 <h4 id="u5EFA_u7ACB_u7D22_u5F15_u7684_u51E0_u4E2A_u539F_u5219"><a href="#u5EFA_u7ACB_u7D22_u5F15_u7684_u51E0_u4E2A_u539F_u5219" class="headerlink" title="建立索引的几个原则"></a>建立索引的几个原则</h4><ul>
@@ -285,7 +285,7 @@
 </li>
 <li><p>&lt;，&lt;=，=，&gt;，&gt;=，BETWEEN，IN 可用到索引，&lt;&gt;，not in ，!= 则不行</p>
 </li>
-<li><p>like ”%xxxx%” 是可以用到索引的，like “%xxxx” 则不行(like “%xxx%” 同理)</p>
+<li><p>like “xxxx%” 是可以用到索引的，like “%xxxx” 则不行(like “%xxx%” 同理)</p>
 </li>
 <li><p>NULL会使索引的效果大打折扣</p>
 </li>
@@ -326,7 +326,7 @@
 <p>当查询条件中出现函数或表达式时，将不能应用索引。写查询语句时要尽量避免表达式和函数的出现。</p>
 <h4 id="u6307_u5BFC_u6027_u5EFA_u8BAE"><a href="#u6307_u5BFC_u6027_u5EFA_u8BAE" class="headerlink" title="指导性建议"></a>指导性建议</h4><p>建议在选择性高的列上建立索引，所谓索引的选择性，是指不重复的索引值与表记录数的比值：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Index Selectivity = Cardinality / Count</span><br></pre></td></tr></table></figure>
-<p>显然选择性的取值范围为(0, 1]，选择性越高的索引价值越大。<br>比例越大我们扫描的记录数越少，唯一键的区分度是1，而一些状态、性别字段可能在大数据面前区分度就是0</p>
+<p>显然选择性的取值范围为(0, 1]，选择性越高的索引价值越大。<br>比例越大我们扫描的记录数越少，唯一键的区分度是1，而一些状态、性别字段可能在大数据面前区分度就趋近于0</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select count(distinct(rname))/count(*) as selectivity from users;&#10;&#10;+-------------+&#10;| selectivity |&#10;+-------------+&#10;|      0.9333 |&#10;+-------------+</span><br></pre></td></tr></table></figure>
 <p>有一种与索引选择性有关的索引优化策略叫做前缀索引，就是用列的前缀代替整个列作为索引key，当前缀长度合适时，可以做到既使得前缀索引的选择性接近全列索引，同时因为索引key变短而减少了索引文件的大小和维护开销。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select count(distinct(left(rname, 3)))/count(*) as selectivity from users;&#10;&#10;+-------------+&#10;| selectivity |&#10;+-------------+&#10;|      0.7333 |&#10;+-------------+&#10;&#10;select count(distinct(left(rname, 5)))/count(*) as selectivity from users;&#10;&#10;+-------------+&#10;| selectivity |&#10;+-------------+&#10;|      0.9333 |&#10;+-------------+</span><br></pre></td></tr></table></figure>
