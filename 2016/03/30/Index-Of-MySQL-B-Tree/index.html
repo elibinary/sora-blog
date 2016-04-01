@@ -64,7 +64,15 @@
 <meta property="og:site_name" content="Sora">
 <meta property="og:description" content="本文主要讨论树形结构与MySQL索引之间那些事">
 <meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/b-tree-1.png">
-<meta property="og:updated_time" content="2016-04-01T08:09:22.000Z">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-1.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-2.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-3.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-4.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-1.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-2.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-3.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-4.png">
+<meta property="og:updated_time" content="2016-04-01T09:20:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL索引与B-Tree">
 <meta name="twitter:description" content="本文主要讨论树形结构与MySQL索引之间那些事">
@@ -298,52 +306,46 @@
 <p>我们知道，在一个有序序列中进行插入操作简直是个灾难，我们不但要给插入对象制造空间，还要对后续对象进行移位。</p>
 <p><strong>接下来来看一下 B-Tree 的插入过程（B-Tree是从叶子节点进行插入的）</strong></p>
 <p>我们拿一颗5阶树做例子，这样每个节点最多有5个孩子，同理每个节点最多就只能有4个关键字：</p>
-<blockquote>
-<p>图（10，1，5，8，12，20，24）</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-1.png" alt="5-B-Tree-1"><br></div>
+
 <ul>
 <li>例如插入16，发现节点空间是足够的（小于4），直接插入就行了</li>
 </ul>
-<blockquote>
-<p>图（插入前后）</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-2.png" alt="5-B-Tree-2"><br></div>
+
 <ul>
 <li>再插入18，发现节点空间已经满了（等于4），这时就需要进行分裂操作，将一半数量的关键字元素分裂到新的其相邻右节点中，中间关键字元素上移到父节点中，并移动相关指针。<br>插入时，发现空间不够所以将节点分裂为两个节点并将中间关键字18上移到父节点，关键字12、16留在当前节点，关键字20、24右移组成新节点。</li>
 </ul>
-<blockquote>
-<p>图（插入前后）</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-3.png" alt="5-B-Tree-3"><br></div>
+
+
 <ul>
 <li>那如果根节点满了怎么处理呢，根节点满了的话也要进行分裂操作，同时中间关键字元素向上移动形成新的根节点，这时树的高度就会增加。<br>如下图，如果我们要插入35，发现节点[29，31，33，36]已经满了，对此节点进行分裂操作并把中间关键字元素33向上移入上级节点，这时发现上级节点也满了，<br>故对上级节点进行分裂，把中间关键字元素33向上移动形成新的根节点，树的高度增加1。</li>
 </ul>
-<blockquote>
-<p>图（插入前后）</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-4.png" alt="5-B-Tree-4"><br></div>
+
+
 <p><strong>那么删除操作：</strong></p>
 <ul>
 <li>例如删除41，通过查找发现该元素并没有左右孩子节点，直接删除即可，删除后其后的43、45依次向前移位</li>
 </ul>
-<blockquote>
-<p>图</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-1.png" alt="5-B-Tree-del-1"><br></div>
+
 <ul>
 <li>那如果删除52，通过查找发现有左右孩子节点，则上移左孩子最右边的节点或右孩子最左边的节点（看其孩子结点是否丰满，也就是节点中元素个数大于ceil(m/2)-1）<br>到父节点中，移动后其孩子节点中元素个数大于ceil(m/2)-1，操作结束</li>
 </ul>
-<blockquote>
-<p>图</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-2.png" alt="5-B-Tree-del-2"><br></div>
+
 <ul>
 <li>删除36，删除后发现节点只剩一个关键字元素，这不符合 “每个节点至少有[ceil(m / 2)]个孩子” 的规则，将从相邻兄弟节点中比较丰满的节点来处理，<br>先从父节点下移一个元素，然后将最丰满的相邻兄弟结点中上移最后或最前一个元素到父节点中。那么在这里的处理就是先移除36，然后发现节点[41,43,45]是丰满的，<br>从父节点下移元素39，然后上移41进入父节点。</li>
 </ul>
-<blockquote>
-<p>图</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-3.png" alt="5-B-Tree-del-3"><br></div>
+
 <ul>
 <li>删除非叶子结点中的28，有左右孩子节点，故上移孩子节点中的29进入父节点，然后发现移动后子节点只剩一个元素，而兄弟节点都不丰满所以只能进行合并操作，<br>将[12,14]节点与[31]节点合并形成节点[12,14,29,31]，这时父节点[10]只剩一个元素，然后查看发现其兄弟节点[39,52]不丰满只能进行合并操作，<br>父节点合并形成新的根节点[10,33,39,52]，同时树的高度减1。</li>
 </ul>
-<blockquote>
-<p>图</p>
-</blockquote>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/5-B-Tree-del-4.png" alt="5-B-Tree-del-4"><br></div>
+
 <p>B-Tree 的特点：</p>
 <ul>
 <li>保持键值有序，以顺序遍历</li>
