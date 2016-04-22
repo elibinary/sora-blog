@@ -74,6 +74,10 @@ pagination_dir: page
 ## Themes: http://hexo.io/themes/
 theme: next
 
+duoshuo_shortname: sooraa
+# disqus_shortname: your-disqus-shortname
+
+
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
