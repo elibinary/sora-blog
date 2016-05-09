@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Algorithm,Ruby," />
+  <meta name="keywords" content="db," />
 
 
 
@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="description" content="本篇简单介绍Hash索引">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NetWork Flow Problem - Maximum Flow">
-<meta property="og:url" content="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/index.html">
+<meta property="og:title" content="Hash Index">
+<meta property="og:url" content="http://elibinary.com/2016/05/07/Hash-Index/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
-<meta property="og:updated_time" content="2016-02-19T07:56:47.000Z">
+<meta property="og:description" content="本篇简单介绍Hash索引">
+<meta property="og:updated_time" content="2016-05-09T01:25:02.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NetWork Flow Problem - Maximum Flow">
-<meta name="twitter:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="twitter:title" content="Hash Index">
+<meta name="twitter:description" content="本篇简单介绍Hash索引">
 
 
 
@@ -84,7 +84,7 @@
   };
 </script>
 
-  <title> NetWork Flow Problem - Maximum Flow | Sora </title>
+  <title> Hash Index | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +224,7 @@
             
             
               
-                NetWork Flow Problem - Maximum Flow
+                Hash Index
               
             
           </h1>
@@ -236,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-02-19T20:00:43+08:00" content="2016-02-19">
-              2016-02-19
+            <time itemprop="dateCreated" datetime="2016-05-07T17:11:37+08:00" content="2016-05-07">
+              2016-05-07
             </time>
           </span>
 
@@ -247,8 +247,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/19/NetWork-Flow-Problem-Maximum-Flow/" itemprop="commentsCount"></span>
+                <a href="/2016/05/07/Hash-Index/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/07/Hash-Index/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -269,36 +269,48 @@
       
 
       
-        <blockquote>
-<p>不只是网络流，很多场景都会涉及到流量问题。这里介绍一种计算流系统中最大流的<br>方法，解法使用Ford-Fulkerson方法的基本思想。</p>
-</blockquote>
-<p>在介绍Ford-Fulkerson方法之前需要先理解几个基本概念：<br>对于一个流网络，该网络由一个源点s、一个汇点t和源点与汇点间的众节点以及各点间的边组成。</p>
-<ul>
-<li><p>网络流<br>网络流有几个性质：</p>
-<ul>
-<li>容量限制<br>设C为每条边的容量，F为每条边的流量。<br>显然 F&lt;=C，一条边的流不超过它自身的容量。</li>
-<li>斜对称<br>假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。</li>
-<li>流量守恒<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Σ <span class="constant">F</span>&lt;v,x&gt; = Σ <span class="constant">F</span>&lt;x,u&gt;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</p>
-</li>
-<li>增广路径<br>增广路径就是残余网络中从源点到汇点的一条简单路径。形象的理解为从s到t存在一条不违反边容量的路径，向这条路径压入流量，可以增加整个网络的流值。</li>
-<li>割<br>这里有一个最大流等于最小割的定理。<br>先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。<br>由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）</li>
-</ul>
-<p>问题的解法思路：</p>
+        <h4 id="u6563_u5217_u8868"><a href="#u6563_u5217_u8868" class="headerlink" title="散列表"></a>散列表</h4><p>散列表就是根据关键字不需比较便可直接取得所查记录在内存存储位置的数据结构。</p>
+<p>一般来说对于一个关键字k，使用一个对应关系f(k)将其映射到表中一个位置，因此下次再拿关键字k来查询时，可以使用对应关系f(x)直接到指定位置去获取其存储值而无需进行比较。这个对应关系f(x)就是散列函数。</p>
+<p>散列函数把消息或数据压缩成摘要，使得数据量变小，将数据的格式固定下来重新创建一个叫做散列值的指纹。<br>对于散列函数有几个性质：</p>
 <ol>
-<li>构建有向图</li>
-<li>使用BFS算法找到一条增广路径（假设起初为0）</li>
-<li>找到这条增广路径中限流最小的边</li>
-<li>该增广路径中每条边流量减掉3中最小边流量</li>
-<li>maxflow加3中最小边流量（此路径为有效路径）</li>
-<li>迭代（重复2，3，4，5）</li>
-<li>条件边界：找不到增广路径则退出</li>
+<li>对于一个散列函数，如果散列值是不相同的，那么这散列值的原始输入也是不相同的</li>
+<li>散列函数的输入和输出不是唯一对应关系的，如果两个散列值相同，两个输入值很可能是相同的，但也可能不同，这种情况称为哈希碰撞。</li>
+<li>散列函数是不可逆的，也就是说对于给定的散列值，没有实用的方法可以计算出一个原始输入</li>
 </ol>
-<p>上代码：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphTheoryMaxflow</span></span></span><br><span class="line">  <span class="comment"># edge: 边数</span></span><br><span class="line">  <span class="comment"># spot: 交点数</span></span><br><span class="line">  <span class="comment"># graph: 有向图（二维数组）</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(edge, spot, graph)</span></span></span><br><span class="line">    <span class="variable">@graph</span> = graph</span><br><span class="line">    <span class="variable">@edge</span> = edge</span><br><span class="line">    <span class="variable">@spot</span> = spot</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">max_flow</span></span></span><br><span class="line">    max_num = <span class="number">0</span></span><br><span class="line">    rgraph = <span class="variable">@graph</span></span><br><span class="line">    boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> boundary</span><br><span class="line">      min_flow = <span class="number">65535</span>     <span class="comment"># 这里给你个限制的最大值（65535为16位int表示最大值）</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        min_flow = [min_flow, rgraph[u][v]].min</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        rgraph[u][v] -= min_flow</span><br><span class="line">        rgraph[v][u] += min_flow</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      max_num += min_flow</span><br><span class="line">      boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    max_num</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># s: 源点</span></span><br><span class="line">  <span class="comment"># t: 终点</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">augmentation_path</span><span class="params">(rgraph, s, t)</span></span></span><br><span class="line">    path = &#123;&#125;           <span class="comment"># 路径</span></span><br><span class="line">    visited = &#123;&#125;        <span class="comment"># 标记是否访问过点</span></span><br><span class="line">    queue = []          <span class="comment"># 存续bfs中遍历用节点</span></span><br><span class="line"></span><br><span class="line">    queue &lt;&lt; s</span><br><span class="line">    visited[s] = <span class="keyword">true</span></span><br><span class="line">    <span class="comment"># BFS算法找出增广路径</span></span><br><span class="line">    <span class="keyword">while</span> queue.size &gt; <span class="number">0</span></span><br><span class="line">      top = queue.shift</span><br><span class="line">      (<span class="number">0</span>..<span class="variable">@spot</span>-<span class="number">1</span>).each <span class="keyword">do</span> |i|</span><br><span class="line">        <span class="keyword">if</span> visited[i] != <span class="keyword">true</span> &amp;&amp; rgraph[top][i] &gt; <span class="number">0</span></span><br><span class="line">          path[i] = top</span><br><span class="line">          visited[i] = <span class="keyword">true</span></span><br><span class="line">          queue &lt;&lt; i</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      puts path</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># 此路径是否是通路</span></span><br><span class="line">    [visited[t] == <span class="keyword">true</span>, path]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># graph = [</span></span><br><span class="line"><span class="comment">#   [0, 40, 0, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 30, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 10],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 0]</span></span><br><span class="line"><span class="comment"># ]</span></span><br><span class="line"><span class="comment"># gtm = GraphTheoryMaxflow.new(5, 4, graph)</span></span><br><span class="line"><span class="comment"># gtm.max_flow</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>典型的散列函数都有非常大的定义域，比如SHA-2最高接受(2^64-1)/8长度的字节字符串。</p>
+</blockquote>
+<p>先介绍一下填充因子的概念：</p>
+<p>其定义为：a = 填入表中的元素个数 / 散列表的长度</p>
+<p>a是散列表装满程度的标志因子。由于表长是定值，a与“填入表中的元素个数”成正比，所以，a越大，表明填入表中的元素越多，产生冲突的可能性就越大；反之，a越小，标明填入表中的元素越少，产生冲突的可能性就越小。(摘自wiki)</p>
+<p>对不同的关键字可能得到同一散列地址现象称为冲突，也就是碰撞。把每个关键字映射到唯一的索引上的理想散列函数几乎是不存在的，我们需要对碰撞做处理，这里介绍两个常用的方法：</p>
+<ol>
+<li><p>开放定址法，其中心思想就是如果根据散列函数f(x)得到的散列值发生碰撞，那么就在此值的基础上根据一定算法再计算得到一个新的位置，如果新的位置也碰撞就再根据上面的算法再计算知道找到可用的散列值为止。根据探测的策略不同有如下分类</p>
+<ul>
+<li>线性探测法，就相当于逐个的探测表中地址，知道找到可用的地址，如果探测一遍都找不到可用地址则此次插入失败，这种做法实现简单但相对的容易产生数据的堆聚现象</li>
+<li>平方探测法，将线性探测的步长改为冲突次数的平方数进行探测</li>
+<li>随机探测法，将线性探测的步长改为随机数，这样能使不同的关键字具有不同的探测次序，从而可以减少堆聚现象</li>
+</ul>
+</li>
+<li><p>拉链法，其中心思想是将所有散列值相等的关键字值存到一个单链表中，然后散列表中结点存储一个指向该链表的指针。</p>
+</li>
+</ol>
+<h4 id="Hash_u7D22_u5F15"><a href="#Hash_u7D22_u5F15" class="headerlink" title="Hash索引"></a>Hash索引</h4><p>Hash索引是基于Hash表（散列表）实现的，只有精确匹配索引的所有列的查询才是有效的。因为实现基于散列表，存储引擎会对每个索引值计算一个散列值，索引结构中最终存储其散列值以及指向数据行的指针。</p>
+<p>我们知道Hash查找速度是很快的，但是也有其缺点：</p>
+<ol>
+<li>不能利用覆盖索引，由于Hash索引只存储散列值和索引，而不存储字段的真实值，也就没有办法只通过检索索引结构就得到返回值，必须进行行读取操作才能拿到目标值。</li>
+<li>Hash索引也不支持部分索引列匹配查找，因为Hash索引是用全部索引列作为关键字来计算散列值的。单单只使用部分索引列的查询是无法通过散列函数计算出正确的目的值。</li>
+<li>Hash索引只支持等值比较，不支持任何范围查询</li>
+<li>Hash索引无法用于排序，因为Hash索引数据并不是有序的</li>
+<li>在有很多Hash碰撞的情况下，一些索引维护操作的代价将会很高。</li>
+<li>在有很多Hash碰撞的情况下，查询效率也会有所降低</li>
+</ol>
+<p>以MySQL的Memory引擎为例，Memory引擎默认索引类型就是Hash索引，同时也是支持B-Tree索引的，它在处理碰撞的时候，使用的是拉链法，它会把散列值相同的索引以链表的形式挂在Hash表条目后。</p>
+<p><strong> 我们回忆下链表的结构 </strong></p>
+<p>链表是一种线性表，但不是按线性的顺序存储数据，而是在每一个节点里存到下一个节点的指针。相对于顺序表而言，链表对于插入删除操作有着非常高的效率，其时间复杂度为O(1)的复杂度，缺点是查找操作需要O(n)的时间。顺序表的插入更新删除时间复杂度是O(logn)，但是每次插入更新删除操作都会涉及到大量元素的移动。</p>
+<p>接着来看Memory引擎的Hash索引，它使用拉链法处理碰撞。当碰撞很多时，其后挂链表就会变得很长，而链表对于查找的时间复杂为O(n)，也就是说随着碰撞的增多，其查询效率会显著降低。</p>
+<p>也有算法实现采用把后挂链表改为挂载一颗平衡二叉查找树来提高其查询效率，有兴趣的可以去看看具体思想和实现。</p>
+
       
     </div>
 
@@ -306,9 +318,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
-          
-            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+            <a href="/tags/db/" rel="tag">#db</a>
           
         </div>
       
@@ -317,17 +327,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/28/Qiniu-Video-Audio-Processing/" rel="next" title="qiniu 音视频处理">
-                <i class="fa fa-chevron-left"></i> qiniu 音视频处理
+              <a href="/2016/04/14/Rails-Initialization-1/" rel="next" title="Rails Initialization - Briefing">
+                <i class="fa fa-chevron-left"></i> Rails Initialization - Briefing
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="prev" title="Mongoid 使用总结之一些查询方法">
-                Mongoid 使用总结之一些查询方法 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -353,8 +359,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/02/19/NetWork-Flow-Problem-Maximum-Flow/"
-           data-title="NetWork Flow Problem - Maximum Flow" data-url="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/">
+      <div class="ds-thread" data-thread-key="2016/05/07/Hash-Index/"
+           data-title="Hash Index" data-url="http://elibinary.com/2016/05/07/Hash-Index/">
       </div>
     
   </div>
@@ -442,7 +448,7 @@
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#u6563_u5217_u8868"><span class="nav-number">1.</span> <span class="nav-text">散列表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Hash_u7D22_u5F15"><span class="nav-number">2.</span> <span class="nav-text">Hash索引</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
