@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Algorithm,Ruby," />
+  <meta name="keywords" content="Algorithm," />
 
 
 
@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="description" content="本篇简单介绍下贪心算法和模拟退火。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NetWork Flow Problem - Maximum Flow">
-<meta property="og:url" content="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/index.html">
+<meta property="og:title" content="Greedy-And-Annealing">
+<meta property="og:url" content="http://elibinary.com/2016/04/09/Greedy-And-Annealing/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
-<meta property="og:updated_time" content="2016-02-19T07:56:47.000Z">
+<meta property="og:description" content="本篇简单介绍下贪心算法和模拟退火。">
+<meta property="og:updated_time" content="2016-05-09T05:20:44.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NetWork Flow Problem - Maximum Flow">
-<meta name="twitter:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="twitter:title" content="Greedy-And-Annealing">
+<meta name="twitter:description" content="本篇简单介绍下贪心算法和模拟退火。">
 
 
 
@@ -84,7 +84,7 @@
   };
 </script>
 
-  <title> NetWork Flow Problem - Maximum Flow | Sora </title>
+  <title> Greedy-And-Annealing | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +224,7 @@
             
             
               
-                NetWork Flow Problem - Maximum Flow
+                Greedy-And-Annealing
               
             
           </h1>
@@ -236,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-02-19T20:00:43+08:00" content="2016-02-19">
-              2016-02-19
+            <time itemprop="dateCreated" datetime="2016-04-09T13:19:51+08:00" content="2016-04-09">
+              2016-04-09
             </time>
           </span>
 
@@ -247,8 +247,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/19/NetWork-Flow-Problem-Maximum-Flow/" itemprop="commentsCount"></span>
+                <a href="/2016/04/09/Greedy-And-Annealing/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/09/Greedy-And-Annealing/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -269,36 +269,45 @@
       
 
       
-        <blockquote>
-<p>不只是网络流，很多场景都会涉及到流量问题。这里介绍一种计算流系统中最大流的<br>方法，解法使用Ford-Fulkerson方法的基本思想。</p>
+        <h4 id="u8D2A_u5FC3"><a href="#u8D2A_u5FC3" class="headerlink" title="贪心"></a>贪心</h4><blockquote>
+<p>所谓贪心算法即是在每次做选择是总是选择当前最优的选择，以期望获得最终的最优解<br>在做出选择的时候不会去考虑整体最优的情况，所以并不能总是得出问题的最优解。</p>
 </blockquote>
-<p>在介绍Ford-Fulkerson方法之前需要先理解几个基本概念：<br>对于一个流网络，该网络由一个源点s、一个汇点t和源点与汇点间的众节点以及各点间的边组成。</p>
 <ul>
-<li><p>网络流<br>网络流有几个性质：</p>
+<li>最优子结构</li>
+</ul>
+<p>先来看几个概念，什么是最优子结构呢，所谓最优子结构即如果问题的最优解所包含的子问题的解也是最优的，我们就称该问题具有最优子结构性质，也称此问题满足最优性原理。而一个问题是否拥有最优子结构是该问题是否能用动态规划和贪心算法的重要指标。</p>
 <ul>
-<li>容量限制<br>设C为每条边的容量，F为每条边的流量。<br>显然 F&lt;=C，一条边的流不超过它自身的容量。</li>
-<li>斜对称<br>假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。</li>
-<li>流量守恒<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Σ <span class="constant">F</span>&lt;v,x&gt; = Σ <span class="constant">F</span>&lt;x,u&gt;</span><br></pre></td></tr></table></figure>
-</li>
+<li>贪心选择性质</li>
 </ul>
-</li>
-<li><p>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</p>
-</li>
-<li>增广路径<br>增广路径就是残余网络中从源点到汇点的一条简单路径。形象的理解为从s到t存在一条不违反边容量的路径，向这条路径压入流量，可以增加整个网络的流值。</li>
-<li>割<br>这里有一个最大流等于最小割的定理。<br>先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。<br>由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）</li>
+<p>所谓的贪心选择性质既是指问题的整体最优解可以通过一系列的局部最优解最终推导出来，一个问题必须满足这个性质才可以使用贪心算法来解决。</p>
+<p>在动态规划中，每一步的决策是依赖于相关子问题的解的，所以必须先求解相关子问题，然后在作出决策，这是一种自底向上的方法。而贪心算法每次决策都仅仅考虑当前最优，然后再去求解做出这个决策后所产生相关子问题的解，这是一种自顶向下的方法，每<br>作一次贪心选择就将所求问题简化为规模更小的子问题。</p>
+<p>一个问题是否能用贪心算法解决，必须证明其局部最优解能最终导致产生全局最优解。而一旦一个问题被证明可以使用贪心解决，那贪心算法将是一种极为高效的解法。</p>
+<ul>
+<li>实现细节</li>
 </ul>
-<p>问题的解法思路：</p>
+<p>这里拿找零钱问题为例，（25美分、10美分、5美分和1美分硬币找n美分零钱的问题，使硬币总数尽可能少。)</p>
 <ol>
-<li>构建有向图</li>
-<li>使用BFS算法找到一条增广路径（假设起初为0）</li>
-<li>找到这条增广路径中限流最小的边</li>
-<li>该增广路径中每条边流量减掉3中最小边流量</li>
-<li>maxflow加3中最小边流量（此路径为有效路径）</li>
-<li>迭代（重复2，3，4，5）</li>
-<li>条件边界：找不到增广路径则退出</li>
+<li>首先确定候选集合，这里就是25美分、10美分、5美分和1美分硬币组成的集合</li>
+<li>然后是随着贪心策略的不断进行所产生的解集合，这里已找出的零钱组成解集合</li>
+<li>再然后是判断解集合是否构成问题最终解的判断函数</li>
+<li>贪心策略，贪心策略是贪心算法的关键，贪心策略负责确定候选集合中的哪个对象能够组成解集合，在这里我们的贪心策略就是每次都选择不超过n美分的最大面值的硬币</li>
+<li>接下来是可行性判断，每次添加候选对象进入解集合时判断其可行性，在这里就是判断所找零钱不超过应找数。</li>
 </ol>
-<p>上代码：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphTheoryMaxflow</span></span></span><br><span class="line">  <span class="comment"># edge: 边数</span></span><br><span class="line">  <span class="comment"># spot: 交点数</span></span><br><span class="line">  <span class="comment"># graph: 有向图（二维数组）</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(edge, spot, graph)</span></span></span><br><span class="line">    <span class="variable">@graph</span> = graph</span><br><span class="line">    <span class="variable">@edge</span> = edge</span><br><span class="line">    <span class="variable">@spot</span> = spot</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">max_flow</span></span></span><br><span class="line">    max_num = <span class="number">0</span></span><br><span class="line">    rgraph = <span class="variable">@graph</span></span><br><span class="line">    boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> boundary</span><br><span class="line">      min_flow = <span class="number">65535</span>     <span class="comment"># 这里给你个限制的最大值（65535为16位int表示最大值）</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        min_flow = [min_flow, rgraph[u][v]].min</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        rgraph[u][v] -= min_flow</span><br><span class="line">        rgraph[v][u] += min_flow</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      max_num += min_flow</span><br><span class="line">      boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    max_num</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># s: 源点</span></span><br><span class="line">  <span class="comment"># t: 终点</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">augmentation_path</span><span class="params">(rgraph, s, t)</span></span></span><br><span class="line">    path = &#123;&#125;           <span class="comment"># 路径</span></span><br><span class="line">    visited = &#123;&#125;        <span class="comment"># 标记是否访问过点</span></span><br><span class="line">    queue = []          <span class="comment"># 存续bfs中遍历用节点</span></span><br><span class="line"></span><br><span class="line">    queue &lt;&lt; s</span><br><span class="line">    visited[s] = <span class="keyword">true</span></span><br><span class="line">    <span class="comment"># BFS算法找出增广路径</span></span><br><span class="line">    <span class="keyword">while</span> queue.size &gt; <span class="number">0</span></span><br><span class="line">      top = queue.shift</span><br><span class="line">      (<span class="number">0</span>..<span class="variable">@spot</span>-<span class="number">1</span>).each <span class="keyword">do</span> |i|</span><br><span class="line">        <span class="keyword">if</span> visited[i] != <span class="keyword">true</span> &amp;&amp; rgraph[top][i] &gt; <span class="number">0</span></span><br><span class="line">          path[i] = top</span><br><span class="line">          visited[i] = <span class="keyword">true</span></span><br><span class="line">          queue &lt;&lt; i</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      puts path</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># 此路径是否是通路</span></span><br><span class="line">    [visited[t] == <span class="keyword">true</span>, path]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># graph = [</span></span><br><span class="line"><span class="comment">#   [0, 40, 0, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 30, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 10],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 0]</span></span><br><span class="line"><span class="comment"># ]</span></span><br><span class="line"><span class="comment"># gtm = GraphTheoryMaxflow.new(5, 4, graph)</span></span><br><span class="line"><span class="comment"># gtm.max_flow</span></span><br></pre></td></tr></table></figure>
+<p>接下来我们来看下实现的伪码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">collection c    # &#20505;&#36873;&#38598;&#21512;&#10;collection s    # &#35299;&#38598;&#21512;&#10;while(s&#25152;&#26500;&#25104;&#30340;&#35299; == &#26368;&#32456;&#35299;)&#10;&#123;&#10;    n = greedy_strategy(c)          # &#36138;&#24515;&#31574;&#30053;&#10;    if(feasible(s, n))&#10;    &#123;             # &#21487;&#34892;&#24615;&#21028;&#26029;&#10;        s &#60;&#60; n&#10;    &#125;&#10;&#125;&#10;return s</span><br></pre></td></tr></table></figure></p>
+<h4 id="u6A21_u62DF_u9000_u706B"><a href="#u6A21_u62DF_u9000_u706B" class="headerlink" title="模拟退火"></a>模拟退火</h4><p>退火这个名词来自冶金学，它代表了一种物理过程，当固体被加热到一定高温时其原子会离开原来的位置然后再其他位置随机排列，随着温度缓慢降低使原子有较多可能可以找到内能比原先更低的位置。</p>
+<p>模拟退火是一种通用概率算法，用来在固定时间内寻找一个大的搜寻空间内找到的最优解。模拟退火算法可以分解为解空间、目标函数和初始解三部分。</p>
+<p>基本思路：</p>
+<pre><code>1. 设置初始温度，系统初始应该位于一个高温的状态，故通常选择一个较大的数
+2. 由一个产生函数从当前解产生一个位于解空间的新解
+3. 计算新解和初始解的目标函数差，通常来计算增量Δt′=C(S′)-C(S)，其中C(S)为评价函数
+4. 若Δt′&lt;0则接受S′作为新的当前解，也就是新解更优，否则以概率exp(-Δt′/(KT))接受S′作为新的当前解。（exp表示自然指数，k为常数）。很容易可以看出，温度高的时候会更高概率的接受一个比当前解要差的解，当温度逐渐降低接受一个差解的概率也会随之降低。exp(-Δt′/(KT))的取值范围是(0, 1)
+5. 当新解被接受时，用新解代替当前解进行下一轮迭代
+6. 温度T降至某最低值时，或者完成给定数量迭代中没有可接受新解，停止迭代，接受当前寻找的最优解为最终解。
+</code></pre><p>接下来我们来看下实现的伪码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T = value(t)        # &#31995;&#32479;&#21021;&#22987;&#28201;&#24230;&#10;k = 0               # &#36830;&#32493;&#26410;&#25509;&#21463;&#26032;&#35299;&#30340;&#27425;&#25968;&#10;s = value(s)        # &#21021;&#22987;&#35299;&#10;&#10;# &#20551;&#35774;&#24403;&#28201;&#24230;&#23558;&#20026;0&#26102;&#25110;&#32773;&#36798;&#21040;&#26368;&#22823;&#36830;&#32493;&#26410;&#25509;&#21463;&#26032;&#35299;&#30340;&#27425;&#25968;&#26102;&#32467;&#26463;&#36845;&#20195;&#10;while(T &#62; 0 &#38;&#38; k &#60; max_k)&#10;&#123;&#10;    s_r = selection_function      # &#20351;&#29992;&#36873;&#25321;&#20989;&#25968;&#20135;&#29983;&#19968;&#20010;&#26032;&#35299;&#10;    t_d = C(s_r) - C(s)&#10;    if(t_d &#62; 0)        # &#22914;&#26524;&#26032;&#35299;&#26159;&#20248;&#20110;&#24403;&#21069;&#35299;&#23601;&#25509;&#21463;&#26032;&#35299;&#10;    &#123;&#10;        s = s_r&#10;        k = 0          # &#37325;&#32622;&#10;    &#125;else if(exp(t_d/(KT)) &#62; random(1))&#123;&#10;        s = s_r        # &#27010;&#29575;&#30340;&#25509;&#21463;&#26032;&#35299;&#10;        k = 0          # &#37325;&#32622;&#10;    &#125;else&#123;&#10;        k += 1         # &#36830;&#32493;&#26410;&#25509;&#21463;&#26032;&#35299;&#30340;&#27425;&#25968;&#21152;&#19968;&#10;    &#125;&#10;&#10;    T = r*T            # 0 &#60; r &#60; 1, r&#29992;&#26469;&#25511;&#21046;&#38477;&#28201;&#36895;&#24230;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>模拟退火算法与初始值无关，算法求得的解与初始解s无关；模拟退火算法具有渐近收敛性，已在理论上被证明是一种以概率1收敛于全局最优解的全局优化算法；同时模拟退火算法具有并行性。</p>
+<p>我们可以很容易看出退火解法很想贪心法，但是退火法引入了一个概率接受差解的思想。模拟退火算法以一定的概率来接受一个比当前解要差的解，因此有可能会跳出这个局部的最优解，达到全局的最优解。这个概率随着温度的降低而降低，也就是说随着解集合的成熟而逐渐稳定，逐渐降低接受差解的概率。</p>
+<p>模拟退火算法并不总能找到全局的最优解，但是它可以比较快的找到问题的近似最优解。</p>
+
       
     </div>
 
@@ -308,8 +317,6 @@
           
             <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
           
-            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
-          
         </div>
       
 
@@ -317,16 +324,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/28/Qiniu-Video-Audio-Processing/" rel="next" title="qiniu 音视频处理">
-                <i class="fa fa-chevron-left"></i> qiniu 音视频处理
+              <a href="/2016/03/30/Index-Of-MySQL-B-Tree/" rel="next" title="MySQL索引与B-Tree">
+                <i class="fa fa-chevron-left"></i> MySQL索引与B-Tree
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="prev" title="Mongoid 使用总结之一些查询方法">
-                Mongoid 使用总结之一些查询方法 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/04/14/Rails-Initialization-1/" rel="prev" title="Rails Initialization - Briefing">
+                Rails Initialization - Briefing <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -353,8 +360,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/02/19/NetWork-Flow-Problem-Maximum-Flow/"
-           data-title="NetWork Flow Problem - Maximum Flow" data-url="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/">
+      <div class="ds-thread" data-thread-key="2016/04/09/Greedy-And-Annealing/"
+           data-title="Greedy-And-Annealing" data-url="http://elibinary.com/2016/04/09/Greedy-And-Annealing/">
       </div>
     
   </div>
@@ -442,7 +449,7 @@
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#u8D2A_u5FC3"><span class="nav-number">1.</span> <span class="nav-text">贪心</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u6A21_u62DF_u9000_u706B"><span class="nav-number">2.</span> <span class="nav-text">模拟退火</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">

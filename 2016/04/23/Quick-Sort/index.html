@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Algorithm,Ruby," />
+  <meta name="keywords" content="Algorithm," />
 
 
 
@@ -57,16 +57,17 @@
 
 
 
-<meta name="description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="description" content="本篇简单介绍下快排。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NetWork Flow Problem - Maximum Flow">
-<meta property="og:url" content="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/index.html">
+<meta property="og:title" content="Quick-Sort">
+<meta property="og:url" content="http://elibinary.com/2016/04/23/Quick-Sort/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
-<meta property="og:updated_time" content="2016-02-19T07:56:47.000Z">
+<meta property="og:description" content="本篇简单介绍下快排。">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/QuickSort-1.jpg">
+<meta property="og:updated_time" content="2016-05-09T05:19:06.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="NetWork Flow Problem - Maximum Flow">
-<meta name="twitter:description" content="这里介绍一种计算流系统中最大流的方法，解法使用Ford-Fulkerson方法的基本思想。">
+<meta name="twitter:title" content="Quick-Sort">
+<meta name="twitter:description" content="本篇简单介绍下快排。">
 
 
 
@@ -84,7 +85,7 @@
   };
 </script>
 
-  <title> NetWork Flow Problem - Maximum Flow | Sora </title>
+  <title> Quick-Sort | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +225,7 @@
             
             
               
-                NetWork Flow Problem - Maximum Flow
+                Quick-Sort
               
             
           </h1>
@@ -236,8 +237,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-02-19T20:00:43+08:00" content="2016-02-19">
-              2016-02-19
+            <time itemprop="dateCreated" datetime="2016-04-23T13:18:42+08:00" content="2016-04-23">
+              2016-04-23
             </time>
           </span>
 
@@ -247,8 +248,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/19/NetWork-Flow-Problem-Maximum-Flow/" itemprop="commentsCount"></span>
+                <a href="/2016/04/23/Quick-Sort/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/23/Quick-Sort/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -269,36 +270,51 @@
       
 
       
-        <blockquote>
-<p>不只是网络流，很多场景都会涉及到流量问题。这里介绍一种计算流系统中最大流的<br>方法，解法使用Ford-Fulkerson方法的基本思想。</p>
-</blockquote>
-<p>在介绍Ford-Fulkerson方法之前需要先理解几个基本概念：<br>对于一个流网络，该网络由一个源点s、一个汇点t和源点与汇点间的众节点以及各点间的边组成。</p>
-<ul>
-<li><p>网络流<br>网络流有几个性质：</p>
-<ul>
-<li>容量限制<br>设C为每条边的容量，F为每条边的流量。<br>显然 F&lt;=C，一条边的流不超过它自身的容量。</li>
-<li>斜对称<br>假设一条边的两个端点a和b，a向b流了f的流，就可以认为b向a流了-f的流。</li>
-<li>流量守恒<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Σ <span class="constant">F</span>&lt;v,x&gt; = Σ <span class="constant">F</span>&lt;x,u&gt;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>残余网络<br>通俗地讲，残余网络就是对于给定的一个网络和该网络的一个流，除去这个已知流其对应还可以容纳的流所组成的网络就称为残余网络。</p>
-</li>
-<li>增广路径<br>增广路径就是残余网络中从源点到汇点的一条简单路径。形象的理解为从s到t存在一条不违反边容量的路径，向这条路径压入流量，可以增加整个网络的流值。</li>
-<li>割<br>这里有一个最大流等于最小割的定理。<br>先介绍割的一个性质，对于一个流网络中的任意割，穿过该割的最大净流量不超过该割的容量。<br>由此显然可以想到一个网络的最大流量小于等于该网络的最小割。（割将网络分为两部分，上游部分的流量必然会经过割进入下游部分）</li>
-</ul>
-<p>问题的解法思路：</p>
+        <p>快速排序是一种划分交换排序算法，最早由东尼.霍尔提出，它的中心思想是使用分治法策略把一个待排序序列分为两个子序列，并迭代的进行此过程直至无法在进行分治分割结束。</p>
+<p>基本步骤：</p>
 <ol>
-<li>构建有向图</li>
-<li>使用BFS算法找到一条增广路径（假设起初为0）</li>
-<li>找到这条增广路径中限流最小的边</li>
-<li>该增广路径中每条边流量减掉3中最小边流量</li>
-<li>maxflow加3中最小边流量（此路径为有效路径）</li>
-<li>迭代（重复2，3，4，5）</li>
-<li>条件边界：找不到增广路径则退出</li>
+<li>从待排序序列中选择一个基准数</li>
+<li>把比这个基准数小的放其左边，大的放其右边，相等的放哪边都行</li>
+<li>第二步过后会得到左右两个子序列，对这两个子序列迭代的进行第二步操作</li>
+<li>当子序列不可在分割时，也就是只有一个元素时，迭代结束</li>
 </ol>
-<p>上代码：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphTheoryMaxflow</span></span></span><br><span class="line">  <span class="comment"># edge: 边数</span></span><br><span class="line">  <span class="comment"># spot: 交点数</span></span><br><span class="line">  <span class="comment"># graph: 有向图（二维数组）</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">initialize</span><span class="params">(edge, spot, graph)</span></span></span><br><span class="line">    <span class="variable">@graph</span> = graph</span><br><span class="line">    <span class="variable">@edge</span> = edge</span><br><span class="line">    <span class="variable">@spot</span> = spot</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">max_flow</span></span></span><br><span class="line">    max_num = <span class="number">0</span></span><br><span class="line">    rgraph = <span class="variable">@graph</span></span><br><span class="line">    boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> boundary</span><br><span class="line">      min_flow = <span class="number">65535</span>     <span class="comment"># 这里给你个限制的最大值（65535为16位int表示最大值）</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        min_flow = [min_flow, rgraph[u][v]].min</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      v = <span class="variable">@spot</span> - <span class="number">1</span></span><br><span class="line">      <span class="keyword">while</span> !path[v].<span class="keyword">nil</span>?</span><br><span class="line">        u = path[v]</span><br><span class="line">        rgraph[u][v] -= min_flow</span><br><span class="line">        rgraph[v][u] += min_flow</span><br><span class="line">        v = u</span><br><span class="line">        puts v</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      max_num += min_flow</span><br><span class="line">      boundary, path = augmentation_path(rgraph, <span class="number">0</span>, <span class="variable">@spot</span>-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    max_num</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># s: 源点</span></span><br><span class="line">  <span class="comment"># t: 终点</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">augmentation_path</span><span class="params">(rgraph, s, t)</span></span></span><br><span class="line">    path = &#123;&#125;           <span class="comment"># 路径</span></span><br><span class="line">    visited = &#123;&#125;        <span class="comment"># 标记是否访问过点</span></span><br><span class="line">    queue = []          <span class="comment"># 存续bfs中遍历用节点</span></span><br><span class="line"></span><br><span class="line">    queue &lt;&lt; s</span><br><span class="line">    visited[s] = <span class="keyword">true</span></span><br><span class="line">    <span class="comment"># BFS算法找出增广路径</span></span><br><span class="line">    <span class="keyword">while</span> queue.size &gt; <span class="number">0</span></span><br><span class="line">      top = queue.shift</span><br><span class="line">      (<span class="number">0</span>..<span class="variable">@spot</span>-<span class="number">1</span>).each <span class="keyword">do</span> |i|</span><br><span class="line">        <span class="keyword">if</span> visited[i] != <span class="keyword">true</span> &amp;&amp; rgraph[top][i] &gt; <span class="number">0</span></span><br><span class="line">          path[i] = top</span><br><span class="line">          visited[i] = <span class="keyword">true</span></span><br><span class="line">          queue &lt;&lt; i</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">      puts path</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment"># 此路径是否是通路</span></span><br><span class="line">    [visited[t] == <span class="keyword">true</span>, path]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># graph = [</span></span><br><span class="line"><span class="comment">#   [0, 40, 0, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 30, 20],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 10],</span></span><br><span class="line"><span class="comment">#   [0, 0, 0, 0]</span></span><br><span class="line"><span class="comment"># ]</span></span><br><span class="line"><span class="comment"># gtm = GraphTheoryMaxflow.new(5, 4, graph)</span></span><br><span class="line"><span class="comment"># gtm.max_flow</span></span><br></pre></td></tr></table></figure>
+<p>下面是一次排序的过程：</p>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/QuickSort-1.jpg" alt="5-B-Tree-1"><br></div>
+
+<p>首先我们有如图的一个序列(3,6,4,1,8,7,2,9,5)</p>
+<ol>
+<li>选取序列第一个值为基准数，设置边界(l,r)以及循环初始值(i,j)</li>
+<li>以j开始从后向前移动，直到找到一个小于（或等于）基准值的元素，或者j&lt;=i</li>
+<li>把找到的元素与基准值换位（其实并不是真的交换位置，这个稍后在实现时就可以很容易看出来），并使i++</li>
+<li>然后以i开始从前往后移动，直到找到一个大于基准值的元素, 或者i&gt;=j</li>
+<li>把找到的元素与基准值换位, 并使j–</li>
+<li>循环这个过程，直到i&gt;=j结束循环，这时我们将得到两个以基准值为界左边元素全部小于基准值，右边元素全部大于基准值的子序列</li>
+<li>迭代的执行这个过程，最终的到一个有序序列</li>
+</ol>
+<p>核心代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void sort(int left,int right,int b[])&#10;&#123;&#10;  if(left&#62;=right)&#10;    return;&#10;  int low=left,high=right;&#10;  int tmp=b[low];&#10;  while(low!=high)&#10;  &#123;&#10;    while(b[high]&#62;tmp&#38;&#38;high&#62;low)&#10;      high--;&#10;    b[low++]=b[high];&#10;    while(b[low]&#60;tmp&#38;&#38;high&#62;low)&#10;      low++;&#10;    b[high--]=b[low];&#10;  &#125;&#10;  b[low]=tmp;&#10;  sort(left,low-1,b);&#10;  sort(low+1,right,b);  &#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>来看一下另一种实现思路：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void qsort(int left,int right)&#10;&#123;&#10;  int l,h,x,tmp;&#10;  l=left;h=right;&#10;  x=a[(left+right)&#62;&#62;1];&#10;  while(l&#60;=h)&#10;  &#123;&#10;    while(a[l]&#60;x)&#10;      l++;&#10;    while(a[h]&#62;x)&#10;      h--;&#10;    if(l&#60;=h)&#10;    &#123;&#10;      tmp=a[l];&#10;      a[l]=a[h];&#10;      a[h]=tmp;&#10;      l++;  h--;&#10;    &#125;&#10;  &#125;&#10;  if(left&#60;h)&#10;    qsort(left,h);&#10;  if(l&#60;right)&#10;    qsort(l,right);&#10;&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="u5206_u6790"><a href="#u5206_u6790" class="headerlink" title="分析"></a>分析</h4><p>不难看出快排每次排序分割操作都会访问所有序列元素，使用O(n)时间。在最好的情况下，假设我们选择的基准值足够好，这样每次分割都能将元序列分成两个相同大小的子序列，这样程序的迭代深度为O(log n)，总得时间复杂度为O(n log n)，更加详细的计算推演可以参考算法导论的主定理（master theorem）部分。</p>
+<p>而在最坏的情况下，序列反向有序，可以想象出其递归树的结构将会变成倾斜的一边倒的单边树结构，这种情况下其比较次数将会是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(n-1) + (n-2) + (n-3) + ... + 1</span><br></pre></td></tr></table></figure></p>
+<p>其时间复杂度为 O(n^2)。</p>
+<p>平均情况的计算就略麻烦了，详细的过程还是去看算法导论吧，其结果也是O(n log n)。</p>
+<h4 id="u5173_u4E8E_u5192_u6CE1_u6392_u5E8F"><a href="#u5173_u4E8E_u5192_u6CE1_u6392_u5E8F" class="headerlink" title="关于冒泡排序"></a>关于冒泡排序</h4><p>其简单流程：</p>
+<ol>
+<li>顺序的比较相邻的元素，如果第一个比第二个大，就交换他们两个</li>
+<li>对每一对相邻元素都进行操作 1，最大的数将会被排到最后</li>
+<li>迭代的进行以上操作，每次迭代都排除最后的有序部分</li>
+<li>持续每次对越来越少的元素重复上面的步骤，直到没有任何一对数字需要比较</li>
+</ol>
+<p>由上边的流程可以看出，其比较次数为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(n-1) + (n-2) + (n-3) + ... + 1</span><br></pre></td></tr></table></figure></p>
+<p>其时间复杂度为 O(n^2)。</p>
+<p>但是在很多地方都会看到在最优状态时，冒泡排序的最优时间复杂度为 O(n)，这到底是怎么得出的呢。</p>
+<p>我们分析其流程可以看出，当某次迭代过程中都未发生交换操作时，我们就可以判定其已经有序可以退出迭代了。这样当目标序列已有序的情况下，其时间复杂度就为 O(n)。</p>
+<p>核心代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for(int i = 0; i &#60; n - 1; i++)&#123;&#10;  flag = false;&#10;  for(int j = 0; j &#60; n - 1 - i; j++)&#123;&#10;    if(arr[j+1] &#60; arr[j])&#123;&#10;      swap(arr, j, j + 1);&#10;      flag = true;&#10;    &#125;&#10;  &#125;&#10;  if(!flag)&#10;    return;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<hr>
+<blockquote>
+<p>分治法<br>辗转相除法</p>
+</blockquote>
+
       
     </div>
 
@@ -308,8 +324,6 @@
           
             <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
           
-            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
-          
         </div>
       
 
@@ -317,16 +331,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/28/Qiniu-Video-Audio-Processing/" rel="next" title="qiniu 音视频处理">
-                <i class="fa fa-chevron-left"></i> qiniu 音视频处理
+              <a href="/2016/04/14/Rails-Initialization-1/" rel="next" title="Rails Initialization - Briefing">
+                <i class="fa fa-chevron-left"></i> Rails Initialization - Briefing
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="prev" title="Mongoid 使用总结之一些查询方法">
-                Mongoid 使用总结之一些查询方法 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/05/01/Clustered-Index-For-MySQL/" rel="prev" title="Clustered Index">
+                Clustered Index <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -353,8 +367,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/02/19/NetWork-Flow-Problem-Maximum-Flow/"
-           data-title="NetWork Flow Problem - Maximum Flow" data-url="http://elibinary.com/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/">
+      <div class="ds-thread" data-thread-key="2016/04/23/Quick-Sort/"
+           data-title="Quick-Sort" data-url="http://elibinary.com/2016/04/23/Quick-Sort/">
       </div>
     
   </div>
@@ -442,7 +456,7 @@
               
             
             
-              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#u5206_u6790"><span class="nav-number">1.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u5173_u4E8E_u5192_u6CE1_u6392_u5E8F"><span class="nav-number">2.</span> <span class="nav-text">关于冒泡排序</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
