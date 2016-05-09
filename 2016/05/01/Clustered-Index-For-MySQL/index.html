@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Security," />
+  <meta name="keywords" content="MySQL,db," />
 
 
 
@@ -57,16 +57,17 @@
 
 
 
-<meta name="description" content="本篇文章主要简单介绍OAuth2（开放授权）。">
+<meta name="description" content="本篇主要关于聚集索引的基础认识及在MySQL中的实现及应用。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="An Introduction To OAuth2 - P1">
-<meta property="og:url" content="http://elibinary.com/2016/03/12/An-Introduction-To-Oauth2-P1/index.html">
+<meta property="og:title" content="Clustered Index">
+<meta property="og:url" content="http://elibinary.com/2016/05/01/Clustered-Index-For-MySQL/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="本篇文章主要简单介绍OAuth2（开放授权）。">
-<meta property="og:updated_time" content="2016-03-15T10:39:05.000Z">
+<meta property="og:description" content="本篇主要关于聚集索引的基础认识及在MySQL中的实现及应用。">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/Clustered-1.png">
+<meta property="og:updated_time" content="2016-05-09T05:14:51.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="An Introduction To OAuth2 - P1">
-<meta name="twitter:description" content="本篇文章主要简单介绍OAuth2（开放授权）。">
+<meta name="twitter:title" content="Clustered Index">
+<meta name="twitter:description" content="本篇主要关于聚集索引的基础认识及在MySQL中的实现及应用。">
 
 
 
@@ -84,7 +85,7 @@
   };
 </script>
 
-  <title> An Introduction To OAuth2 - P1 | Sora </title>
+  <title> Clustered Index | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +225,7 @@
             
             
               
-                An Introduction To OAuth2 - P1
+                Clustered Index
               
             
           </h1>
@@ -236,8 +237,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-03-12T09:17:16+08:00" content="2016-03-12">
-              2016-03-12
+            <time itemprop="dateCreated" datetime="2016-05-01T13:13:59+08:00" content="2016-05-01">
+              2016-05-01
             </time>
           </span>
 
@@ -247,8 +248,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/03/12/An-Introduction-To-Oauth2-P1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/12/An-Introduction-To-Oauth2-P1/" itemprop="commentsCount"></span>
+                <a href="/2016/05/01/Clustered-Index-For-MySQL/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/01/Clustered-Index-For-MySQL/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -269,38 +270,57 @@
       
 
       
-        <blockquote>
-<p>OAuth是一个开放标准，它提供一种方案使用户可以在不提供账户密码信息的情况下，允许第三方获取用户在某服务器存储的资源。</p>
+        <h4 id="u7D22_u5F15"><a href="#u7D22_u5F15" class="headerlink" title="索引"></a>索引</h4><p>索引最大的优点是能够让服务器快速定位到表的指定位置。拿最常见的B-Tree索引为例，因为B-Tree索引会按顺序存放数据，故对排序等操作有良好的效率，而且B-Tree索引会存储实际的列值，当索引包含所有的查询返回值时只使用索引就可以完成全部查询。</p>
+<blockquote>
+<ol>
+<li>索引大大减少了服务器扫描表的数据量</li>
+<li>索引可以帮助服务器避免排序和临时表</li>
+<li>索引可以将随机I/O变为顺序I/O</li>
+</ol>
 </blockquote>
-<p>在传统的client-server模式中，如果用户想要让第三方获取指定受保护服务器上的资源时，需要提供账户密码信息给第三方。<br>而第三方存储账户密码信息有很多问题，首先这样是不安全的，并且任意第三方程序被破解，都将导致账户密码的泄露；第三方持有<br>用户账户密码的情况下，将拥有用户在指定服务器上完整的权限；用户撤回授权也将变得麻烦，或许不得不修改密码。</p>
-<h4 id="OAuth2__u7684_u57FA_u672C_u5DE5_u4F5C_u6D41_u7A0B"><a href="#OAuth2__u7684_u57FA_u672C_u5DE5_u4F5C_u6D41_u7A0B" class="headerlink" title="OAuth2 的基本工作流程"></a>OAuth2 的基本工作流程</h4><p>在介绍 Protocol Flow 之前，先看一下OAuth2的角色分工：</p>
-<ul>
-<li><p>resource owner:<br>授权别人去指定服务器存取受保护资源的角色，这里就是指用户</p>
-</li>
-<li><p>client:<br>被 resource owner 授权去存取指定服务器受保护资源的角色，这里就是指第三方应用程序</p>
-</li>
-<li><p>resource server:<br>存放受保护资源的服务器</p>
-</li>
-<li><p>authorization server:<br>认证 resource owner 并经 resource owner 授权后核发 access tokens 的服务器</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+--------+                               +---------------+&#10;|        |--(A)- Authorization Request -&#62;|   Resource    |&#10;|        |                               |     Owner     |&#10;|        |&#60;-(B)-- Authorization Grant ---|               |&#10;|        |                               +---------------+&#10;|        |&#10;|        |                               +---------------+&#10;|        |--(C)-- Authorization Grant --&#62;| Authorization |&#10;| Client |                               |     Server    |&#10;|        |&#60;-(D)----- Access Token -------|               |&#10;|        |                               +---------------+&#10;|        |&#10;|        |                               +---------------+&#10;|        |--(E)----- Access Token ------&#62;|    Resource   |&#10;|        |                               |     Server    |&#10;|        |&#60;-(F)--- Protected Resource ---|               |&#10;+--------+                               +---------------+</span><br></pre></td></tr></table></figure>
-<p>以上是协议流程，摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Abstract Protocol Flow</a></p>
-<p>(A). Client 向Resource Owner请求授权</p>
-<p>(B). Client 从Resource Owner得到 Authorization Grant ，这个Grant代表Resource Owner的授权许可。规范中定义了四中Grant Types，<br>     分别是: authorization code, implicit, resource owner password credentials, client credentials. 同时规范中还定义了<br>     四种内建流程分别与之对应。</p>
-<p>(C). Client 使用 Authorization Grant 向 Authorization Server 申请 Access Token </p>
-<p>(D). Authorization Server 认证 Client 及 Authorization Grant ，通过后核发 Access Token </p>
-<p>(E). Client 使用 Authorization Grant 向 Resource Server 申请资源</p>
-<p>(F). Resource Server 验证 Access Token ，通过后开放资源给 Client</p>
-<h4 id="Refresh_Token"><a href="#Refresh_Token" class="headerlink" title="Refresh Token"></a>Refresh Token</h4><p>当 Access Token 过期或失效了， Refresh Token 就被用来向 Authorization Server 重新申请一个 Access Token。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+--------+                                           +---------------+&#10;|        |--(A)------- Authorization Grant ---------&#62;|               |&#10;|        |                                           |               |&#10;|        |&#60;-(B)----------- Access Token -------------|               |&#10;|        |               &#38; Refresh Token             |               |&#10;|        |                                           |               |&#10;|        |                            +----------+   |               |&#10;|        |--(C)---- Access Token ----&#62;|          |   |               |&#10;|        |                            |          |   |               |&#10;|        |&#60;-(D)- Protected Resource --| Resource |   | Authorization |&#10;| Client |                            |  Server  |   |     Server    |&#10;|        |--(E)---- Access Token ----&#62;|          |   |               |&#10;|        |                            |          |   |               |&#10;|        |&#60;-(F)- Invalid Token Error -|          |   |               |&#10;|        |                            +----------+   |               |&#10;|        |                                           |               |&#10;|        |--(G)----------- Refresh Token -----------&#62;|               |&#10;|        |                                           |               |&#10;|        |&#60;-(H)----------- Access Token -------------|               |&#10;+--------+           &#38; Optional Refresh Token        +---------------+</span><br></pre></td></tr></table></figure></p>
-<p>以上是协议流程，摘自<a href="https://tools.ietf.org/html/rfc6749" target="_blank" rel="external">RFC 6749 Refreshing an Expired Access Token</a></p>
-<p>如允许使用 Refresh Token ，则 Authorization Server 将在核发 Access Token 的同时核发 Refresh Token。当然也可以禁用 Refresh Token，<br>一些内建流程也会禁用 Refresh Token，如 Implicit Grant。</p>
-<p>从图中可以看出当 Access Token 失效后，Client 可以使用 Refresh Token 直接向 Authorization Server 申请新的 Access Token 而无需再一次向<br>Resource Owner 请求授权。</p>
-<p>Refresh Token 一般会在很长一段时间有效，建议将其与被授权的 Client 绑定。申请新的 Access Token 时也可以一并返回新的 Refresh Token 给 Client<br>，Client 和 Authorization Server 更新新的 Refresh Token 替换旧的。</p>
-<p>请注意使用 Refresh Token 获取新的 Access Token 的 scope 应该是 Refresh Token 的子集（也就是被包含的关系），而若返回新的 Refresh Token 其 scope 也应与旧的 Refresh Token 一致或是其子集。</p>
-<p><br><br><br> </p>
+<p>前两条都很好理解，那么第三条到底是什么意思呢</p>
+<p>我们知道数据是不可能全部存储在内存中的，那么每次查询数据时都需要磁盘I/O操作，磁盘I/O操作是需要消耗寻道时间以及旋转时间的，这些机械运动耗费时间是巨大的。想象一下假设我们的数据随机的分布在磁盘中，那么每次进行查询时磁盘的磁头将会在各个扇区不同磁道间来回切换，这将消耗掉大量的时间。由于顺序读取不需要寻道时间且只需很少的旋转时间所以磁盘顺序读取的效率很高，磁盘为了提高效率往往不是严格按需读取，而是每次都会预读数页数据进入内存等待使用。</p>
+<blockquote>
+<p>局部性原理, 当一个数据被用到时，其附近的数据也通常会马上被使用。</p>
+</blockquote>
+<h4 id="u805A_u96C6_u7D22_u5F15"><a href="#u805A_u96C6_u7D22_u5F15" class="headerlink" title="聚集索引"></a>聚集索引</h4><p>聚集索引不是一种单独的索引类型，而是一种存储数据方式，索引的键值逻辑顺序决定了表数据行的物理存储顺序。其主要特点：</p>
+<ol>
+<li>一个表只能有一个聚集索引，聚集索引因为与表的元组物理顺序一一对应，所以只有一种排序，即一个数据表只有一个聚集索引。</li>
+<li>聚集索引存储记录是物理上连续存在，而非聚集索引是逻辑上的连续，物理存储并不连续。</li>
+</ol>
+<p>MySQL的存储引擎到目前为止都不支持用户指定聚簇索引，其聚集索引选择规则：</p>
+<ol>
+<li>首先选择显式定义的主键建立聚簇索引</li>
+<li>如果没有，则选择第一个具有唯一且非空值的索引</li>
+<li>还是没有的话，就会去定义一个隐藏的主键，然后对其建立聚簇索引</li>
+</ol>
+<p>下面主要看一下InnoDB的聚集索引实现，InnoDB的聚集索引实际上将数据行的全部内容存放在索引的叶子节点中，同时叶子节点之间顺序的以指针相连（如图）。</p>
+<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/Clustered-1.png" height="200" alt="InnoDB聚集索引"><br></div>
+
+<p>从表中可以看出索引结构中非叶子结点只保存索引值和一个指向下个节点的指针，而叶子节点将会顺序的保存数据行中的所有数据。</p>
+<p>上一篇关于索引的文章提到过InnoDB的B-Tree索引实现结构，InnoDB将只聚集在同一个存储数据页中的记录（插入数据超过页大小是会分裂成两页），包含相邻键值的不同页面可能会相距甚远。</p>
+<p>聚集索引的优点</p>
+<ol>
+<li>聚集索引把相关数据保存在一起以减少磁盘IO</li>
+<li>聚集索引将索引和数据保存在同一个B-Tree结构中，因此从聚集索引中查找数据通常比非聚集索引快</li>
+</ol>
+<p>同时聚集索引也有很多缺点</p>
+<ol>
+<li>首先其插入速度严重依赖插入顺序，试想如果要对一张按随机主键值聚集的表插入一条数据，由于其主键非自增故又有很大可能需要插入到任意中间位置，如果要插入的页满还会产生分裂操作以及涉及到大量数据的移动。故按照主键顺序插入是加在数据到InnoDB表中速度最快的方式。</li>
+<li>更新聚集索引列的代价非常高，因为对聚集列进行更新会促使InnoDB将更新后的值移动到新的位置，这中间可能会触发更多的操作</li>
+<li>还有就是页分裂的问题，由于对聚集索引的操作有很大几率会触发页分裂，当行的主键值要求必须将这一行插入到一个已满的页时，存储引擎会将该页分裂成两个页面来容纳该行，页分裂会导致表占用更多的磁盘空间，同时频繁的页分裂操作会导致数据存储的不连续，这会导致全表扫描速度变慢。</li>
+</ol>
+<p>在把这些随机值载入到聚集索引后，也会需要做一次optimize table操作来重建表以优化页的填充。</p>
+<p>需要注意的是，顺序的主键在高并发工作负载时，主键的顺序插入可能会造成键值的争用，主键的上界会成为争用对象，因为所有的插入操作都发生在这所以并发插入可能会导致间隙锁竞争。</p>
+<p>关于非聚集索引（普通索引），其实现结构与聚集索引有一点区别，非聚集索引的叶子节点存储的不是全部的数据，也不是指向行的物理地址的指针，而是行的主键值也就是聚集索引的索引值。这就意味着查找时，存储引擎会先找到叶子节点获取对应的主键值，然后再去聚集索引中查找到对应的行。</p>
+<blockquote>
+<p>索引并不一定是最好的选择，对于很小的表，大部分情况下进行全表扫描将会更加高效，对于中大型表，索引就非常有效。当数据量达到某种程度，建立和使用索引的代价将会越来越高，只有当索引帮助存储引擎进行快速查找的好处大于其带来的额外工作时，索引才是最有效的。</p>
+</blockquote>
 <hr>
-<p>PS: 下篇介绍 OAuth2 的四种 Grant Flows</p>
+<ul>
+<li>哈希索引</li>
+<li>覆盖索引</li>
+</ul>
 
       
     </div>
@@ -309,7 +329,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Security/" rel="tag">#Security</a>
+            <a href="/tags/MySQL/" rel="tag">#MySQL</a>
+          
+            <a href="/tags/db/" rel="tag">#db</a>
           
         </div>
       
@@ -318,16 +340,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/03/04/API-Security-Design/" rel="next" title="API Security Design">
-                <i class="fa fa-chevron-left"></i> API Security Design
+              <a href="/2016/04/14/Rails-Initialization-1/" rel="next" title="Rails Initialization - Briefing">
+                <i class="fa fa-chevron-left"></i> Rails Initialization - Briefing
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/03/18/An-Introduction-To-Oauth2-P2/" rel="prev" title="An Introduction To Oauth2 - P2">
-                An Introduction To Oauth2 - P2 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/05/07/Hash-Index/" rel="prev" title="Hash Index">
+                Hash Index <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -354,8 +376,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/03/12/An-Introduction-To-Oauth2-P1/"
-           data-title="An Introduction To OAuth2 - P1" data-url="http://elibinary.com/2016/03/12/An-Introduction-To-Oauth2-P1/">
+      <div class="ds-thread" data-thread-key="2016/05/01/Clustered-Index-For-MySQL/"
+           data-title="Clustered Index" data-url="http://elibinary.com/2016/05/01/Clustered-Index-For-MySQL/">
       </div>
     
   </div>
@@ -443,7 +465,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#OAuth2__u7684_u57FA_u672C_u5DE5_u4F5C_u6D41_u7A0B"><span class="nav-number">1.</span> <span class="nav-text">OAuth2 的基本工作流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Refresh_Token"><span class="nav-number">2.</span> <span class="nav-text">Refresh Token</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#u7D22_u5F15"><span class="nav-number">1.</span> <span class="nav-text">索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u805A_u96C6_u7D22_u5F15"><span class="nav-number">2.</span> <span class="nav-text">聚集索引</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
