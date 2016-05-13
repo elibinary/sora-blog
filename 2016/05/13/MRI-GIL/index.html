@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Algorithm," />
+  <meta name="keywords" content="ruby," />
 
 
 
@@ -57,17 +57,16 @@
 
 
 
-<meta name="description" content="本篇简单介绍下快排。">
+<meta name="description" content="本篇简单介绍并行并发与ruby的GIL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Quick-Sort">
-<meta property="og:url" content="http://elibinary.com/2016/04/23/Quick-Sort/index.html">
+<meta property="og:title" content="MRI-GIL">
+<meta property="og:url" content="http://elibinary.com/2016/05/13/MRI-GIL/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="本篇简单介绍下快排。">
-<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/QuickSort-1.jpg">
-<meta property="og:updated_time" content="2016-05-09T05:19:06.000Z">
+<meta property="og:description" content="本篇简单介绍并行并发与ruby的GIL">
+<meta property="og:updated_time" content="2016-05-13T10:11:21.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Quick-Sort">
-<meta name="twitter:description" content="本篇简单介绍下快排。">
+<meta name="twitter:title" content="MRI-GIL">
+<meta name="twitter:description" content="本篇简单介绍并行并发与ruby的GIL">
 
 
 
@@ -85,7 +84,7 @@
   };
 </script>
 
-  <title> Quick-Sort | Sora </title>
+  <title> MRI-GIL | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -225,7 +224,7 @@
             
             
               
-                Quick-Sort
+                MRI-GIL
               
             
           </h1>
@@ -237,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-04-23T13:18:42+08:00" content="2016-04-23">
-              2016-04-23
+            <time itemprop="dateCreated" datetime="2016-05-13T18:07:58+08:00" content="2016-05-13">
+              2016-05-13
             </time>
           </span>
 
@@ -248,8 +247,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/04/23/Quick-Sort/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/23/Quick-Sort/" itemprop="commentsCount"></span>
+                <a href="/2016/05/13/MRI-GIL/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/13/MRI-GIL/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -270,50 +269,23 @@
       
 
       
-        <p>快速排序是一种划分交换排序算法，最早由东尼.霍尔提出，它的中心思想是使用分治法策略把一个待排序序列分为两个子序列，并迭代的进行此过程直至无法在进行分治分割结束。</p>
-<p>基本步骤：</p>
-<ol>
-<li>从待排序序列中选择一个基准数</li>
-<li>把比这个基准数小的放其左边，大的放其右边，相等的放哪边都行</li>
-<li>第二步过后会得到左右两个子序列，对这两个子序列迭代的进行第二步操作</li>
-<li>当子序列不可在分割时，也就是只有一个元素时，迭代结束</li>
-</ol>
-<p>下面是一次排序的过程：</p>
-<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/QuickSort-1.jpg" alt="5-B-Tree-1"><br></div>
-
-<p>首先我们有如图的一个序列(3,6,4,1,8,7,2,9,5)</p>
-<ol>
-<li>选取序列第一个值为基准数，设置边界(l,r)以及循环初始值(i,j)</li>
-<li>以j开始从后向前移动，直到找到一个小于（或等于）基准值的元素，或者j&lt;=i</li>
-<li>把找到的元素与基准值换位（其实并不是真的交换位置，这个稍后在实现时就可以很容易看出来），并使i++</li>
-<li>然后以i开始从前往后移动，直到找到一个大于基准值的元素, 或者i&gt;=j</li>
-<li>把找到的元素与基准值换位, 并使j–</li>
-<li>循环这个过程，直到i&gt;=j结束循环，这时我们将得到两个以基准值为界左边元素全部小于基准值，右边元素全部大于基准值的子序列</li>
-<li>迭代的执行这个过程，最终的到一个有序序列</li>
-</ol>
-<p>核心代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void sort(int left,int right,int b[])&#10;&#123;&#10;  if(left&#62;=right)&#10;    return;&#10;  int low=left,high=right;&#10;  int tmp=b[low];&#10;  while(low!=high)&#10;  &#123;&#10;    while(b[high]&#62;tmp&#38;&#38;high&#62;low)&#10;      high--;&#10;    b[low++]=b[high];&#10;    while(b[low]&#60;tmp&#38;&#38;high&#62;low)&#10;      low++;&#10;    b[high--]=b[low];&#10;  &#125;&#10;  b[low]=tmp;&#10;  sort(left,low-1,b);&#10;  sort(low+1,right,b);  &#10;&#125;</span><br></pre></td></tr></table></figure></p>
-<p>来看一下另一种实现思路：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void qsort(int left,int right)&#10;&#123;&#10;  int l,h,x,tmp;&#10;  l=left;h=right;&#10;  x=a[(left+right)&#62;&#62;1];&#10;  while(l&#60;=h)&#10;  &#123;&#10;    while(a[l]&#60;x)&#10;      l++;&#10;    while(a[h]&#62;x)&#10;      h--;&#10;    if(l&#60;=h)&#10;    &#123;&#10;      tmp=a[l];&#10;      a[l]=a[h];&#10;      a[h]=tmp;&#10;      l++;  h--;&#10;    &#125;&#10;  &#125;&#10;  if(left&#60;h)&#10;    qsort(left,h);&#10;  if(l&#60;right)&#10;    qsort(l,right);&#10;&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="u5206_u6790"><a href="#u5206_u6790" class="headerlink" title="分析"></a>分析</h4><p>不难看出快排每次排序分割操作都会访问所有序列元素，使用O(n)时间。在最好的情况下，假设我们选择的基准值足够好，这样每次分割都能将元序列分成两个相同大小的子序列，这样程序的迭代深度为O(log n)，总得时间复杂度为O(n log n)，更加详细的计算推演可以参考算法导论的主定理（master theorem）部分。</p>
-<p>而在最坏的情况下，序列反向有序，可以想象出其递归树的结构将会变成倾斜的一边倒的单边树结构，这种情况下其比较次数将会是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(n-1) + (n-2) + (n-3) + ... + 1</span><br></pre></td></tr></table></figure></p>
-<p>其时间复杂度为 O(n^2)。</p>
-<p>平均情况的计算就略麻烦了，详细的过程还是去看算法导论吧，其结果也是O(n log n)。</p>
-<h4 id="u5173_u4E8E_u5192_u6CE1_u6392_u5E8F"><a href="#u5173_u4E8E_u5192_u6CE1_u6392_u5E8F" class="headerlink" title="关于冒泡排序"></a>关于冒泡排序</h4><p>其简单流程：</p>
-<ol>
-<li>顺序的比较相邻的元素，如果第一个比第二个大，就交换他们两个</li>
-<li>对每一对相邻元素都进行操作 1，最大的数将会被排到最后</li>
-<li>迭代的进行以上操作，每次迭代都排除最后的有序部分</li>
-<li>持续每次对越来越少的元素重复上面的步骤，直到没有任何一对数字需要比较</li>
-</ol>
-<p>由上边的流程可以看出，其比较次数为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(n-1) + (n-2) + (n-3) + ... + 1</span><br></pre></td></tr></table></figure></p>
-<p>其时间复杂度为 O(n^2)。</p>
-<p>但是在很多地方都会看到在最优状态时，冒泡排序的最优时间复杂度为 O(n)，这到底是怎么得出的呢。</p>
-<p>我们分析其流程可以看出，当某次迭代过程中都未发生交换操作时，我们就可以判定其已经有序可以退出迭代了。这样当目标序列已有序的情况下，其时间复杂度就为 O(n)。</p>
-<p>核心代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for(int i = 0; i &#60; n - 1; i++)&#123;&#10;  flag = false;&#10;  for(int j = 0; j &#60; n - 1 - i; j++)&#123;&#10;    if(arr[j+1] &#60; arr[j])&#123;&#10;      swap(arr, j, j + 1);&#10;      flag = true;&#10;    &#125;&#10;  &#125;&#10;  if(!flag)&#10;    return;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
-<hr>
-<blockquote>
-<p>分治法<br>辗转相除法</p>
+        <h4 id="Concurrency_and_Parallelism"><a href="#Concurrency_and_Parallelism" class="headerlink" title="Concurrency and Parallelism"></a>Concurrency and Parallelism</h4><blockquote>
+<p>并发，一个处理器同时处理多个任务，逻辑上的同时发生</p>
+<p>并行，多个处理器或者是多核的处理器同时处理多个不同的任务，物理上的同时发生</p>
 </blockquote>
+<p>如果你熟悉操作系统的时间片的概念的话，就很容易理解当一台单CPU的机器在处理各个任务时其实就是一个并发环境。各个任务以时间片为时间单位来获取CPU的使用权，给用户以每个线程都在同时运行的错觉。</p>
+<p>而在并行环境中，如多个线程是可以利用多CPU的处理能力，在真正意义上实现同一时刻同时执行，以最大限度的利用CPU。</p>
+<h4 id="GIL"><a href="#GIL" class="headerlink" title="GIL"></a>GIL</h4><p>GIL，全称 Global Interpreter Lock，即全局解释器锁。<br>ruby解释器MRI利用GIL来保护Ruby内核，以免竞争条件造成数据混乱。GIL的存在会使即使是在多核多线程的环境中，同一时刻也只有一个线程和一个核心在工作，也就是说由于GIL的存在，将不能真正的实现并行。</p>
+<p>MRI中还有一个计时器线程用来避免一个线程独霸GIL，当MRI启动并只有主线程运行时，计时器线程将会沉睡，当有新的线程在等待GIL,它就会唤醒计时器线程。</p>
+<p>一段时间后计时器线程会在当前持有GIL的线程上设置中断标记，并不会立即停止当前线程的执行，而是当线程返回当前方法（ruby方法）的返回值时会去检测中断标记，如果已被设置中断标记则此线程会在返回其值前停止执行并释放锁。</p>
+<p>我们来看下下面的代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array = []&#10;&#10;5.times.map do&#10;  Thread.new do&#10;    (1..100).each do |i|&#10;      array &#60;&#60; i&#10;    end&#10;  end&#10;end.each(&#38;:join)&#10;&#10;puts array.to_s&#10;puts array.size</span><br></pre></td></tr></table></figure></p>
+<p>在自己的机器上试着执行下，我的执行结果是顺序的5段1到100的数组，就好像这五个线程是顺序的一个执行完毕再执行下一个一样。</p>
+<p>再看这段代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array = []&#10;&#10;5.times.map do&#10;  Thread.new do&#10;    (1..100).each do |i|&#10;      p i&#10;      # a = a^2+i^2&#10;      array &#60;&#60; i&#10;    end&#10;  end&#10;end.each(&#38;:join)&#10;&#10;puts array.to_s&#10;puts array.size</span><br></pre></td></tr></table></figure></p>
+<p>在循环中加入一个打印语句，此时的执行结果正如理想的并发情景一样是无序的输出。</p>
+<p><em>由于我对GIL还有很多不理解的地方，下面纯属个人理解，有理解错误的地方请大家指出来。</em></p>
+<p>由于GIL的存在，同一时间只会有一个线程执行，直到耗尽时间片或被阻塞（IO或者sleep等）就会切换至其他线程。首先第一个例子中其中一个线程获取到了锁，然后在时间片时间内执行完毕然后依次执行其他线程最终就是我们看到的结果，而第二个例子由于打印这个IO操作造成了线程的切换。</p>
+<hr>
+<p><a href="http://www.jstorimer.com/blogs/workingwithcode/8085491-nobody-understands-the-gil" target="_blank" rel="external">Nobody understands the GIL</a></p>
 
       
     </div>
@@ -322,7 +294,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
+            <a href="/tags/ruby/" rel="tag">#ruby</a>
           
         </div>
       
@@ -331,17 +303,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/04/14/Rails-Initialization-1/" rel="next" title="Rails Initialization - Briefing">
-                <i class="fa fa-chevron-left"></i> Rails Initialization - Briefing
+              <a href="/2016/05/07/Hash-Index/" rel="next" title="Hash Index">
+                <i class="fa fa-chevron-left"></i> Hash Index
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/05/01/Clustered-Index-For-MySQL/" rel="prev" title="Clustered Index">
-                Clustered Index <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -367,8 +335,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/04/23/Quick-Sort/"
-           data-title="Quick-Sort" data-url="http://elibinary.com/2016/04/23/Quick-Sort/">
+      <div class="ds-thread" data-thread-key="2016/05/13/MRI-GIL/"
+           data-title="MRI-GIL" data-url="http://elibinary.com/2016/05/13/MRI-GIL/">
       </div>
     
   </div>
@@ -456,7 +424,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#u5206_u6790"><span class="nav-number">1.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u5173_u4E8E_u5192_u6CE1_u6392_u5E8F"><span class="nav-number">2.</span> <span class="nav-text">关于冒泡排序</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Concurrency_and_Parallelism"><span class="nav-number">1.</span> <span class="nav-text">Concurrency and Parallelism</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#GIL"><span class="nav-number">2.</span> <span class="nav-text">GIL</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
