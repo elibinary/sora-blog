@@ -57,17 +57,16 @@
 
 
 
-<meta name="description" content="本篇简单介绍下快排。">
+<meta name="description" content="计算连续子向量的最大和及其时间度量方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Quick-Sort">
-<meta property="og:url" content="http://elibinary.com/2016/04/23/Quick-Sort/index.html">
+<meta property="og:title" content="连续子向量最大和">
+<meta property="og:url" content="http://elibinary.com/2016/05/21/Continuous-Sub-Vector/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="本篇简单介绍下快排。">
-<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/QuickSort-1.jpg">
-<meta property="og:updated_time" content="2016-05-09T05:19:06.000Z">
+<meta property="og:description" content="计算连续子向量的最大和及其时间度量方法。">
+<meta property="og:updated_time" content="2016-05-21T03:00:04.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Quick-Sort">
-<meta name="twitter:description" content="本篇简单介绍下快排。">
+<meta name="twitter:title" content="连续子向量最大和">
+<meta name="twitter:description" content="计算连续子向量的最大和及其时间度量方法。">
 
 
 
@@ -85,7 +84,7 @@
   };
 </script>
 
-  <title> Quick-Sort | Sora </title>
+  <title> 连续子向量最大和 | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -225,7 +224,7 @@
             
             
               
-                Quick-Sort
+                连续子向量最大和
               
             
           </h1>
@@ -237,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-04-23T13:18:42+08:00" content="2016-04-23">
-              2016-04-23
+            <time itemprop="dateCreated" datetime="2016-05-21T10:58:37+08:00" content="2016-05-21">
+              2016-05-21
             </time>
           </span>
 
@@ -248,8 +247,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/04/23/Quick-Sort/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/23/Quick-Sort/" itemprop="commentsCount"></span>
+                <a href="/2016/05/21/Continuous-Sub-Vector/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/21/Continuous-Sub-Vector/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -270,50 +269,19 @@
       
 
       
-        <p>快速排序是一种划分交换排序算法，最早由东尼.霍尔提出，它的中心思想是使用分治法策略把一个待排序序列分为两个子序列，并迭代的进行此过程直至无法在进行分治分割结束。</p>
-<p>基本步骤：</p>
-<ol>
-<li>从待排序序列中选择一个基准数</li>
-<li>把比这个基准数小的放其左边，大的放其右边，相等的放哪边都行</li>
-<li>第二步过后会得到左右两个子序列，对这两个子序列迭代的进行第二步操作</li>
-<li>当子序列不可在分割时，也就是只有一个元素时，迭代结束</li>
-</ol>
-<p>下面是一次排序的过程：</p>
-<div align="center"><br>  <img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/QuickSort-1.jpg" alt="5-B-Tree-1"><br></div>
-
-<p>首先我们有如图的一个序列(3,6,4,1,8,7,2,9,5)</p>
-<ol>
-<li>选取序列第一个值为基准数，设置边界(l,r)以及循环初始值(i,j)</li>
-<li>以j开始从后向前移动，直到找到一个小于（或等于）基准值的元素，或者j&lt;=i</li>
-<li>把找到的元素与基准值换位（其实并不是真的交换位置，这个稍后在实现时就可以很容易看出来），并使i++</li>
-<li>然后以i开始从前往后移动，直到找到一个大于基准值的元素, 或者i&gt;=j</li>
-<li>把找到的元素与基准值换位, 并使j–</li>
-<li>循环这个过程，直到i&gt;=j结束循环，这时我们将得到两个以基准值为界左边元素全部小于基准值，右边元素全部大于基准值的子序列</li>
-<li>迭代的执行这个过程，最终的到一个有序序列</li>
-</ol>
-<p>核心代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void sort(int left,int right,int b[])&#10;&#123;&#10;  if(left&#62;=right)&#10;    return;&#10;  int low=left,high=right;&#10;  int tmp=b[low];&#10;  while(low!=high)&#10;  &#123;&#10;    while(b[high]&#62;tmp&#38;&#38;high&#62;low)&#10;      high--;&#10;    b[low++]=b[high];&#10;    while(b[low]&#60;tmp&#38;&#38;high&#62;low)&#10;      low++;&#10;    b[high--]=b[low];&#10;  &#125;&#10;  b[low]=tmp;&#10;  sort(left,low-1,b);&#10;  sort(low+1,right,b);  &#10;&#125;</span><br></pre></td></tr></table></figure></p>
-<p>来看一下另一种实现思路：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void qsort(int left,int right)&#10;&#123;&#10;  int l,h,x,tmp;&#10;  l=left;h=right;&#10;  x=a[(left+right)&#62;&#62;1];&#10;  while(l&#60;=h)&#10;  &#123;&#10;    while(a[l]&#60;x)&#10;      l++;&#10;    while(a[h]&#62;x)&#10;      h--;&#10;    if(l&#60;=h)&#10;    &#123;&#10;      tmp=a[l];&#10;      a[l]=a[h];&#10;      a[h]=tmp;&#10;      l++;  h--;&#10;    &#125;&#10;  &#125;&#10;  if(left&#60;h)&#10;    qsort(left,h);&#10;  if(l&#60;right)&#10;    qsort(l,right);&#10;&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="u5206_u6790"><a href="#u5206_u6790" class="headerlink" title="分析"></a>分析</h4><p>不难看出快排每次排序分割操作都会访问所有序列元素，使用O(n)时间。在最好的情况下，假设我们选择的基准值足够好，这样每次分割都能将元序列分成两个相同大小的子序列，这样程序的迭代深度为O(log n)，总得时间复杂度为O(n log n)，更加详细的计算推演可以参考算法导论的主定理（master theorem）部分。</p>
-<p>而在最坏的情况下，序列反向有序，可以想象出其递归树的结构将会变成倾斜的一边倒的单边树结构，这种情况下其比较次数将会是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(n-1) + (n-2) + (n-3) + ... + 1</span><br></pre></td></tr></table></figure></p>
-<p>其时间复杂度为 O(n^2)。</p>
-<p>平均情况的计算就略麻烦了，详细的过程还是去看算法导论吧，其结果也是O(n log n)。</p>
-<h4 id="u5173_u4E8E_u5192_u6CE1_u6392_u5E8F"><a href="#u5173_u4E8E_u5192_u6CE1_u6392_u5E8F" class="headerlink" title="关于冒泡排序"></a>关于冒泡排序</h4><p>其简单流程：</p>
-<ol>
-<li>顺序的比较相邻的元素，如果第一个比第二个大，就交换他们两个</li>
-<li>对每一对相邻元素都进行操作 1，最大的数将会被排到最后</li>
-<li>迭代的进行以上操作，每次迭代都排除最后的有序部分</li>
-<li>持续每次对越来越少的元素重复上面的步骤，直到没有任何一对数字需要比较</li>
-</ol>
-<p>由上边的流程可以看出，其比较次数为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(n-1) + (n-2) + (n-3) + ... + 1</span><br></pre></td></tr></table></figure></p>
-<p>其时间复杂度为 O(n^2)。</p>
-<p>但是在很多地方都会看到在最优状态时，冒泡排序的最优时间复杂度为 O(n)，这到底是怎么得出的呢。</p>
-<p>我们分析其流程可以看出，当某次迭代过程中都未发生交换操作时，我们就可以判定其已经有序可以退出迭代了。这样当目标序列已有序的情况下，其时间复杂度就为 O(n)。</p>
-<p>核心代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for(int i = 0; i &#60; n - 1; i++)&#123;&#10;  flag = false;&#10;  for(int j = 0; j &#60; n - 1 - i; j++)&#123;&#10;    if(arr[j+1] &#60; arr[j])&#123;&#10;      swap(arr, j, j + 1);&#10;      flag = true;&#10;    &#125;&#10;  &#125;&#10;  if(!flag)&#10;    return;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
-<hr>
-<blockquote>
-<p>分治法<br>辗转相除法</p>
+        <blockquote>
+<p>求一串数字的最大连续子向量和，问题是这样的给出一个具有n个整数的向量，求出任何连续子向量中的最大和。</p>
 </blockquote>
+<p>首先想到最暴力的求解方法：穷举。去穷举出所有的子向量然后求和比较即可，思想简单实现简单。可以很容易的给出实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int max = 0;  &#10;int length = SCALE;  &#10;int i,j,k;  &#10;for (i = 0; i &#60; length; ++i)  &#10;&#123;  &#10;  for (j = i; j &#60; length; ++j)  &#10;  &#123;  &#10;    int sum = 0;  &#10;    for (k = i; k &#60;= j; ++k)  &#10;    &#123;  &#10;      sum += x[k];  &#10;    &#125;  &#10;    max = maxnum(max, sum);  &#10;  &#125;  &#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>穷举法虽然简单易实现，但是上面的实现我们一眼就可以看出其时间复杂度是立方级的，也就是O(n^3).</p>
+<p>看着上面的实现，可以发现其中有着很多的重复计算，那么容易想到可以把中间结果存储起来以备后面再次用到时可以直接取用以此来进行计算优化。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">max = 0;  &#10;&#10;for (i = 0; i &#60; length; ++i)  &#10;&#123;  &#10;  int sum = 0;  &#10;  for (j = i; j &#60; length; ++j)  &#10;  &#123;  &#10;    sum += x[j];  &#10;    max = maxnum(max, sum);  &#10;  &#125;  &#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>上述实现只保存了内层计算的中间结果，其时间复杂度O(n^2).<br>我们可以进一步简化其实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">max = 0;  &#10;int max_end_here = 0;  &#10;&#10;for (i = 0; i &#60; length; ++i)  &#10;&#123;  &#10;  max_end_here = maxnum(max_end_here + x[i], 0);  &#10;  max = maxnum(max, max_end_here);  &#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>上述这种实现的思路就是，如果到当前节点为止结果为正，就继续往后累加（基数为正必然总和会增大），如果为负就舍弃前面的连续，从当前位置开始重新计算连续向量和（如果为负继续累加必然会减小总和）。这样就把时间复杂度控制在了O(n)。</p>
+<p>下面给出完整代码以及三种实现的时间度量及比较：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#include &#60;stdio.h&#62;  &#10;#include &#60;time.h&#62;  &#10;#include &#60;stdlib.h&#62;  &#10;&#10;#define SCALE 3000  &#10;&#10;int maxnum(int a, int b);  &#10;&#10;int main(int argc, char const *argv[])  &#10;&#123;  &#10;  FILE *fp;  &#10;  fp = fopen(&#34;maximum.in&#34;, &#34;r&#34;);  &#10;  // int x[] = &#123;1,12,-11,10,-65,54,22,-9,21,5,48,5,-8,-2,56,54,-88,-5,2,-8,554,-56,35,-55,555,-65,-545,-23,48,-5,88,-56,16,-8&#125;;  &#10;  int *x = (int *)malloc(sizeof(int)*(SCALE+1));  &#10;  int xi = SCALE,a = 0,num_in = 0;  &#10;  while(xi--)&#123;  &#10;    fscanf(fp, &#34;%d&#34;, &#38;x[a++]);  &#10;  &#125;  &#10;&#10;&#10;  clock_t start, end;  &#10;&#10;  // ***Algorithm-1 cube***  &#10;  start = clock();  &#10;&#10;  int max = 0;  &#10;  int length = SCALE;  &#10;  int i,j,k;  &#10;  for (i = 0; i &#60; length; ++i)  &#10;  &#123;  &#10;    for (j = i; j &#60; length; ++j)  &#10;    &#123;  &#10;      int sum = 0;  &#10;      for (k = i; k &#60;= j; ++k)  &#10;      &#123;  &#10;        sum += x[k];  &#10;      &#125;  &#10;      max = maxnum(max, sum);  &#10;    &#125;  &#10;  &#125;  &#10;&#10;  // long num = 10000000L;  &#10;  // while(num--);  &#10;&#10;  end = clock();  &#10;&#10;  double times = (double)(end - start)/CLOCKS_PER_SEC;  &#10;  double dend = (double)end;  &#10;&#10;  printf(&#34;\n***Algorithm-1 cube***\n&#34;);  &#10;  printf(&#34;end: %f\n&#34;, dend);  &#10;  printf(&#34;Time consuming: %f\n&#34;, times);  &#10;  printf(&#34;%d\n&#34;, max);  &#10;&#10;&#10;  // ***Algorithm-2 square***  &#10;  start = clock();  &#10;&#10;  max = 0;  &#10;&#10;  for (i = 0; i &#60; length; ++i)  &#10;  &#123;  &#10;    int sum = 0;  &#10;    for (j = i; j &#60; length; ++j)  &#10;    &#123;  &#10;      sum += x[j];  &#10;      max = maxnum(max, sum);  &#10;    &#125;  &#10;  &#125;  &#10;&#10;  end = clock();  &#10;&#10;  times = (double)(end - start)/CLOCKS_PER_SEC;  &#10;  dend = (double)end;  &#10;&#10;  printf(&#34;\n***Algorithm-2 square***\n&#34;);  &#10;  printf(&#34;end: %f\n&#34;, dend);  &#10;  printf(&#34;Time consuming: %f\n&#34;, times);  &#10;  printf(&#34;%d\n&#34;, max);  &#10;&#10;&#10;  // ***Algorithm-3 linear***  &#10;  start = clock();  &#10;&#10;  max = 0;  &#10;  int max_end_here = 0;  &#10;&#10;  for (i = 0; i &#60; length; ++i)  &#10;  &#123;  &#10;    max_end_here = maxnum(max_end_here + x[i], 0);  &#10;    max = maxnum(max, max_end_here);  &#10;  &#125;  &#10;&#10;  end = clock();  &#10;&#10;  times = (double)(end - start)/CLOCKS_PER_SEC;  &#10;  dend = (double)end;  &#10;&#10;  printf(&#34;\n***Algorithm-3 linear***\n&#34;);  &#10;  printf(&#34;end: %f\n&#34;, dend);  &#10;  printf(&#34;Time consuming: %f\n&#34;, times);  &#10;  printf(&#34;%d\n&#34;, max);  &#10;&#10;&#10;&#10;  free(x);  &#10;  x = NULL;  &#10;  return 0;  &#10;&#125;  &#10;&#10;int maxnum(int a, int b)  &#10;&#123;  &#10;  return a &#62; b ? a : b;  &#10;&#125;</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -331,17 +299,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/04/14/Rails-Initialization-1/" rel="next" title="Rails Initialization - Briefing">
-                <i class="fa fa-chevron-left"></i> Rails Initialization - Briefing
+              <a href="/2016/05/13/MRI-GIL/" rel="next" title="MRI-GIL">
+                <i class="fa fa-chevron-left"></i> MRI-GIL
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/05/01/Clustered-Index-For-MySQL/" rel="prev" title="Clustered Index">
-                Clustered Index <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -367,8 +331,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/04/23/Quick-Sort/"
-           data-title="Quick-Sort" data-url="http://elibinary.com/2016/04/23/Quick-Sort/">
+      <div class="ds-thread" data-thread-key="2016/05/21/Continuous-Sub-Vector/"
+           data-title="连续子向量最大和" data-url="http://elibinary.com/2016/05/21/Continuous-Sub-Vector/">
       </div>
     
   </div>
@@ -456,7 +420,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#u5206_u6790"><span class="nav-number">1.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u5173_u4E8E_u5192_u6CE1_u6392_u5E8F"><span class="nav-number">2.</span> <span class="nav-text">关于冒泡排序</span></a></li></ol></div>
+              <p class="post-toc-empty">This post does not have a Table of Contents</p>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
