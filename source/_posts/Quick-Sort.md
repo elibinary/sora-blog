@@ -1,9 +1,11 @@
 ---
 title: Quick-Sort
 tags:
-- Algorithm
+  - Algorithm
 description: 本篇简单介绍下快排。
+date: 2016-04-23 13:18:42
 ---
+
 
 快速排序是一种划分交换排序算法，最早由东尼.霍尔提出，它的中心思想是使用分治法策略把一个待排序序列分为两个子序列，并迭代的进行此过程直至无法在进行分治分割结束。
 
@@ -47,7 +49,7 @@ void sort(int left,int right,int b[])
       low++;
     b[high--]=b[low];
   }
-  b[low]=tmp; 
+  b[low]=tmp;
   sort(left,low-1,b);
   sort(low+1,right,b);  
 }

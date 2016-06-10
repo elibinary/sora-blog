@@ -4,7 +4,9 @@ tags:
   - db
   - MySQL
 description: 本篇主要关于聚集索引的基础认识及在MySQL中的实现及应用。
+date: 2016-05-01 13:13:59
 ---
+
 
 #### 索引
 
