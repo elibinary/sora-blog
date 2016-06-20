@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Security," />
+  <meta name="keywords" content="MySQL," />
 
 
 
@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="本篇文章主要简单介绍一些api安全设计的方案。">
+<meta name="description" content="本篇我们接着来谈索引">
 <meta property="og:type" content="article">
-<meta property="og:title" content="API Security Design">
-<meta property="og:url" content="http://elibinary.com/2016/03/04/API-Security-Design/index.html">
+<meta property="og:title" content="Index-Of-MqSQL-I">
+<meta property="og:url" content="http://elibinary.com/2016/06/20/Index-Of-MqSQL-I/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="本篇文章主要简单介绍一些api安全设计的方案。">
-<meta property="og:updated_time" content="2016-03-10T11:13:47.000Z">
+<meta property="og:description" content="本篇我们接着来谈索引">
+<meta property="og:updated_time" content="2016-06-20T08:22:38.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="API Security Design">
-<meta name="twitter:description" content="本篇文章主要简单介绍一些api安全设计的方案。">
+<meta name="twitter:title" content="Index-Of-MqSQL-I">
+<meta name="twitter:description" content="本篇我们接着来谈索引">
 
 
 
@@ -84,7 +84,7 @@
   };
 </script>
 
-  <title> API Security Design | Sora </title>
+  <title> Index-Of-MqSQL-I | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +224,7 @@
             
             
               
-                API Security Design
+                Index-Of-MqSQL-I
               
             
           </h1>
@@ -236,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-03-04T22:34:00+08:00" content="2016-03-04">
-              2016-03-04
+            <time itemprop="dateCreated" datetime="2016-06-20T16:21:39+08:00" content="2016-06-20">
+              2016-06-20
             </time>
           </span>
 
@@ -247,8 +247,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/03/04/API-Security-Design/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/04/API-Security-Design/" itemprop="commentsCount"></span>
+                <a href="/2016/06/20/Index-Of-MqSQL-I/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/20/Index-Of-MqSQL-I/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -269,31 +269,17 @@
       
 
       
-        <blockquote>
-<p>REST API, REST(Representational State Transfer)是一种设计风格，REST API就在此理解为符合REST设计原则和约束条件的HTTP和HTTPS服务端接口。</p>
-</blockquote>
-<p>在client-server应用系统中，REST重要原则是客户端和服务器之间的交互在请求之间是无状态的，每次请求都得附带身份认证信息。我们需要为它加上各种所需的安全防护。</p>
-<h4 id="About_HTTP_Basic"><a href="#About_HTTP_Basic" class="headerlink" title="About HTTP Basic"></a>About HTTP Basic</h4><p>HTTP Basic认证实现起来非常简单，基本形式是客户端在发起请求时提供用户名和口令等身份验证信息。<br>先把认证信息排列成以下形式：user:pwd，然后再对其进行URL安全的Base64编码。</p>
-<p>这种方式在客户端要求很低，服务器端实现也很简单，不过相对的安全性也是很低的。Base64编码这一步骤的目的并不是安全与隐私，而是为将用户名和口令中的不兼容的字符转换为均与HTTP协议兼容的字符集。这种认证方式需要保证客户端和服务器主机之间的连接是安全可信的，不然就是裸奔了。</p>
-<h4 id="About_HTTP_Digest"><a href="#About_HTTP_Digest" class="headerlink" title="About HTTP Digest"></a>About HTTP Digest</h4><p>Digest认证方式相比Basic认证，增强了其安全性。它在身份认证信息发出前会对其进行MD5加密，相较于HTTP Basic发送明文而言更加安全。</p>
-<p>其加密的大致步骤是这样的：</p>
-<p>首先先把身份认证信息排列成下列形式<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"user:realm:passwd"</span></span><br></pre></td></tr></table></figure></p>
-<p>对其进行MD5加密生成 <em>HA1</em> 字符串<br>然后是接口信息<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"method:DigestURI"</span></span><br></pre></td></tr></table></figure></p>
-<p>对其进行MD5加密生成 <em>HA2</em> 字符串<br>然后把所有信息排列如下<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"HA1:nonce:HA2"</span></span><br></pre></td></tr></table></figure></p>
-<p>对其进行MD5加密生成最后的验证信息</p>
-<blockquote>
-<p>其中第一步里面的 <em>realm</em> 到底是什么呢，<a href="http://tools.ietf.org/html/rfc2617#page-3" target="_blank" rel="external">RFC 2617</a>中给出这样的描述：</p>
-<p>The realm directive (case-insensitive) is required for all<br>   authentication schemes that issue a challenge. The realm value<br>   (case-sensitive), in combination with the canonical root URL (the<br>   absoluteURI for the server whose abs_path is empty; see section 5.1.2<br>   of [2]) of the server being accessed, defines the protection space.<br>   These realms allow the protected resources on a server to be<br>   partitioned into a set of protection spaces, each with its own<br>   authentication scheme and/or authorization database. The realm value<br>   is a string, generally assigned by the origin server, which may have<br>   additional semantics specific to the authentication scheme. Note that<br>   there may be multiple challenges with the same auth-scheme but<br>   different realms.</p>
-<p>看起来类似于空间的意思简单地说就是相同的realm是可以共用credentials的。</p>
-<p>第三步中的 <em>nonce</em> 是一个随机数，生成随机数时还可以加入时间戳以防止重放攻击。</p>
-</blockquote>
-<p>由于MD5算法是不可逆的，以此来保障身份信息的安全性。当然，这样并不能保障因密码简单而被暴力破解的方法靠穷举来试出密码，现在有很多现成的字典可以减少穷举次数减小破解难度。</p>
-<h4 id="About_API_KEY"><a href="#About_API_KEY" class="headerlink" title="About API KEY"></a>About API KEY</h4><p>API KEY就是服务器端颁发给客户端的key，一般有两个api_key和security_key。客户端使用将使用这两个key对身份验证信息进行签名。</p>
-<p>首先Client端会对api_key、时间戳、rest_uri进行组合并编码，然后使用security_key作为密钥使用HMAC对其进行加密生成sign。最后的请求类似如下：<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"/restapi/interface?api_key=xxx&amp;timestrap=xxx&amp;sign=xxx"</span></span><br></pre></td></tr></table></figure></p>
-<p>服务器端收到请求后，首先验证api_key是否存在，存在则获取其对应的security_key，然后对api_key、时间戳、rest_uri进行组合并编码，然后使用security_key作为密钥使用HMAC对其进行加密生成sign，最后把生成的sign与client端传过来的sign进行比较完成身份认证。其中时间戳可以用来防止重放攻击。</p>
-<p><br><br><br> </p>
-<hr>
-<p>PS: 后续会对 Oauth 协议进行介绍</p>
+        <h4 id="u5173_u4E8E_u6392_u5E8F"><a href="#u5173_u4E8E_u6392_u5E8F" class="headerlink" title="关于排序"></a>关于排序</h4><p>先来谈一下MySQL的排序，MySQL有两种方式来产生有序的结果：</p>
+<pre><code>1. 通过排序操作
+2. 按索引顺序扫描
+</code></pre><p>我们知道索引结构本身就是有序的，那如何使用索引进行排序呢。这就需要我们的 query 的 order by 条件和 query 所利用的索引键一致并且索引访问方式为 rang、 ref 或者 index ，这样利用索引直接取得已经排好序的数据。在关联多张表的情况下，那就只有当 order by 子句引用的字段全部在第一个表，这是才能使用索引做排序，当然， order by 子句仍需要满足索引的最左前缀原则。那么如果不能使用索引做排序的情况下，MySQL就会使用排序算法来产生有序结果。</p>
+<p>MySQL 是可以满足使用同一个作引同时进行查找行以及排序操作的。在设计索引时，尽量同时满足这两种任务。</p>
+<p>思考一个问题，按索引顺序读取数据与顺序的全表扫描数据哪一种方式快？<br>通常情况下是顺序的全表扫描比较快。有的人可能会有疑问，我们在进行查询时不都是尽量避免扫描表，更多的利用索引来提高效率么，为什么全表扫描反倒比按索引读取要快了呢？其实扫描索引本身是很快的，因为查询时只需要从一条索引记录移动到紧邻的下一条。但是当我们的索引结构不能形成覆盖索引时，那么就会每扫描一条索引记录就回表查询一次对应的行，而这基本上都是随机I/O 。因此通常情况下顺序全表扫描要比按索引顺序读取数据要更快。</p>
+<h4 id="u5173_u4E8E_u5197_u4F59"><a href="#u5173_u4E8E_u5197_u4F59" class="headerlink" title="关于冗余"></a>关于冗余</h4><p>说到冗余，我们知道MySQL是允许在相同的列上创建多个索引，基于此有时我们在创建使用索引的过程中会创建出重复索引。</p>
+<p>重复索引是指在相同的列上按照相同的顺序创建的相同类型的索引。由于MySQL需要单独维护重复的索引，并且优化器在优化查询的时候也会去考虑全部的索引，这也会影响性能。</p>
+<p>另外一种情况是冗余索引，之前提到过InnoDB的索引遵循最左前缀原则，也就是说假如我有索引 (a,b) ，那么我就同时有了 (a) 索引，有时我们会再次单独创建索引 (a) ，这就是冗余的索引。大多数情况下冗余索引都是不需要的，应当尽量扩展已有的索引而不是创建新的索引。当然场景万千，有时出于各方面考虑也会特意使用冗余索引来提升效率。</p>
+<p>比如我们现在在一个整数列上有一个索引，现在需要额外增加一个很长的varchar类型列来扩展该索引，那性能可能会受到很大影响。具体场景应有具体的分析及解决方法，要权衡各方面利弊。</p>
+<p>最后再提一种情况，对于InnoDB来说主键列是已经包含在二级索引中的了，那么我们现有一个索引 (a) ，其实在 (a) 上的索引就相当于在 (a, id) 上的索引。我们现在有这样一个场景，如果我们的 query 是 ‘where a = 5 order by id’ 那么这个索引将会被非常有效的利用，这是如果我们把索引 (a) ，扩展为 (a,b) 那么实际上就相当于是 (a,b,id) 这样的索引了，这时如果进行上面的 query ，很显然的将只能使用到索引a，而排序操作搜索引擎将不得不进行文件排序，这点要十分注意。</p>
 
       
     </div>
@@ -302,7 +288,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Security/" rel="tag">#Security</a>
+            <a href="/tags/MySQL/" rel="tag">#MySQL</a>
           
         </div>
       
@@ -311,17 +297,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="next" title="Mongoid 使用总结之一些查询方法">
-                <i class="fa fa-chevron-left"></i> Mongoid 使用总结之一些查询方法
+              <a href="/2016/06/10/Asset-Pipeline/" rel="next" title="Asset-Pipeline">
+                <i class="fa fa-chevron-left"></i> Asset-Pipeline
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/03/12/An-Introduction-To-Oauth2-P1/" rel="prev" title="An Introduction To OAuth2 - P1">
-                An Introduction To OAuth2 - P1 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -347,8 +329,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/03/04/API-Security-Design/"
-           data-title="API Security Design" data-url="http://elibinary.com/2016/03/04/API-Security-Design/">
+      <div class="ds-thread" data-thread-key="2016/06/20/Index-Of-MqSQL-I/"
+           data-title="Index-Of-MqSQL-I" data-url="http://elibinary.com/2016/06/20/Index-Of-MqSQL-I/">
       </div>
     
   </div>
@@ -436,7 +418,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#About_HTTP_Basic"><span class="nav-number">1.</span> <span class="nav-text">About HTTP Basic</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#About_HTTP_Digest"><span class="nav-number">2.</span> <span class="nav-text">About HTTP Digest</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#About_API_KEY"><span class="nav-number">3.</span> <span class="nav-text">About API KEY</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#u5173_u4E8E_u6392_u5E8F"><span class="nav-number">1.</span> <span class="nav-text">关于排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u5173_u4E8E_u5197_u4F59"><span class="nav-number">2.</span> <span class="nav-text">关于冗余</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">

@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Security," />
+  <meta name="keywords" content="Rails," />
 
 
 
@@ -57,16 +57,16 @@
 
 
 
-<meta name="description" content="本篇文章主要简单介绍一些api安全设计的方案。">
+<meta name="description" content="Asset Pipeline">
 <meta property="og:type" content="article">
-<meta property="og:title" content="API Security Design">
-<meta property="og:url" content="http://elibinary.com/2016/03/04/API-Security-Design/index.html">
+<meta property="og:title" content="Asset-Pipeline">
+<meta property="og:url" content="http://elibinary.com/2016/06/10/Asset-Pipeline/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="本篇文章主要简单介绍一些api安全设计的方案。">
-<meta property="og:updated_time" content="2016-03-10T11:13:47.000Z">
+<meta property="og:description" content="Asset Pipeline">
+<meta property="og:updated_time" content="2016-06-20T08:17:24.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="API Security Design">
-<meta name="twitter:description" content="本篇文章主要简单介绍一些api安全设计的方案。">
+<meta name="twitter:title" content="Asset-Pipeline">
+<meta name="twitter:description" content="Asset Pipeline">
 
 
 
@@ -84,7 +84,7 @@
   };
 </script>
 
-  <title> API Security Design | Sora </title>
+  <title> Asset-Pipeline | Sora </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
@@ -224,7 +224,7 @@
             
             
               
-                API Security Design
+                Asset-Pipeline
               
             
           </h1>
@@ -236,8 +236,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2016-03-04T22:34:00+08:00" content="2016-03-04">
-              2016-03-04
+            <time itemprop="dateCreated" datetime="2016-06-10T12:38:33+08:00" content="2016-06-10">
+              2016-06-10
             </time>
           </span>
 
@@ -247,8 +247,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/03/04/API-Security-Design/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/04/API-Security-Design/" itemprop="commentsCount"></span>
+                <a href="/2016/06/10/Asset-Pipeline/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/10/Asset-Pipeline/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -269,31 +269,10 @@
       
 
       
-        <blockquote>
-<p>REST API, REST(Representational State Transfer)是一种设计风格，REST API就在此理解为符合REST设计原则和约束条件的HTTP和HTTPS服务端接口。</p>
-</blockquote>
-<p>在client-server应用系统中，REST重要原则是客户端和服务器之间的交互在请求之间是无状态的，每次请求都得附带身份认证信息。我们需要为它加上各种所需的安全防护。</p>
-<h4 id="About_HTTP_Basic"><a href="#About_HTTP_Basic" class="headerlink" title="About HTTP Basic"></a>About HTTP Basic</h4><p>HTTP Basic认证实现起来非常简单，基本形式是客户端在发起请求时提供用户名和口令等身份验证信息。<br>先把认证信息排列成以下形式：user:pwd，然后再对其进行URL安全的Base64编码。</p>
-<p>这种方式在客户端要求很低，服务器端实现也很简单，不过相对的安全性也是很低的。Base64编码这一步骤的目的并不是安全与隐私，而是为将用户名和口令中的不兼容的字符转换为均与HTTP协议兼容的字符集。这种认证方式需要保证客户端和服务器主机之间的连接是安全可信的，不然就是裸奔了。</p>
-<h4 id="About_HTTP_Digest"><a href="#About_HTTP_Digest" class="headerlink" title="About HTTP Digest"></a>About HTTP Digest</h4><p>Digest认证方式相比Basic认证，增强了其安全性。它在身份认证信息发出前会对其进行MD5加密，相较于HTTP Basic发送明文而言更加安全。</p>
-<p>其加密的大致步骤是这样的：</p>
-<p>首先先把身份认证信息排列成下列形式<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"user:realm:passwd"</span></span><br></pre></td></tr></table></figure></p>
-<p>对其进行MD5加密生成 <em>HA1</em> 字符串<br>然后是接口信息<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"method:DigestURI"</span></span><br></pre></td></tr></table></figure></p>
-<p>对其进行MD5加密生成 <em>HA2</em> 字符串<br>然后把所有信息排列如下<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"HA1:nonce:HA2"</span></span><br></pre></td></tr></table></figure></p>
-<p>对其进行MD5加密生成最后的验证信息</p>
-<blockquote>
-<p>其中第一步里面的 <em>realm</em> 到底是什么呢，<a href="http://tools.ietf.org/html/rfc2617#page-3" target="_blank" rel="external">RFC 2617</a>中给出这样的描述：</p>
-<p>The realm directive (case-insensitive) is required for all<br>   authentication schemes that issue a challenge. The realm value<br>   (case-sensitive), in combination with the canonical root URL (the<br>   absoluteURI for the server whose abs_path is empty; see section 5.1.2<br>   of [2]) of the server being accessed, defines the protection space.<br>   These realms allow the protected resources on a server to be<br>   partitioned into a set of protection spaces, each with its own<br>   authentication scheme and/or authorization database. The realm value<br>   is a string, generally assigned by the origin server, which may have<br>   additional semantics specific to the authentication scheme. Note that<br>   there may be multiple challenges with the same auth-scheme but<br>   different realms.</p>
-<p>看起来类似于空间的意思简单地说就是相同的realm是可以共用credentials的。</p>
-<p>第三步中的 <em>nonce</em> 是一个随机数，生成随机数时还可以加入时间戳以防止重放攻击。</p>
-</blockquote>
-<p>由于MD5算法是不可逆的，以此来保障身份信息的安全性。当然，这样并不能保障因密码简单而被暴力破解的方法靠穷举来试出密码，现在有很多现成的字典可以减少穷举次数减小破解难度。</p>
-<h4 id="About_API_KEY"><a href="#About_API_KEY" class="headerlink" title="About API KEY"></a>About API KEY</h4><p>API KEY就是服务器端颁发给客户端的key，一般有两个api_key和security_key。客户端使用将使用这两个key对身份验证信息进行签名。</p>
-<p>首先Client端会对api_key、时间戳、rest_uri进行组合并编码，然后使用security_key作为密钥使用HMAC对其进行加密生成sign。最后的请求类似如下：<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"/restapi/interface?api_key=xxx&amp;timestrap=xxx&amp;sign=xxx"</span></span><br></pre></td></tr></table></figure></p>
-<p>服务器端收到请求后，首先验证api_key是否存在，存在则获取其对应的security_key，然后对api_key、时间戳、rest_uri进行组合并编码，然后使用security_key作为密钥使用HMAC对其进行加密生成sign，最后把生成的sign与client端传过来的sign进行比较完成身份认证。其中时间戳可以用来防止重放攻击。</p>
-<p><br><br><br> </p>
-<hr>
-<p>PS: 后续会对 Oauth 协议进行介绍</p>
+        <p>Asset Pipeline 提供了一个框架，用于连接、压缩 JavaScript 和 CSS 文件，以及优化浏览器缓存。</p>
+<p>Asset Pipeline 的第一个功能就是连接合并静态资源，用以减少渲染页面时浏览器发起的请求数，同时也可以提升页面加载速度。在把所有 JavaScript 文件合并到一个主 .js 文件，以及把所有 CSS 文件合并到一个主 .css 文件后，它有一个非常重要的动作就是它会在文件名后加上 MD5 指纹，上次分享中提到过这样做的好处，就是我们可以利用Cache-Control的策略并把max-age设的足够大来使浏览器一直能够使用缓存直到资源过期，而当资源发生改变后其MD5指纹将会改变，此时浏览器缓存将自动过期。</p>
+<p>上次提到的请求连接后接请求字符串的方式出了上次提到的缺点外还有几处缺陷：首先使用请求字符串时，在集群环境中不同的服务器节点上的文件名可能是不相同的，由于目标字符串多是利用最后修改时间来生成的，那么由于部署新版代码时，所有静态资源文件的最后修改时间都将改变，即便内容没变，客户端也要重新请求这些文件，最后就是有些 CDN 验证缓存时根本无法识别请求字符串。</p>
+<p>Asset Pipeline还可以压缩静态资源，删除CSS文件中的空白和注释以及对JavaScript 的定制处理。 Asset Pipeline还允许允许使用高级语言编写静态资源再使用预处理器转换成真正的静态资源。</p>
 
       
     </div>
@@ -302,7 +281,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Security/" rel="tag">#Security</a>
+            <a href="/tags/Rails/" rel="tag">#Rails</a>
           
         </div>
       
@@ -311,16 +290,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/02/27/Mongoid-Utilization-Summary/" rel="next" title="Mongoid 使用总结之一些查询方法">
-                <i class="fa fa-chevron-left"></i> Mongoid 使用总结之一些查询方法
+              <a href="/2016/05/28/HTTP-CACHE/" rel="next" title="HTTP 缓存">
+                <i class="fa fa-chevron-left"></i> HTTP 缓存
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/03/12/An-Introduction-To-Oauth2-P1/" rel="prev" title="An Introduction To OAuth2 - P1">
-                An Introduction To OAuth2 - P1 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/06/20/Index-Of-MqSQL-I/" rel="prev" title="Index-Of-MqSQL-I">
+                Index-Of-MqSQL-I <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -347,8 +326,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/03/04/API-Security-Design/"
-           data-title="API Security Design" data-url="http://elibinary.com/2016/03/04/API-Security-Design/">
+      <div class="ds-thread" data-thread-key="2016/06/10/Asset-Pipeline/"
+           data-title="Asset-Pipeline" data-url="http://elibinary.com/2016/06/10/Asset-Pipeline/">
       </div>
     
   </div>
@@ -436,7 +415,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#About_HTTP_Basic"><span class="nav-number">1.</span> <span class="nav-text">About HTTP Basic</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#About_HTTP_Digest"><span class="nav-number">2.</span> <span class="nav-text">About HTTP Digest</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#About_API_KEY"><span class="nav-number">3.</span> <span class="nav-text">About API KEY</span></a></li></ol></div>
+              <p class="post-toc-empty">This post does not have a Table of Contents</p>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator">
