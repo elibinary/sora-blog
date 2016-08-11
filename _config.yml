@@ -7,7 +7,10 @@ title: Sora
 subtitle: Trick
 description: First I have a dream.
 author: Eli Binary
-language: en
+language:
+- en
+- zh-Hans
+- zh-hk
 # language: zh-Hans
 # language: fr-FR
 # language: zh-hk
@@ -18,8 +21,8 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://elibinary.github.io/sora-blog
-root: /sora-blog
+url: http://elibinary.com
+root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 
@@ -71,10 +74,14 @@ pagination_dir: page
 ## Themes: http://hexo.io/themes/
 theme: next
 
+duoshuo_shortname: sooraa
+# disqus_shortname: your-disqus-shortname
+
+
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
   type: git
   repo: https://github.com/elibinary/sora-blog.git
-  branch: master
+  branch: gh-pages
   message:
