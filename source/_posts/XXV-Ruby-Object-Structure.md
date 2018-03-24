@@ -1,5 +1,5 @@
 ---
-title: [读书笔记] Ruby 对象 - 结构 
+title: 读书笔记 - Ruby 对象 - 结构 
 date: 2017-05-21 11:44:47
 tags:
   - Ruby

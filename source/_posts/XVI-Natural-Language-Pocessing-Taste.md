@@ -1,5 +1,5 @@
 ---
-title: [读书笔记] 初识自然语言处理 
+title: 读书笔记 - 初识自然语言处理 
 date: 2017-02-18 14:07:04
 tags:
   - MachineLearning

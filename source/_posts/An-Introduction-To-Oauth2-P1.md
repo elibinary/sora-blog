@@ -2,7 +2,7 @@
 title: An Introduction To OAuth2 - P1
 date: 2016-03-12 09:17:16
 tags:
-- Security
+  - Security
 description: 本篇文章主要简单介绍OAuth2（开放授权）。
 ---
 

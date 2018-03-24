@@ -1,5 +1,5 @@
 ---
-title: [读书笔记] Ruby 类 - 结构 
+title: 读书笔记 - Ruby 类 - 结构 
 date: 2017-05-30 15:10:06
 tags:
   - Ruby

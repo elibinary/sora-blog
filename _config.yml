@@ -82,6 +82,6 @@ duoshuo_shortname: sooraa
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/elibinary/sora-blog.git
+  repo: git@github.com:elibinary/sora-blog.git
   branch: gh-pages
   message:
