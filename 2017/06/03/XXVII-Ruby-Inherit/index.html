@@ -1,0 +1,747 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="在 ruby 中，在定义一个类时没有指定其超类，那么它的超类默认被指定为 Object">
+<meta name="keywords" content="Ruby">
+<meta property="og:type" content="article">
+<meta property="og:title" content="读书笔记 Ruby 的继承与方法查找">
+<meta property="og:url" content="http://elibinary.com/2017/06/03/XXVII-Ruby-Inherit/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="在 ruby 中，在定义一个类时没有指定其超类，那么它的超类默认被指定为 Object">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpgRClass-module.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/linked-list-rclass.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/find-methods.png">
+<meta property="og:updated_time" content="2018-03-24T10:15:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="读书笔记 Ruby 的继承与方法查找">
+<meta name="twitter:description" content="在 ruby 中，在定义一个类时没有指定其超类，那么它的超类默认被指定为 Object">
+<meta name="twitter:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpgRClass-module.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 读书笔记 Ruby 的继承与方法查找 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                读书笔记 Ruby 的继承与方法查找
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-06-03T13:50:57+08:00" content="2017-06-03">
+              2017-06-03
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/06/03/XXVII-Ruby-Inherit/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/06/03/XXVII-Ruby-Inherit/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在 ruby 中，在定义一个类时没有指定其超类，那么它的超类默认被指定为 Object</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">MyClass.superclass</span><br><span class="line"># =&gt; Object</span><br><span class="line"></span><br><span class="line">class SonClass &lt; MyClass</span><br><span class="line">end</span><br><span class="line">SonClass.superclass</span><br><span class="line"># =&gt; MyClass</span><br></pre></td></tr></table></figure>
+<p>可以看出，当 SonClass 继承 MyClass 时就是把 rb_classext_struct 中的 super 指针指向 MyClass</p>
+<p>那么 Ruby 又是如何实现多继承的效果呢，说之前先说下 ruby 中 module 的概念。</p>
+<h3 id="module"><a href="#module" class="headerlink" title="module"></a>module</h3><p>在 Ruby 中，模块和类非常的相似，但他们是不同的，不同主要体现在三个方面：</p>
+<ol>
+<li>模块不能直接创建对象，也就是说模块没有 new 方法</li>
+<li>模块不能指定超类</li>
+<li>可以把模块包含进类中</li>
+</ol>
+<p>除此之外，模块和类基本类似，其实 Ruby 内部实现模块的方式与实现类的方式相同，也是使用 RClass 和 rb_classext_struct 两个结构体来实现的。结构大致如下：</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/jpgRClass-module.png" alt="此处输入图片的描述"></p>
+<p>如图所示，在其结构体中还是存在 super 指针的，这是因为 module 在内部是有超类的，只是不允许手动去指定它。</p>
+<p>那么在将 module include 进类中的时候发生了什么？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">module MyModule</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class MyClass</span><br><span class="line">  include MyModule</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>当你 include 的一个 module 的时候，实际上 Ruby 会为该 module 创建一个结构体副本，然后把类的 super 指针指向该 module 副本，再把 module 副本的 super 指针指向该类原本的超类，其整个过程类似于链表结构的插入操作。</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/linked-list-rclass.png" alt="此处输入图片的描述"></p>
+<p>这样的超类链条就组成了 Ruby 类结构的超类链或者叫祖先链。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MyClass.ancestors</span><br><span class="line"># =&gt; [MyClass, MyModule, Object, Kernel, BasicObject]</span><br></pre></td></tr></table></figure>
+<h3 id="方法查找"><a href="#方法查找" class="headerlink" title="方法查找"></a>方法查找</h3><p>Ruby 中的方法查找正是基于上面的超类链结构来进行的。而且整个算法核心思想比想象中的还要简洁，以上面为例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">my_obj = MyClass.new</span><br><span class="line">my_obj.one_method</span><br></pre></td></tr></table></figure></p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/find-methods.png" alt="此处输入图片的描述"></p>
+<ol>
+<li>首先找到当前对象的类（klass 指针指向的类），把该类作为当前类</li>
+<li>在当前类的方法表(m_tbl)中查找方法</li>
+<li>把当前类的超类(super 指针所指)作为当前类，再次执行2</li>
+<li>重复上面 2、3 步直到找到方法</li>
+</ol>
+<p>注意方法查找是沿着超类链顺序的向上查找的，一旦找到立刻返回。所以超类在其超类链中的顺序直接影响方法重载。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">module MyModule</span><br><span class="line">  def say_hello</span><br><span class="line">    puts &apos;Are you ok?&apos;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class MyClass</span><br><span class="line">  def say_hello</span><br><span class="line">    puts &apos;Hello, MyClass&apos;</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>下面<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class SonClass &lt; MyClass</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">SonClass.new.say_hello</span><br><span class="line"># Hello, MyClass</span><br><span class="line"></span><br><span class="line">SonClass</span><br></pre></td></tr></table></figure></p>
+<p>如果 include MyModule<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class SonClass &lt; MyClass</span><br><span class="line">  include MyModule</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">SonClass.new.say_hello</span><br><span class="line"># Are you ok?</span><br><span class="line">SonClass.ancestors</span><br><span class="line"># =&gt; [SonClass, MyModule, MyClass, Object, Kernel, BasicObject]</span><br></pre></td></tr></table></figure></p>
+<p>Ruby 内部是使用类继承来实现 module 的 include 的。本质上，include module 跟指定超类没有区别，它们都是通过使用类的 super 指针来实现，在类中 include 多个module 等价于指派多个超类。</p>
+<p>但是，请注意一点，Ruby 内部依旧强制使用单一的祖先链，虽然你可以 include 多个 module 但是 Ruby 会让它们保持在一个单一的链表中，而这也同样使得方法查找变得简单统一。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">module MyModule</span><br><span class="line">  def say_hello</span><br><span class="line">    puts &apos;Are you ok?&apos;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">module HerModule</span><br><span class="line">  def say_hello</span><br><span class="line">    puts &quot;I&apos;m a little fairy!&quot;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class MyClass</span><br><span class="line">  def say_hello</span><br><span class="line">    puts &apos;Hello, MyClass&apos;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class SonClass &lt; MyClass</span><br><span class="line">  include MyModule</span><br><span class="line">  include HerModule</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">SonClass.new.say_hello</span><br><span class="line"># I&apos;m a little fairy!</span><br><span class="line">SonClass.ancestors</span><br><span class="line"># =&gt; [SonClass, HerModule, MyModule, MyClass, Object, Kernel, BasicObject]</span><br></pre></td></tr></table></figure></p>
+<hr>
+<p>还有一点关于 superclass 方法<br>我本以为 #superclass 方法是直接返回的 super 指针所指<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">module MyModule</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class MyClass</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class SonClass &lt; MyClass</span><br><span class="line">  include MyModule</span><br><span class="line">end</span><br><span class="line">SonClass.superclass</span><br><span class="line"># =&gt; MyClass</span><br><span class="line">SonClass.ancestors</span><br><span class="line"># =&gt; [SonClass, MyModule, MyClass, Object, Kernel, BasicObject]</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，#superclass 跳过了 module，虽然它的 super 指针确实指向 module。<br>然后我就去找了 #superclass 的实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">// ruby/object.c</span><br><span class="line"></span><br><span class="line">/*</span><br><span class="line"> *  call-seq:</span><br><span class="line"> *     class.superclass -&gt; a_super_class or nil</span><br><span class="line"> *</span><br><span class="line"> *  Returns the superclass of &lt;i&gt;class&lt;/i&gt;, or &lt;code&gt;nil&lt;/code&gt;.</span><br><span class="line"> *</span><br><span class="line"> *     File.superclass          #=&gt; IO</span><br><span class="line"> *     IO.superclass            #=&gt; Object</span><br><span class="line"> *     Object.superclass        #=&gt; BasicObject</span><br><span class="line"> *     class Foo; end</span><br><span class="line"> *     class Bar &lt; Foo; end</span><br><span class="line"> *     Bar.superclass           #=&gt; Foo</span><br><span class="line"> *</span><br><span class="line"> *  Returns nil when the given class does not have a parent class:</span><br><span class="line"> *</span><br><span class="line"> *     BasicObject.superclass   #=&gt; nil</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">VALUE</span><br><span class="line">rb_class_superclass(VALUE klass)</span><br><span class="line">&#123;</span><br><span class="line">    VALUE super = RCLASS_SUPER(klass);</span><br><span class="line"></span><br><span class="line">    if (!super) &#123;</span><br><span class="line">  if (klass == rb_cBasicObject) return Qnil;</span><br><span class="line">  rb_raise(rb_eTypeError, &quot;uninitialized class&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    while (RB_TYPE_P(super, T_ICLASS)) &#123;</span><br><span class="line">  super = RCLASS_SUPER(super);</span><br><span class="line">    &#125;</span><br><span class="line">    if (!super) &#123;</span><br><span class="line">  return Qnil;</span><br><span class="line">    &#125;</span><br><span class="line">    return super;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">VALUE</span><br><span class="line">rb_class_get_superclass(VALUE klass)</span><br><span class="line">&#123;</span><br><span class="line">    return RCLASS(klass)-&gt;super;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// ruby/include/ruby/ruby.h</span><br><span class="line"></span><br><span class="line">#define RCLASS_SUPER(c) rb_class_get_superclass(c)</span><br><span class="line">// ...</span><br><span class="line">#define RMODULE_SUPER(m) RCLASS_SUPER(m)</span><br></pre></td></tr></table></figure>
+<p>可以看出首先通过 rb_class_get_superclass 找到 super<br>然后在 while 循环中判断 super 的 type，最后返回 super</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// ruby/doc/extension.rdoc</span><br><span class="line">T_ICLASS    :: included module</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/30/XXVI-Ruby-Class-Structure/" rel="next" title="读书笔记 - Ruby 类 - 结构">
+                <i class="fa fa-chevron-left"></i> 读书笔记 - Ruby 类 - 结构
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/11/XXVIII-Ruby-Module/" rel="prev" title="读书笔记 Ruby 的 Module 扩展">
+                读书笔记 Ruby 的 Module 扩展 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/06/03/XXVII-Ruby-Inherit/"
+           data-title="读书笔记 Ruby 的继承与方法查找" data-url="http://elibinary.com/2017/06/03/XXVII-Ruby-Inherit/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#module"><span class="nav-number">1.</span> <span class="nav-text">module</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法查找"><span class="nav-number">2.</span> <span class="nav-text">方法查找</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

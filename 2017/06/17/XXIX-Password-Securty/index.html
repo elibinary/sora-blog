@@ -1,0 +1,759 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="cryptology," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="关于散列函数、碰撞和爆破">
+<meta name="keywords" content="cryptology">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于密码安全">
+<meta property="og:url" content="http://elibinary.com/2017/06/17/XXIX-Password-Securty/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="关于散列函数、碰撞和爆破">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T10:16:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于密码安全">
+<meta name="twitter:description" content="关于散列函数、碰撞和爆破">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 关于密码安全 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                关于密码安全
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-06-17T16:28:05+08:00" content="2017-06-17">
+              2017-06-17
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/06/17/XXIX-Password-Securty/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/06/17/XXIX-Password-Securty/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在进入正文之前，先介绍一些基本概念</p>
+<h3 id="Cryptographic-Hash-Function"><a href="#Cryptographic-Hash-Function" class="headerlink" title="Cryptographic Hash Function"></a>Cryptographic Hash Function</h3><p>先来说下密码散列函数，就如同它的名字一样，它是散列函数的一种。<br>一个理想的密码散列函数应该有四个主要的特性：</p>
+<ul>
+<li>对于任何一个给定的消息，它都很容易就能运算出散列数值</li>
+<li>难以由一个已知的散列数值，去推算出原始的消息（不可逆）</li>
+<li>修改消息内容必定会导致散列结果改变</li>
+<li>不同的消息必定有不同的散列结果</li>
+</ul>
+<p>MD5, SHA 等都属此类，区别于 AES 等对称加密算法。严格来说，前者只是一种消息摘要或者说是消息指纹的算法。</p>
+<h3 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h3><p>MD5 被广泛的应用在签名、密码加密、文件完整性校验及数字证书等许多地方</p>
+<p>它是一种使用非常广泛的密码散列函数，其编码长度为 128 位，也就是 16 字节。<br>输入不定长度信息，输出固定长度 128-bits。</p>
+<h3 id="SHA"><a href="#SHA" class="headerlink" title="SHA"></a>SHA</h3><p>全称 Secure Hash Algorithm，也是一种密码散列函数。它很多个派生：</p>
+<ul>
+<li>SHA-1</li>
+<li>SHA-2</li>
+<li>SHA-3</li>
+</ul>
+<p>具体各个的区别和特点可以看 wiki 的对比表：<br><a href="https://en.wikipedia.org/wiki/Secure_Hash_Algorithms" target="_blank" rel="noopener">Wikipedia - Secure Hash Algorithms</a></p>
+<h3 id="碰撞"><a href="#碰撞" class="headerlink" title="碰撞"></a>碰撞</h3><p>所谓碰撞，就是指两个不同的消息具有相同的哈希值，或者说是摘要值。</p>
+<p>虽然最上面有说过，理想的散列函数，不同的消息必定有不同的散列结果。但其实上面说的几种散列函数都是做不到的。当数据量足够多时，碰撞将不可避免。</p>
+<p>鸽巢原理：若A是n+1元集，B是n元集，则不存在从A到B的单射。</p>
+<h3 id="弱密码"><a href="#弱密码" class="headerlink" title="弱密码"></a>弱密码</h3><p>弱密码是易于猜测的密码，主要有以下几种：</p>
+<ul>
+<li>顺序或重复的字符：“12345678”、“111111”、“abcdefg”、“asdf”、“qwer”键盘上的相邻字母；</li>
+<li>使用数字或符号的仅外观类似替换，例如使用数字“1”、“0”替换英文字母“i”、“O”，字符“@”替换字母“a”等；</li>
+<li>登录名的一部分：密码为登录名的一部分或完全和登录名相同； 常用的单词：如自己和熟人的名字及其缩写，常用的单词及其缩写，宠物的名字等；</li>
+<li>常用数字：比如自己或熟人的生日、证件编号等，以及这些数字与名字、称号等字母的简单组合。</li>
+</ul>
+<h3 id="密码安全"><a href="#密码安全" class="headerlink" title="密码安全"></a>密码安全</h3><p>了解了上面几个基本的概念后，来看下恶意黑客常用的几种破解密码的手段：</p>
+<p><strong>暴力破解</strong><br>首先要提到的就是简单暴力的穷举，这种方法是最笨的方法但也是相当有效的方法，尤其是对于一些弱密码的破解。对于四位数字的密码总共也就1万个，穷举所花费的最大次数9999。六位数字的密码100万个..</p>
+<p>说它又笨又慢的原因是，理论上穷举法破解所消耗的时间不小于完成破解所需要的多项式时间。但是当有了字典后，破解的时间将会被大大的缩短。所谓字典就是通过预测生成的一大批可能的密码集合。</p>
+<p><strong>算法分析</strong><br>研究分析目标所使用的加密算法，比如 MD5，找出其中的弱点，进而缩小备选穷举的范围从而的缩短破解时间。</p>
+<p><strong>生日攻击</strong><br>生日攻击的理论源于数学中的生日问题</p>
+<blockquote>
+<p>生日问题是指，如果一个房间里有23个或23个以上的人，那么至少有两个人的生日相同的概率要大于50%</p>
+</blockquote>
+<p>生日问题的结果非常的违反直觉，它是这样计算的，假设有n个人在同一房间内，要计算有两个人在同一日出生的概率 $P$，假设房间内任意两人的生日都不相同的概率为 $\check{P}$ , 那么<br>$$P = 1 - \check{P}$$</p>
+<p>任意两人生日都不同的概率计算方式如下：<br>$$ \check{P} = 1 \left( 1-\frac{1}{365} \right)\left( 1-\frac{2}{365} \right)\left( 1-\frac{n-1}{365} \right) = \frac{365!}{365^n(365-n)!}$$</p>
+<p>代入公式就可以算出，当 n = 50 的时候，有两人相同的概率就等于 97% 了，当 n = 100 的时候，其概率为 99.99996%</p>
+<p>在回头来说生日攻击，简单的类比就是把输入值的个数看做生日问题中的人数 n，输出值为生日，那么从上面的结论来看只需要比预想中要少的多的输入值，就很大的可能得到至少两个相同的输出值。</p>
+<p>为什么可以这样类比呢，就拿上面提到的 MD5 和 SHA 做例，它们将任意长度的输入值通过计算转换为固定长度的输出值，比如 MD5 的输出值固定位 128 位，也就是说它们的值域远小于定义域，这样的情况下碰撞是必然的。</p>
+<p>说到这里，就再来深入的说下碰撞，实际上在用户密码安全问题上，显而易见的碰撞并不意味着对于对于一串密文能够得到实际的明文，这是做不到的。它只是找到n串输入经过一样的散列函数散列后得到的输出一样，至于这个输入与你的密码是否一致..╮(╯_╰)╭</p>
+<p>实际上碰撞影响最大的是数字签名、文件完整性（指纹）校验这类安全方案。比如文件MD5校验经常被用来验证数据是否被修改，当下载一个文件后比对文件MD5与官网的是否一致就可以校验此文件的完整性。但假如攻击者搞了一个恶意可执行文件的MD5与官网的这个MD5碰撞…</p>
+<p>下一个问题，MD5 加盐是解决什么问题的？<br>MD5 + salt 实际上是在输入值上附加一段信息，然后在进行散列。<br>这样说可能并不能让你直观的理解其用意，拿上面字典爆破的攻击方式为例，假如我们在存储用户密码的时候进行了加盐操作，那么事实上这个通用字典就失效掉了，当然这并不是说攻击将变得无法进行。<br>要知道，密码学的应用安全，是建立在破解所要付出的成本远超出能得到的利益上的。这是一个成本的问题，假如攻击者要为每一个用户生成一遍字典，那破解的成本将随着用户量的提高而急剧上升。</p>
+<p>既然如此，那么正确的加盐方式也就不言而喻了，应该针对每个输入生成一个随机串，也就是盐值并且这个值在此后都不会在改变，任意两个用户的盐值不能相同（相对意义上）。</p>
+<p>加盐也可以有效的防范彩虹表攻击，彩虹表的具体原理实现我自己也没有完全理解透彻，这里就不展开说了免得误导人。</p>
+<h3 id="反例"><a href="#反例" class="headerlink" title="反例"></a>反例</h3><p>在解决密码安全的问题上有许多错误的做法，下面列举几种</p>
+<ul>
+<li>使用自己构造的算法<br> 我认为大多数人都不具备构造完美或逼近完美散列函数的条件，当然，不排除一些天才想法</li>
+<li><p>使用MD5加盐进行多次散列<br> 这种方式本质上并不会增加安全性，反而会拖慢运算速度。当然如果想要的就是把计算速度拖慢来增加破解的成本的话还不如去用 bcrypt</p>
+</li>
+<li><p>组合使用各种散列算法</p>
+</li>
+<li>固定盐</li>
+</ul>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/cryptology/" rel="tag">#cryptology</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/11/XXVIII-Ruby-Module/" rel="next" title="读书笔记 Ruby 的 Module 扩展">
+                <i class="fa fa-chevron-left"></i> 读书笔记 Ruby 的 Module 扩展
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/01/XXX-Ruby-Closure/" rel="prev" title="Ruby 中的闭包及应用">
+                Ruby 中的闭包及应用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/06/17/XXIX-Password-Securty/"
+           data-title="关于密码安全" data-url="http://elibinary.com/2017/06/17/XXIX-Password-Securty/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cryptographic-Hash-Function"><span class="nav-number">1.</span> <span class="nav-text">Cryptographic Hash Function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MD5"><span class="nav-number">2.</span> <span class="nav-text">MD5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SHA"><span class="nav-number">3.</span> <span class="nav-text">SHA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#碰撞"><span class="nav-number">4.</span> <span class="nav-text">碰撞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#弱密码"><span class="nav-number">5.</span> <span class="nav-text">弱密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#密码安全"><span class="nav-number">6.</span> <span class="nav-text">密码安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反例"><span class="nav-number">7.</span> <span class="nav-text">反例</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

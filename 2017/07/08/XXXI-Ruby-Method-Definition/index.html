@@ -1,0 +1,770 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="一旦学会了 Ruby 元编程内部的实现原理，理解它就会更加容易">
+<meta name="keywords" content="Ruby">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学习总结 深入 Ruby 方法定义">
+<meta property="og:url" content="http://elibinary.com/2017/07/08/XXXI-Ruby-Method-Definition/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="一旦学会了 Ruby 元编程内部的实现原理，理解它就会更加容易">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/lexical_scope.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/lexical_scope_case.png">
+<meta property="og:updated_time" content="2018-03-24T10:17:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="学习总结 深入 Ruby 方法定义">
+<meta name="twitter:description" content="一旦学会了 Ruby 元编程内部的实现原理，理解它就会更加容易">
+<meta name="twitter:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/lexical_scope.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 学习总结 深入 Ruby 方法定义 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                学习总结 深入 Ruby 方法定义
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-07-08T17:41:47+08:00" content="2017-07-08">
+              2017-07-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/07/08/XXXI-Ruby-Method-Definition/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/08/XXXI-Ruby-Method-Definition/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>一旦学会了 Ruby 元编程内部的实现原理，理解它就会更加容易</p>
+</blockquote>
+<ul>
+<li>如何改变标准的方法定义过程</li>
+<li>如何操作词法作用域</li>
+<li>什么是 metaclass 和 singleton class</li>
+</ul>
+<h2 id="词法作用域"><a href="#词法作用域" class="headerlink" title="词法作用域"></a>词法作用域</h2><blockquote>
+<p>词法作用域是指一段代码内的程序语法结构</p>
+</blockquote>
+<p>其实，每当使用 class、module、def 等关键字创建一段新的代码片段的时候，就会定义开启一块新的作用域。<br>如果把 ruby 程序看做一系列作用域的组合体，大概就是这样：</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/lexical_scope.png" alt="lexical scope"></p>
+<p>图中最外面层是程序的顶级作用域，里面一块块的就是创建的一个个 class、module 等作用域，可以一直嵌套下去。<br>ruby 在创建新的作用域时会创建一对指针来记录当前作用域及上下文作用域：</p>
+<ul>
+<li>nd_next 指针：指向父层作用域，或者叫上下文作用域</li>
+<li>nd_clss 指针：指向对应于当前作用域的类或模块</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">module MyModule</span><br><span class="line">  class MyClass</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>比如上面的代码其词法作用域大致是这样的</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/lexical_scope_case.png" alt="lexical scope case 1"></p>
+<p>ruby 会为新模块或类创建 RClass 结构体</p>
+<h2 id="方法定义"><a href="#方法定义" class="headerlink" title="方法定义"></a>方法定义</h2><p>理解了上面 ruby 的词法作用域，再来看 ruby 元编程的一些 magic 就更加容易理解了。</p>
+<p>比如先来看最常用的 def 关键字<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">def my_method</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>默认情况下，ruby 会使用当前的词法作用域来查找新方法的目标类。也就是说 ruby 会为当前词法作用域所对应的类或模块添加新方法。<br>上边的例子就是为顶级作用域添加了 #my_method 方法</p>
+<p>再比如这个例子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">    def my_method</span><br><span class="line">    end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>当调用 def 关键字时，当前词法作用域所对应的是 RClass: MyClass，那么调用 def 就会在 RClass: MyClass 的方法表中添加方法 #my_method</p>
+<h3 id="另类方法定义"><a href="#另类方法定义" class="headerlink" title="另类方法定义"></a>另类方法定义</h3><p>我们经常使用 ‘def self.method_name’ 这种形式来定义类方法，那么它是怎么工作的呢？<br>其实它的处理方式和上面普通定义略有不同，这个 self 前缀的作用是用来告诉 ruby 要把方法定义到哪个对象的类中。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">    def self.my_method</span><br><span class="line">    end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>比如上述例子中，self 就指向 RClass: MyClass，那么方法定义就会为 MyClass 添加类方法 #my_method。<br>看到这大家肯定会想，既然此处的 self 前缀是用来表明方法的定义去处的，那么我可不可以任意指定别的什么前缀呢？<br>答案是肯定的，比如这样<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line"></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class OtherClass</span><br><span class="line">  def self.my_method</span><br><span class="line">    puts &apos;Here is OtherClass&apos;</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def MyClass.my_method</span><br><span class="line">    puts &quot;Here is #&#123;self.name&#125;&quot;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">MyClass.my_method</span><br><span class="line"># =&gt; Here is MyClass</span><br></pre></td></tr></table></figure></p>
+<p>实际上前缀可以是任意的 ruby 表达式</p>
+<p>整个定义过程在 ruby 内部是这样的：</p>
+<ol>
+<li>对前缀表达式求值</li>
+<li>找到前缀所指对象的元类</li>
+<li>在找到的元类中添加方法</li>
+</ol>
+<p><em>注意：ruby 是在类的元类中保存类方法的</em></p>
+<p>这里提到了元类，就下来说下 ruby 中的单类和元类</p>
+<h3 id="metaclass-amp-singleton-class"><a href="#metaclass-amp-singleton-class" class="headerlink" title="metaclass &amp; singleton class"></a>metaclass &amp; singleton class</h3><p>在初接触 ruby 时，这两个概念实在是令人困扰，我经常会搞混这两个概念。</p>
+<p>先来说说 metaclass ，首先实例对象的方法是定义在其对应的类中的，那么在 ruby 中一切皆对象的，类也不例外。那么是不是类的方法将被定义在类的类中呢？<br>我们知道，在 ruby 中默认情况下所有类的类都是 Class，显而易见肯定是不能把类方法定义在其中的。实际上当创建新的类的时候，ruby 会创建两个类，类本身以及 metaclass ，然后 ruby 会把新类的 RClass 结构体中的 klass 指针指向 metaclass。而类方法将会被放在类对应的 metaclass 中。</p>
+<p>那么 singleton class 又是什么呢，实际上 singleton class 就是单个对象的 metaclass，它的作用是用来保存特定对象独有的方法的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line"></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">my_obj = MyClass.new</span><br><span class="line">def my_obj.sg_method</span><br><span class="line">  puts &quot;Here is #&#123;self.singleton_class&#125;&quot;</span><br><span class="line">end</span><br><span class="line">my_obj.sg_method</span><br><span class="line"># =&gt; Here is #&lt;Class:#&lt;MyClass:0x017faa0885b038&gt;&gt;</span><br><span class="line"></span><br><span class="line">MyClass.new.sg_method</span><br><span class="line"># =&gt; undefined method `sg_method&apos; for #&lt;MyClass:0x017faa0885ae30&gt; (NoMethodError)</span><br></pre></td></tr></table></figure></p>
+<p>你可能在想了。。。??? What The … 不是说类也是对象么？那 singleton class 和 metaclass 有什么区别？</p>
+<p>是的，其实它们俩的区别还真不是特别大。。。<br>事实上当对象本身就是类的时候，metaclass 就是 singleton class。可以这么说：所有的 metaclass 都是 singleton class，但不是所有的 singleton class 都是 metaclass。<br>事实上在 ruby 内部表示上 metaclass 与 singleton class 是有微小区别的，但就其作用而言二者并无太大差别。</p>
+<p>当在使用 def + 前缀的方式定义方法时，ruby 会根据前缀所指的对象来选择是把方法添加到 metaclass 中还是 singleton class 中。</p>
+<p>了解了 metaclass 和 singleton class，下面接着来看方法定义</p>
+<p>除了上面那种定义类方法的形式外，其实还有一种很常用的方式，没错就是<br>↓</p>
+<h3 id="class-lt-lt-self"><a href="#class-lt-lt-self" class="headerlink" title="class &lt;&lt; self"></a>class &lt;&lt; self</h3><p>为什么我要给它单独起一个小标题呢，因为其实这种定义方式代表了一类新的定义方式。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">  class &lt;&lt; self</span><br><span class="line">    def my_method</span><br><span class="line">    end</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>它的原理过程其实很简单，当调用 class &lt;&lt; self 时，ruby 会创建新的词法作用域。在这个例子中新创建的词法作用域将指向 self 的元类，也就是 MyClass 的元类。在其作用域中定义的方法将会被添加到 MyClass 的元类成为 MyClass 的类方法。</p>
+<p>自然，这里的 self 也可以是 ruby 表达式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">my_obj = MyClass.new</span><br><span class="line">class &lt;&lt; my_obj</span><br><span class="line">  def obj_method</span><br><span class="line">    puts &apos;Here is my_obj&apos;</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>这个例子就表示开启一个新的词法作用域指向 my_obj 的 singleton class 并在其中添加方法。</p>
+<p>你可以使用 Module#nesting 来查看当前的嵌套作用域<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">  class &lt;&lt; self</span><br><span class="line">    Module.nesting</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># =&gt; [#&lt;Class:MyClass&gt;, MyClass]</span><br></pre></td></tr></table></figure></p>
+<h2 id="Magic-Essence"><a href="#Magic-Essence" class="headerlink" title="Magic Essence"></a>Magic Essence</h2><p>理解了上面的概念，接下来再来看 Ruby Metaprogramming 的本质。</p>
+<p>先来看 #eval，下面是文档对这个方法的解释：<br><em>‘Evaluates the Ruby expression(s) in string. If binding is given, which must be a Binding object, the evaluation is performed in its context. If the optional filename and lineno parameters are present, they will be used when reporting syntax errors.’</em></p>
+<p>我们知道 #eval 最基本的用途就是可以拿来对一个字符串指令求值，也就是接受一个字符串，然后对其解析、编译并执行。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a = 1</span><br><span class="line">b = 2</span><br><span class="line">eval(&quot;puts a + b&quot;)</span><br></pre></td></tr></table></figure></p>
+<p>可以看出，它执行的代码块是可以访问上下文中的变量的。实际上，eval 方法创建了闭包，它包含了函数及该函数被引用位置环境的组合。</p>
+<p>为了更加清楚的理解这一点，再来看下 #binding<br><em>‘Returns a Binding object, describing the variable and method bindings at the point of call’</em></p>
+<p>使用它可以得到一个环境引用的对象，而 #eval 刚好可以接受一个环境引用的参数<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">  def initialize</span><br><span class="line">    @a = 1</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def get_binding</span><br><span class="line">    b = 3</span><br><span class="line">    binding</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">eval(&quot;puts @a + b&quot;, MyClass.new.get_binding)</span><br><span class="line"># =&gt; 4</span><br></pre></td></tr></table></figure></p>
+<p>方法 #eval 允许你为其指定执行上下文环境，通过 binding 参数。这里的 binding 对象其实就是一个阉割版的闭包，它没有函数，只是一个对当前环境的引用。你可以认为 binding 对象是一种间接访问、保存以及传递 ruby 内部 rb_env_t 结构体的方式。</p>
+<p>我们知道还有一个 #eval 的变种方法 #instance_eval，它与 #eval 的不同之处在于它是在接收者，也就是调用对象的上下文环境中对给定字符串进行求值的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">  def initialize</span><br><span class="line">    @a = 1</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def get_binding</span><br><span class="line">    c = 3</span><br><span class="line">    binding</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">b = 2</span><br><span class="line">my_obj = MyClass.new</span><br><span class="line">my_obj.instance_eval(&quot;puts @a + b&quot;)</span><br><span class="line"># =&gt; 3</span><br><span class="line"></span><br><span class="line">eval(&quot;puts @a + b&quot;, MyClass.new.get_binding)</span><br><span class="line"># =&gt; undefined local variable or method `b&apos; for #&lt;MyClass:0x0   7f625110 @a=1&gt;</span><br></pre></td></tr></table></figure></p>
+<p>当 instance_eval 内的代码运行时，其 self 实际上是指向 instance_eval 的接收者，也就是 my_obj 对象的，这也就允许 instance_eval 内的代码可以访问接收者内的值。</p>
+<p>除此之外还有一种用来动态定义方法的方式，那就是使用 #define_method<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">  def initialize</span><br><span class="line">    @a = 1</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  [:name, :age, :fan].each do |item|</span><br><span class="line">    define_method item do</span><br><span class="line">      puts item.to_s</span><br><span class="line">    end</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>define_method 的一个最重要的作用就是可以动态的用一些数据值来构造方法名。<br>除此之外其实它与 def 还有另外一点非常重要的不同点，因为它是使用块来提供方法体的就像上面那样，你还没有忘记块实质上是什么吧，块就是闭包，这也就意味着定义的方法中的代码（也就是块中的代码）是能够访问外层环境的。举个简单的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">class MyClass</span><br><span class="line">  def initialize</span><br><span class="line">    @a = 1</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def a_common_method</span><br><span class="line">  b = 2</span><br><span class="line">  MyClass.send(:define_method, :calc) do</span><br><span class="line">    puts @a + b</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">a_common_method</span><br><span class="line">MyClass.new.calc</span><br><span class="line"># =&gt; 3</span><br></pre></td></tr></table></figure></p>
+<p>本篇主要对闭包、词法作用域以及方法的定义过程进行了总结，通过了解这些概念可以更加容易理解 ruby 的内部工作原理以及整个 ruby 语言的思想。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/01/XXX-Ruby-Closure/" rel="next" title="Ruby 中的闭包及应用">
+                <i class="fa fa-chevron-left"></i> Ruby 中的闭包及应用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/23/XXXII-Design-Ranking-List/" rel="prev" title="排行榜的设计">
+                排行榜的设计 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/07/08/XXXI-Ruby-Method-Definition/"
+           data-title="学习总结 深入 Ruby 方法定义" data-url="http://elibinary.com/2017/07/08/XXXI-Ruby-Method-Definition/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#词法作用域"><span class="nav-number">1.</span> <span class="nav-text">词法作用域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法定义"><span class="nav-number">2.</span> <span class="nav-text">方法定义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#另类方法定义"><span class="nav-number">2.1.</span> <span class="nav-text">另类方法定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#metaclass-amp-singleton-class"><span class="nav-number">2.2.</span> <span class="nav-text">metaclass &amp; singleton class</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#class-lt-lt-self"><span class="nav-number">2.3.</span> <span class="nav-text">class &lt;&lt; self</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Magic-Essence"><span class="nav-number">3.</span> <span class="nav-text">Magic Essence</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

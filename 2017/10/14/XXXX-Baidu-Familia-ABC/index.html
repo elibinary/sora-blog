@@ -1,0 +1,730 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MachineLearning," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="主题模型在机器学习和自然语言处理等领域是用来在一系列文档中发现抽象主题的一种统计模型">
+<meta name="keywords" content="MachineLearning">
+<meta property="og:type" content="article">
+<meta property="og:title" content="主题模型及百度开源项目 Familia">
+<meta property="og:url" content="http://elibinary.com/2017/10/14/XXXX-Baidu-Familia-ABC/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="主题模型在机器学习和自然语言处理等领域是用来在一系列文档中发现抽象主题的一种统计模型">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T10:19:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="主题模型及百度开源项目 Familia">
+<meta name="twitter:description" content="主题模型在机器学习和自然语言处理等领域是用来在一系列文档中发现抽象主题的一种统计模型">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 主题模型及百度开源项目 Familia | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                主题模型及百度开源项目 Familia
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-10-14T13:13:51+08:00" content="2017-10-14">
+              2017-10-14
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/10/14/XXXX-Baidu-Familia-ABC/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/10/14/XXXX-Baidu-Familia-ABC/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前段时间百度开源了一个 NLP 领域的一款主题模型项目，就是 <a href="https://github.com/baidu/Familia" target="_blank" rel="noopener">Familia</a> 了。Familia 开源项目主要包含文档主题推断工具、语义匹配计算工具以及基于工业级语料训练的三种主题模型：Latent Dirichlet Allocation(LDA)、SentenceLDA 和Topical Word Embedding(TWE)。</p>
+<p>你可以使用工具包中所提供的方法来进行文本分类、文本聚类、个性化推荐等多种场景的调研和应用。不过目前只开源了新闻、网页和小说主题的模型。</p>
+<h3 id="主题模型（Topic-Model）"><a href="#主题模型（Topic-Model）" class="headerlink" title="主题模型（Topic Model）"></a>主题模型（Topic Model）</h3><p>主题模型在机器学习和自然语言处理等领域是用来在一系列文档中发现抽象主题的一种统计模型。最常见的主题模型便是 LDA 了，LDA 允许文档拥有多种主题。其它主题模型一般是在 LDA 基础上改进的。</p>
+<p>说会文档模型，对于文档如果以词袋的形式来表示，那么其维度将可能会数千数万，常用主题模型对其进行降维，简单来说就是如果我们指定主题模型的主题个数为 k 个，然后通过训练得到这 k 个主题，那么就可以把文档从词项空间变换到主题空间，使用主题来生成文档的表达。<br>我们使用主题模型对文档的生成过程进行模拟，再通过参数估计得到各个主题。</p>
+<p>这样说可能不太容易理解，下面举个例子：<br>假设我现在有一堆文档（语料），通过对这些语料进行分词等操作后得到了词袋，我们能够通过词袋来对文档进行细化的表达，也就是把其看做是一个词项空间，而每一个文档在这个空间中都有一个特定的表示（词向量）</p>
+<p>比如现在有这两个文档：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. John likes to watch movies. Mary likes movies too.</span><br><span class="line">2. John also likes to watch football games.</span><br></pre></td></tr></table></figure></p>
+<p>他们就可以在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &quot;John&quot;,</span><br><span class="line">    &quot;likes&quot;,</span><br><span class="line">    &quot;to&quot;,</span><br><span class="line">    &quot;watch&quot;,</span><br><span class="line">    &quot;movies&quot;,</span><br><span class="line">    &quot;also&quot;,</span><br><span class="line">    &quot;football&quot;,</span><br><span class="line">    &quot;games&quot;,</span><br><span class="line">    &quot;Mary&quot;,</span><br><span class="line">    &quot;too&quot;</span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<p>这个词项所组成的空间中得到表达</p>
+<p>但是这样子这个空间的维度就可能会非常的高，想象下假如有成千上万的词项，那么接下来就是怎么对其进行降维了</p>
+<p>我们假设目标预料有 k 个主题，然后通过训练来得到这 k 个主题，每个主题其实都是有 n 个相关的词项构成，可以预见 k 会远小于词项的个数，这是使用得到的主题来对文档进行表示就能得到低纬度的主题空间的文档表示。</p>
+<p>主题模型先介绍到这里，接下来接着来看百度开源的 Familia</p>
+<h3 id="Familia"><a href="#Familia" class="headerlink" title="Familia"></a>Familia</h3><p>Familia 把主题模型的应用抽象为两大类: 语义表示和语义匹配。</p>
+<ul>
+<li>语义表示：对文档进行主题降维，获得文档的语义表示，这些语义表示可以应用于文本分类、文本内容分析、CTR预估等下游应用</li>
+<li>语义匹配：计算文本间的语义匹配度</li>
+</ul>
+<p>我跑了下它的新闻类主题模型，百度开源的新闻主题模型使用百度新闻数据训练, 词表规模294657, 主题数2000</p>
+<p>我从网易新闻上找了几个新闻语料，下面是其一</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">请输入文档:</span><br><span class="line">战术灯（又称战术手电），是指专门安装在枪身上使用的强光电筒，近年来多用于反恐特警部队以及军方特战队在夜间或昏暗条件下瞄准目标。但近日网上放出的一组图片显示，战术灯的历史恐怕要比手电筒（19世纪末才问世）都要久远。</span><br><span class="line">Document Topic Distribution:</span><br><span class="line">1522:0.333333 1214:0.166667 133:0.111111 524:0.100000 1144:0.044444 1669:0.044444 493:0.038889 1072:0.038889 431:0.027778 196:0.016667 1173:0.016667 77:0.011111 161:0.011111 262:0.005556 772:0.005556 953:0.005556 1167:0.005556 1310:0.005556 1478:0.005556 1772:0.005556</span><br></pre></td></tr></table></figure>
+<p>程序会输出稀疏化的主题分布，其中主题是用编号的方式表示，便是其中 [1522, 1214, 133, …]</p>
+<p>其中也提供了相应模型的主题词结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">请输入主题编号(0-1999):1522</span><br><span class="line">--------------------------------------------</span><br><span class="line">市委  0.255428</span><br><span class="line">书记  0.233813</span><br><span class="line">常委  0.108936</span><br><span class="line">省委  0.0808627</span><br><span class="line">中共  0.0416329</span><br><span class="line">市长  0.0213728</span><br><span class="line">同志  0.0212068</span><br><span class="line">政法委 0.0191149</span><br><span class="line">组织部 0.017748</span><br><span class="line">领导  0.0107506</span><br><span class="line"></span><br><span class="line">请输入主题编号(0-1999):1214</span><br><span class="line">--------------------------------------------</span><br><span class="line">留学  0.153357</span><br><span class="line">留学生 0.076637</span><br><span class="line">出国  0.0765076</span><br><span class="line">回国  0.0450079</span><br><span class="line">大学  0.0260389</span><br><span class="line">国外  0.0181784</span><br><span class="line">海归  0.0172521</span><br><span class="line">专业  0.015575</span><br><span class="line">申请  0.015296</span><br><span class="line">学生  0.015031</span><br></pre></td></tr></table></figure>
+<p>其中我只展示了主题的前10个最重要的词</p>
+<p>需要注意的是，由于采用文档内的Bag-of-Words假设，一篇文档内的单词可以交换次序而不影响模型的训练结果，也就是认为单词之间是相互独立的。在 LDA 的一些派生模型中，一些可交换性会被打破，以便构造相应的模型。</p>
+<p>上面说过，通过主题模型将以词项空间表达的文档变换到新的主题空间，得到一个以主题为坐标的低维表达，该表达也就是文档的主题概率分布。得到的新的表示形式其实也可以针对查询，应用在信息检索中。</p>
+<p><a href="https://github.com/baidu/Familia/wiki/%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE" target="_blank" rel="noopener">模型相关论文 - LDA/Sentence LDA/TWE</a></p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MachineLearning/" rel="tag">#MachineLearning</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/09/XXXIX-Time-Delay-Task/" rel="next" title="延时任务">
+                <i class="fa fa-chevron-left"></i> 延时任务
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/23/28-Ruby-Sort-Benchmark-md/" rel="prev" title="对比 Ruby int 和 time 的比较和排序">
+                对比 Ruby int 和 time 的比较和排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/10/14/XXXX-Baidu-Familia-ABC/"
+           data-title="主题模型及百度开源项目 Familia" data-url="http://elibinary.com/2017/10/14/XXXX-Baidu-Familia-ABC/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#主题模型（Topic-Model）"><span class="nav-number">1.</span> <span class="nav-text">主题模型（Topic Model）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Familia"><span class="nav-number">2.</span> <span class="nav-text">Familia</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

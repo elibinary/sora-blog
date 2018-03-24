@@ -1,0 +1,742 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="简单来说，闭包就是引用了自由变量的函数">
+<meta name="keywords" content="Ruby">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ruby 中的闭包及应用">
+<meta property="og:url" content="http://elibinary.com/2017/07/01/XXX-Ruby-Closure/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="简单来说，闭包就是引用了自由变量的函数">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/rb_block_t.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/proc_obj.png">
+<meta property="og:updated_time" content="2018-03-24T10:17:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ruby 中的闭包及应用">
+<meta name="twitter:description" content="简单来说，闭包就是引用了自由变量的函数">
+<meta name="twitter:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/rb_block_t.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Ruby 中的闭包及应用 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Ruby 中的闭包及应用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-07-01T13:34:21+08:00" content="2017-07-01">
+              2017-07-01
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/07/01/XXX-Ruby-Closure/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/01/XXX-Ruby-Closure/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>In languages where functions are first-class citizens, the language supports passing functions as arguments to other functions, returning them as the values from other functions, and assigning them to variables or storing them in data structures. – from wiki</p>
+</blockquote>
+<h2 id="闭包-Closure"><a href="#闭包-Closure" class="headerlink" title="闭包 (Closure)"></a>闭包 (Closure)</h2><p>在计算机科学中，简单来说，闭包就是引用了自由变量的函数。<br>这里的自由变量其实可以理解为与其相关的引用环境。闭包被用来在一个函数与其相关的引用环境之间创建关联关系，被引用的环境（或者说变量）将和这个函数一同存在，即使已经离开了创造它的环境也不例外。</p>
+<p>闭包有几个很重要的特征：</p>
+<ol>
+<li>闭包可以被当做参数进行传递，也可以作为函数的返回值</li>
+<li>闭包在被创建时，会与当前环境进行关联，换言之它会记住该环境下的变量，并在任何地方执行时都能够访问它引用的变量，哪怕已经不在创建它的环境的范围</li>
+<li>惰性求值，闭包只有在被调用时才执行操作</li>
+</ol>
+<p>简单来说，在没有闭包存在时，变量的生命周期只限于创建它的环境。但当闭包被创建并引用了这个变量，它就会一直存在。</p>
+<h2 id="Ruby-中的闭包"><a href="#Ruby-中的闭包" class="headerlink" title="Ruby 中的闭包"></a>Ruby 中的闭包</h2><p>要理解 ruby 中的闭包，就要先来了解下 block 的慨念</p>
+<h3 id="块"><a href="#块" class="headerlink" title="块"></a>块</h3><blockquote>
+<p>block 是 ruby 中最常用且最强大的特性之一</p>
+</blockquote>
+<p>block 不但可以传递代码片段给枚举方法，而且可以利用 yield 关键字定义能调用 block 的函数另作他用。而 block 背后的理论便是闭包，换句话说，block 即是 ruby 的闭包实现。</p>
+<p>下面是一段 block 的简单应用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">str = &apos;string one&apos;</span><br><span class="line">10.times do</span><br><span class="line">    puts &quot;#&#123;str&#125; in block&quot;</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>从这个简单的例子可以看出，block 是可以访问上下文环境或父层作用域中的变量的。</p>
+<p>在 ruby 中一方面，block 的行为像是独立的方法，另一方面它是上下文函数或方法的一部分</p>
+<p>为了进一步理解 block，来看下 ruby 的 rb_block_t 结构体</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/rb_block_t.png" alt="rb_block_t"></p>
+<p>可以看出，block 就是函数和调用该函数时所用环境的组合</p>
+<h3 id="Lambda-与-Proc"><a href="#Lambda-与-Proc" class="headerlink" title="Lambda 与 Proc"></a>Lambda 与 Proc</h3><blockquote>
+<p>Ruby 允许把函数作为数据值保存在变量中，以及作为参数进行传递。</p>
+</blockquote>
+<p>lambda 和 proc 把 block 的应用做了进一步的延伸扩展。完美表现 ‘first-class citizens’ 的特性。</p>
+<p>在 ruby 中，可以使用 lambda 或者 proc 把块转换为数据值。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">def show_me</span><br><span class="line">    total_num = 256</span><br><span class="line">    lambda do |params|</span><br><span class="line">        puts &quot;now: #&#123;total_num - params&#125;&quot;</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">block_res = show_me</span><br><span class="line">block_res.call(128)</span><br></pre></td></tr></table></figure></p>
+<p>可以看出，在 lambda 被调用时已经不在 show_me 方法的作用域内了，但是它依然可以访问生命周期仅在 show_me 方法作用域内的局部变量 total_num 。</p>
+<p>实际上，lambda 和 proc 关键字使用时都会创建 proc 对象</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/proc_obj.png" alt="proc_obj"></p>
+<p>在内部实现里，ruby 使用 RTypedData 结构体和 rb_proc_t 结构体一起构成 proc 对象的实例。 block 作为闭包在 ruby 的实现，其 rb_block_t 也被包含在 rb_proc_t 中。</p>
+<p>这里解释一下 envval 指针，当调用 lambda 时，ruby 会把当前栈帧复制到堆中。其实也就是在堆中保存了一份栈帧的副本。<br>envval 指针指向了一个内部环境对象，其实就是 rb_env_t 结构，而 rb_env_t 中保存了一个指向那份栈帧副本的指针。实际上 rb_env_t 是对栈帧副本的包装。</p>
+<p>此处说到的栈和堆，在这里并不是指数据结构中的栈结构和堆结构（二叉树的一种）。这里指的是栈内存和堆内存，也就是 ruby 保存数据的两个地方。</p>
+<p>ruby 在栈中保存每个方法的本地变量、返回值和参数。栈中的值只在方法运行时有效，一旦方法结束，该方法的栈帧及里面的所有值都会被清除。<br>而堆用来保存需要保留一段时间的信息。在堆中的每个值，只要它被引用，就一直有效。其实这里涉及到了 GC 的概念，GC 会清除堆中不被引用的值以释放内存。</p>
+<p>实际上栈中仅保存数据的引用，也就是说栈中仅仅保存了一堆指针，实际的结构体保存在堆中。当然，对于简单的整数值、符号及一些像 nil、true等值来说，引用就是真实的值。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/17/XXIX-Password-Securty/" rel="next" title="关于密码安全">
+                <i class="fa fa-chevron-left"></i> 关于密码安全
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/08/XXXI-Ruby-Method-Definition/" rel="prev" title="学习总结 深入 Ruby 方法定义">
+                学习总结 深入 Ruby 方法定义 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/07/01/XXX-Ruby-Closure/"
+           data-title="Ruby 中的闭包及应用" data-url="http://elibinary.com/2017/07/01/XXX-Ruby-Closure/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#闭包-Closure"><span class="nav-number">1.</span> <span class="nav-text">闭包 (Closure)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ruby-中的闭包"><span class="nav-number">2.</span> <span class="nav-text">Ruby 中的闭包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#块"><span class="nav-number">2.1.</span> <span class="nav-text">块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lambda-与-Proc"><span class="nav-number">2.2.</span> <span class="nav-text">Lambda 与 Proc</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

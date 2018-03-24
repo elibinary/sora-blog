@@ -1,0 +1,732 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MachineLearning," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="回归算法是监督式机器学习算法非常重要且常用的一个分类，经常被用来建立各种预测模型。本篇对其进行大致介绍，并用健康习惯记录 - 打卡记录训练数据尝试建立线性回归模型的例子来帮助理解">
+<meta name="keywords" content="MachineLearning">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单机器学习模型 - Linear Regression">
+<meta property="og:url" content="http://elibinary.com/2017/07/30/XXXIII-MachineLearning-Linear-Regression/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="回归算法是监督式机器学习算法非常重要且常用的一个分类，经常被用来建立各种预测模型。本篇对其进行大致介绍，并用健康习惯记录 - 打卡记录训练数据尝试建立线性回归模型的例子来帮助理解">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/linear_habit_checkin_1.png">
+<meta property="og:updated_time" content="2018-03-24T10:18:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简单机器学习模型 - Linear Regression">
+<meta name="twitter:description" content="回归算法是监督式机器学习算法非常重要且常用的一个分类，经常被用来建立各种预测模型。本篇对其进行大致介绍，并用健康习惯记录 - 打卡记录训练数据尝试建立线性回归模型的例子来帮助理解">
+<meta name="twitter:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/linear_habit_checkin_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 简单机器学习模型 - Linear Regression | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                简单机器学习模型 - Linear Regression
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-07-30T14:34:31+08:00" content="2017-07-30">
+              2017-07-30
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/07/30/XXXIII-MachineLearning-Linear-Regression/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/30/XXXIII-MachineLearning-Linear-Regression/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>回归算法是监督式机器学习算法非常重要且常用的一个分类，经常被用来建立各种预测模型。</p>
+<h2 id="Regression-Algorithm"><a href="#Regression-Algorithm" class="headerlink" title="Regression Algorithm"></a>Regression Algorithm</h2><p>简单来说，假设我们有一个数据集，把其中每个数据项都是看作是给定空间的一个点，那么就可以得到一个点的集合，那么回归就是用一个函数去对这个点的集合进行拟合，使得点集与这个函数的偏差最小。</p>
+<h3 id="Linear-Regression"><a href="#Linear-Regression" class="headerlink" title="Linear Regression"></a>Linear Regression</h3><p>线性回归的预测模型，也可以说是拟合函数是一个一次方程或者叫线性方程。</p>
+<p>比如我们有一个数据集<br>\begin{array}{cc}<br>\mathrm{x} &amp; \mathrm{y} \<br>\hline \<br>\mathrm{x_1} &amp; \mathrm{y_1} \<br>\mathrm{x_2} &amp; \mathrm{y_2} \<br>\mathrm{x_3} &amp; \mathrm{y_3} \<br>\mathrm{x_4} &amp; \mathrm{y_4} \<br>\mathrm{x_5} &amp; \mathrm{y_5} \<br>\end{array}</p>
+<p>为了拟合这些点，建立一个简单线性回归模型：<br>$$ y=ax + b $$<br>接下来要做的就是估计该模型的参数，来使得我们的模型对数据达到最佳拟合状态。</p>
+<p>线性回归把关注点放在给定 x 值的 y 的条件概率分布，而不是 x 和 y 的联合概率分布。</p>
+<p>在计算一个最佳拟合的不同标准之中，最小二乘法是最常用的算法。</p>
+<blockquote>
+<p>最小二乘法（又称最小平方法）是一种数学优化技术。它通过最小化误差的平方和寻找数据的最佳函数匹配。 – from wiki</p>
+</blockquote>
+<p>最小二乘法通过最小化每个数据点到线的垂直偏差平方和来计算最佳拟合线。<br>$$ \sum_{i=1}^m (y^i - f(x^i))^2 $$</p>
+<p>推广至多元线性回归，那就是影响目标值 y 的元素有多个：<br>$$ y=ax + bz + cm + dn $$<br>有数据：<br>\begin{array}{cc}<br>\mathrm{y} &amp; \mathrm{x} &amp; \mathrm{m} &amp; \mathrm{n} \<br>\hline \<br>\mathrm{x_1} &amp; \mathrm{y_1} &amp; \mathrm{m_1} &amp; \mathrm{n_1} \<br>\mathrm{x_2} &amp; \mathrm{y_2} &amp; \mathrm{m_2} &amp; \mathrm{n_2}\<br>\mathrm{x_3} &amp; \mathrm{y_3} &amp; \mathrm{m_3} &amp; \mathrm{n_3}\<br>\mathrm{x_4} &amp; \mathrm{y_4} &amp; \mathrm{m_4} &amp; \mathrm{n_4}\<br>\mathrm{x_5} &amp; \mathrm{y_5} &amp; \mathrm{m_5} &amp; \mathrm{5_1}\<br>\end{array}</p>
+<p>线性回归是机器学习中一个最简单的监督学习(Supervised Learning)模型</p>
+<hr>
+<hr>
+<p><em>下面我对健康习惯的用户做了抽样，样本大小是 2000，并尝试对其健康习惯记录情况与首页打卡情况建立线性回归模型</em></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">import matplotlib.pyplot as plt</span><br><span class="line">import numpy as np</span><br><span class="line">import pandas as pd</span><br><span class="line">from sklearn import datasets, linear_model</span><br><span class="line"></span><br><span class="line">def get_data(file_name):</span><br><span class="line">  data = pd.read_csv(file_name)</span><br><span class="line">  x_p = []</span><br><span class="line">  y_p = []</span><br><span class="line">  for habit_records ,checkin_records in zip(data[&apos;habits&apos;],data[&apos;checkins&apos;]):</span><br><span class="line">    x_p.append([float(habit_records)])</span><br><span class="line">    y_p.append(float(checkin_records))</span><br><span class="line">  return x_p,y_p</span><br><span class="line"></span><br><span class="line">def linear_model_main(x_p,y_p):</span><br><span class="line">  regr = linear_model.LinearRegression()</span><br><span class="line">  regr.fit(x_p, y_p)</span><br><span class="line">  predictions = &#123;&#125;</span><br><span class="line">  predictions[&apos;intercept&apos;] = regr.intercept_</span><br><span class="line">  predictions[&apos;coefficient&apos;] = regr.coef_</span><br><span class="line">  print(predictions)</span><br><span class="line">  return predictions</span><br><span class="line">  </span><br><span class="line">x, y = get_data(&apos;linear_date.csv&apos;)</span><br><span class="line">linear_model_main(x, y)</span><br></pre></td></tr></table></figure>
+<p>我把样本数据写在一个 csv 文件中，（感叹下，python 处理起 csv 和 ruby 一样方便呀省了不少事）</p>
+<p>数据大概是这样：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[[2.0], 6.0], [[43.0], 3.0], [[1.0], 2.0], [[165.0], 2.0], [[31.0], 3.0], [[10.0], 2.0], [[16.0], 2.0], [[12.0], 3.0], [[136.0], 5.0], [[5.0], 2.0], [[3.0], 2.0], [[1.0], 182.0], [[1.0], 6.0], [[7.0], 45.0], [[3.0], 2.0], [[5.0], 10.0], [[4.0], 2.0], [[5.0], 5.0], [[3.0], 31.0], [[10.0], 10.0], [[6.0], 72.0], [[185.0], 4.0], [[11.0], 18.0], [[62.0], 2.0], [[6.0], 2.0], [[26.0], 372.0], [[114.0], 2.0], [[6.0], 2.0], [[9.0], 17.0], [[7.0], 41.0], [[325.0], 2.0], [[4.0], 3.0], [[6.0], 2.0], [[29.0], 11.0], [[1.0], 4.0], [[1.0], 3.0], [[9.0], 41.0], [[1.0], 2.0], [[3.0], 6.0], [[5.0], 2.0], [[4.0], 2.0], [[5.0], 53.0], [[4.0], 13.0], [[1.0], 2.0], [[2.0], 20.0], [[11.0], 14.0], [[19.0], 2.0], [[3.0], 2.0], [[47.0], 3.0], [[1.0], 2.0], [[15.0], 2.0], [[7.0], 9.0], [[2.0], 2.0], [[1.0], 3.0], [[4.0], 2.0], [[5.0], 53.0], [[119.0], 2.0], [[15.0], 2.0], [[9.0], 5.0], [[3.0], 3.0], [[97.0], 2.0], [[83.0], 9.0], [[5.0], 8.0], [[5.0], 2.0], [[152.0], 2.0], [[3.0], 9.0], [[276.0], 2.0], [[65.0], 2.0], [[30.0], 2.0], [[195.0], 187.0], [[11.0], 7.0], [[51.0], 7.0], [[15.0], 4.0], [[16.0], 2.0], [[1.0], 15.0], [[10.0], 5.0], [[9.0], 52.0], [[6.0], 4.0], [[5.0], 2.0], [[4.0], 51.0], [[7.0], 41.0], [[5.0], 2.0], [[17.0], 431.0], [[1.0], 2.0], [[5.0], 3.0], [[25.0], 3.0], [[5.0], 2.0], [[1.0], 2.0], [[1.0], 2.0], [[7.0], 11.0], [[20.0], 7.0], [[6.0], 3.0], [[4.0], 82.0], [[3.0], 4.0], [[9.0], 37.0], [[1.0], 2.0], [[2.0], 2.0], [[61.0], 2.0], [[3.0], 3.0], [[6.0], 2.0], [[2.0], 3.0], [[53.0], 4.0], [[25.0], 2.0], [[38.0], 159.0] ... ]</span><br></pre></td></tr></table></figure></p>
+<p>最后得到的截距值为：21.606768655113363，斜率是：[ 0.02046425]<br>画出拟合后的函数图像来就像这样：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def show_linear_line(x_p,y_p):</span><br><span class="line">  regr = linear_model.LinearRegression()</span><br><span class="line">  regr.fit(x_p, y_p)</span><br><span class="line">  plt.scatter(x_p,y_p, color=&apos;blue&apos;)</span><br><span class="line">  plt.plot(x_p,regr.predict(x_p),color=&apos;red&apos;,linewidth=4)</span><br><span class="line">  plt.xticks(())</span><br><span class="line">  plt.yticks(())</span><br><span class="line">  plt.show()</span><br></pre></td></tr></table></figure></p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/jpg/linear_habit_checkin_1.png" alt="linear habits checins"></p>
+<p>可以看出，线性回归对于异常的值或者说是脱离正常预测的值是非常敏感的。显而易见这个模型非常不平衡，而最佳模型就是取得预测偏差和模型方差之间的平衡。<strong>预测偏差过高就是拟合不够，方差过高就是拟合过度</strong>。</p>
+<p>解决高方差有几种思路，比如可以尝试获取更多的训练样本，或者减少所使用特征的集合，也就是减少影响集。<br>而解决高偏差，可以尝试使用其他特征，或者增加多项组合特征。</p>
+<p>我对于 健康习惯记录数 - 打卡数 的线性拟合尝试所得到的结果表明，这两个动作看起来并没有明显的线性关系。或许我应该增加新的特征维度来约束其回归。</p>
+<hr>
+<hr>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MachineLearning/" rel="tag">#MachineLearning</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/23/XXXII-Design-Ranking-List/" rel="next" title="排行榜的设计">
+                <i class="fa fa-chevron-left"></i> 排行榜的设计
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/" rel="prev" title="文本特征提取">
+                文本特征提取 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/07/30/XXXIII-MachineLearning-Linear-Regression/"
+           data-title="简单机器学习模型 - Linear Regression" data-url="http://elibinary.com/2017/07/30/XXXIII-MachineLearning-Linear-Regression/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Regression-Algorithm"><span class="nav-number">1.</span> <span class="nav-text">Regression Algorithm</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linear-Regression"><span class="nav-number">1.1.</span> <span class="nav-text">Linear Regression</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

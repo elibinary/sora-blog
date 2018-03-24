@@ -1,0 +1,754 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Algorithm," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="敏感词过滤的几种方案及其优劣">
+<meta name="keywords" content="Algorithm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="敏感词过滤">
+<meta property="og:url" content="http://elibinary.com/2017/09/02/XXXVIII-Sensitive-Word-Filtering/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="敏感词过滤的几种方案及其优劣">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i1.read01.com/uploads/535d292ce66b5a159d572606.jpg">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Trie_example.svg/1200px-Trie_example.svg.png">
+<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/6/62/Ahocorasick.svg">
+<meta property="og:updated_time" content="2018-03-24T10:19:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="敏感词过滤">
+<meta name="twitter:description" content="敏感词过滤的几种方案及其优劣">
+<meta name="twitter:image" content="https://i1.read01.com/uploads/535d292ce66b5a159d572606.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 敏感词过滤 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                敏感词过滤
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-09-02T15:16:55+08:00" content="2017-09-02">
+              2017-09-02
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/09/02/XXXVIII-Sensitive-Word-Filtering/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/09/02/XXXVIII-Sensitive-Word-Filtering/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在做社交类功能的时候一个躲不过的问题就是敏感词处理，这个问题的本质其实就是：在输入的一串字符串中匹配有限组“字典”中的子串，这样一个问题。</p>
+<p>对于这样一个问题，最容易想到的处理方法就是穷举</p>
+<h2 id="暴力穷举"><a href="#暴力穷举" class="headerlink" title="暴力穷举"></a>暴力穷举</h2><p>虽说是穷举，但其实所有的‘可能性’已经都在“字典”中呆着了。我们要做的就是遍历 “字典” 一个一个看取出的模式串是不是输入字符串的子串，简单粗暴易理解。</p>
+<p>当然，这种方法的效率也是十分低下，假设这里使用 KMP 算法来进行子串匹配，KMP 算法的时间复杂度为：构建 next 数组的时间复杂度 $O(m)$ 和匹配过程的时间复杂度 $O(n)$</p>
+<p>由于在这个问题上模式串是已经确定的一个集合，可以事先计算好所有的模式串的 next 数组保存起来重复使用，所以暂且忽略这一部分的消耗。那么整个匹配过程的时间复杂度为 $O(n*m)$ ，其中 n 为 “字典” 的规模</p>
+<h2 id="DFA"><a href="#DFA" class="headerlink" title="DFA"></a>DFA</h2><p>另外还有 DFA 的解决思路，DFA 全称 Deterministic Finite Automaton，确定有限状态自动机</p>
+<p>对于一个给定的属于该自动机的状态和一个属于该自动机字母表的字符，它都能根据事先给定的转移函数转移到下一个状态。</p>
+<p>一个完整的 DFA 由五个部分组成：</p>
+<ol>
+<li>有限状态集合 Q</li>
+<li>输入字母表 I</li>
+<li>状态转移函数 F</li>
+<li>开始状态 s</li>
+<li>接受状态集合 E</li>
+</ol>
+<p>描述出来的模型总是不那么直观，来看看一个用有向图表示的 DFA 实例（贴一张 google 搜到的图）</p>
+<p><img src="https://i1.read01.com/uploads/535d292ce66b5a159d572606.jpg" alt="DFA-Digraph"></p>
+<p>其中 Q = {S, A, B, C, D, E, F}<br>s = S<br>E = {C, D, E, F}</p>
+<p>一个给定的 DFA 存在一个唯一对应的有向图</p>
+<p>DFA 的工作过程也很简单，从起始状态开始，一个字符接一个字符地读入输入字符串，并根据转移函数一步一步地转移至下一个状态。在读完该字符串后，如果该自动机停在一个属于F的接受状态，那么它就接受该字符串，反之则拒绝该字符串。</p>
+<p>具体到敏感字这个问题上，我们把给定的敏感词 “字典” 构建成一个 DFA，对输入串进行操作。</p>
+<h3 id="Trie-Tree"><a href="#Trie-Tree" class="headerlink" title="Trie Tree"></a>Trie Tree</h3><p>这基本就是 Trie 的思路，Trie 树本身就是一个 DFA</p>
+<p>Trie 树又叫前缀树或者字典树，其结构大概是这样（贴一张 google 搜到的图）<br><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Trie_example.svg/1200px-Trie_example.svg.png" alt="Trie Tree"></p>
+<p>它的每个节点对应 DFA 的每个状态且每个节点内会保存接受状态，每条数值就是状态转移，具体定义描述可以参见 wiki 这里就不过多介绍了，直接来应用</p>
+<p>拿它来处理敏感词的思路很简单，在构建完成这个树后只需要从第一个字符挨个读入输入字符串，如果能够到达接受状态就表示匹配成功，否则回溯，把指针向后移位（就是接着从输入串第二个字符）再来一次上面的过程，循环这个过程直到结束。</p>
+<p>根据上述过程可以看出，其时间复杂度为 $O(n*m)$，n 为输入字符串长度，m 为树的高度。其时间复杂度与 “字典” 规模已经无关了，这是一个很大的进步。</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>在实现方面，可以使用通常的矩阵来存储，行表示状态，列表示输入字符，其行列对应的位置保存转移状态。这种存储方式其检索效率很高，但是不推荐使用。主要是因为可以想象，由于父子节点非常的不均匀，会导致很多位置都将是空的，这会造成矩阵的非常稀疏，从而造成空间的极大浪费。</p>
+<p>也可以使用结构体进行存储，然后以漫天飞指针的方式进行连接，但这样的方式所占用的空间依然非常庞大。</p>
+<p>为了节省空间并不损失查询效率，二数组Trie 的实现方式就被提了出来，它使用两个数据 base 数组和 check 数组存储整棵树，在 base 数组中以偏移的方式存储所有的状态节点，check 数组则用来存储对应状态的前驱状态。具体实现就不在这里展开来细说了，网上有各种实现版本，有兴趣的可以去看下。</p>
+<h3 id="AC-自动机"><a href="#AC-自动机" class="headerlink" title="AC 自动机"></a>AC 自动机</h3><p>上面 Trie 已经把算法效率进行了大幅优化，但是可以看到每次适配还是要回溯，按照之前分享过的 KMP 算法可以可以想到这一定有改进的余地，这就是 AC 自动机的核心思路了，但其实 AC 自动机算法和 KMP 是在同一时间提出的。</p>
+<p>AC 自动机本身也是一个 DFA，它主要由 trie 树以及其基础上的失配指针组成。这些额外的失配指针用来在查找过程中匹配失败时进行回退操作，其核心思想和 KMP 的 next 数组差不多，而不同之处在于 AC 算法的失配指针不限于单一模式串，而可能在 “字典” 中的其他子串。</p>
+<p>举个例子（贴一张 google 的图）<br><img src="https://upload.wikimedia.org/wikipedia/commons/6/62/Ahocorasick.svg" alt="AC"></p>
+<p><em>直观看图果然是理解复杂问题最有效的手段之一</em></p>
+<p>还有基于 hash 的思路</p>
+<h2 id="Hashing"><a href="#Hashing" class="headerlink" title="Hashing"></a>Hashing</h2><p>当被作用于检索、校验等用途时，hashing 永远是你高效的好伙伴，而在处理上述敏感词的问题上，有一个方法正好可以高效处理</p>
+<h3 id="Bloom-Filter"><a href="#Bloom-Filter" class="headerlink" title="Bloom Filter"></a>Bloom Filter</h3><p>Bloom Filter 即 布隆过滤器，它由一组 hash 函数和一条很长的二进制向量组成。它可以用于检索一个元素是否在一个集合中，其空间效率和时间效率都非常漂亮。</p>
+<p>布隆过滤器也有一个预构建的过程，它的工作过程分为两步</p>
+<ol>
+<li>拟定 K 个 hash 函数，把敏感词 “字典” 中的词一一通过这 K 个 hash 函数映射到二进制向量的 K 的点上</li>
+<li>把待匹配的字符串也经过这 K 个 hash 函数，然后判断得到这 K 个点是否全部命中</li>
+</ol>
+<p>实现起来也很简单，首先初始化整条二进制向量每一位都为 0，然后在预处理 “字典” 的时候，把映射的二进制位置 1<br>然后在匹配目标字符串时，只要散列到的 K 个点全部为 1 就认为匹配成功</p>
+<p>由于整个 “词典” 最终被表示为一个二进制向量，所以布隆过滤器的空间效率非常的高，而且它的插入及检索的时间复杂度都为 O(k) ，其中 k 为 hash 函数的个数</p>
+<p>但他也有非常明显的缺点，其一就是如果想要删除一个元素的话，将会非常的麻烦；还有一点就是误判，因为我们使用 k 个 hash 函数对目标进行散列，不可避免的会有碰撞存在，这也就导致了误判的风险，而且随着存入的元素数量增加，误判率随之增加</p>
+<p>当然，如果本身 “词典” 的大小就不大，那么直接使用散列表进行存储，然后设置下碰撞处理函数就可以了。</p>
+<p>要提到一点的是，上述方法其实并不是多模式匹配的处理方法，是用的时候需要先对输入字符串进行分词操作，所以其效果也与分词效果挂钩。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/27/XXXVII-Ruby-Python-By-MQ/" rel="next" title="基于 RabbitMQ 的 Ruby 与 Python 服务间通讯">
+                <i class="fa fa-chevron-left"></i> 基于 RabbitMQ 的 Ruby 与 Python 服务间通讯
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/09/XXXIX-Time-Delay-Task/" rel="prev" title="延时任务">
+                延时任务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/09/02/XXXVIII-Sensitive-Word-Filtering/"
+           data-title="敏感词过滤" data-url="http://elibinary.com/2017/09/02/XXXVIII-Sensitive-Word-Filtering/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#暴力穷举"><span class="nav-number">1.</span> <span class="nav-text">暴力穷举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DFA"><span class="nav-number">2.</span> <span class="nav-text">DFA</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Trie-Tree"><span class="nav-number">2.1.</span> <span class="nav-text">Trie Tree</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现"><span class="nav-number">2.1.1.</span> <span class="nav-text">实现</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AC-自动机"><span class="nav-number">2.2.</span> <span class="nav-text">AC 自动机</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hashing"><span class="nav-number">3.</span> <span class="nav-text">Hashing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bloom-Filter"><span class="nav-number">3.1.</span> <span class="nav-text">Bloom Filter</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

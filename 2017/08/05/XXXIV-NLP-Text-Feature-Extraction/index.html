@@ -1,0 +1,729 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MachineLearning," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="主要介绍两种文本特征提取的算法，以及在广告动态文本集的尝试效果">
+<meta name="keywords" content="MachineLearning">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文本特征提取">
+<meta property="og:url" content="http://elibinary.com/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="主要介绍两种文本特征提取的算法，以及在广告动态文本集的尝试效果">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T10:18:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="文本特征提取">
+<meta name="twitter:description" content="主要介绍两种文本特征提取的算法，以及在广告动态文本集的尝试效果">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 文本特征提取 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                文本特征提取
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-08-05T19:53:50+08:00" content="2017-08-05">
+              2017-08-05
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/05/XXXIV-NLP-Text-Feature-Extraction/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>最近要解决一个广告内容识别的问题，在解决实际问题之前需要对训练文本进行预处理，要先提取出包含信息多的关键特征词汇，剔除掉无关紧要的噪声词，以此来提高处理效率及增加精准度</p>
+</blockquote>
+<p>文本特征提取主要用来提取出对待处理文本有价值的特征词，以此来缩小所需处理的集合，通常自然文本中会大量充斥着‘的、了’等等的停用词，以及一些对于处理区分度很低的词。这种对于目的无关紧要的词不仅会耗费掉大量的计算能力还有可能产生噪音影响结果。</p>
+<h3 id="Mutual-Information"><a href="#Mutual-Information" class="headerlink" title="Mutual Information"></a>Mutual Information</h3><p>所谓互信息是对于两个随机变量间相互依赖性的度量。对于两个离散随机变量 X, Y 的互信息可以定义为：<br>$$ I(X;Y) = \sum_{y\in Y}\sum_{x\in X} P(x,y)log\frac{P(x,y)}{P(x)P(y)} $$</p>
+<p>其中 P(x,y) 是 X, Y 的联合概率分布函数，P(x) 是 X 的边缘概率分布函数，P(y) 如是。</p>
+<p>从公式看，互信息所度量的就是 X 和 Y 所包含的信息量，它就是在对当知道变量中任何一个，对于另一个不确定度减少的程度进行求值。</p>
+<p>从公式可知，当 X 和 Y 相互独立时<br>$$ P(x, y) = P(x) * P(y) $$<br>那么公式计算的值 I(X;Y) = 0<br>也就是说，当 X 和 Y 无关的时候，其互信息值为 0，X 不对 Y 提供任何信息，Y 也不对 X 提供任何信息。</p>
+<p>用不确定性来说明就是，Y 的出现对于 X 的不确定性的减少量就是 X 和 Y 的互信息量，用公式表示就是：<br>$$ I(X;Y) = H(X) - H(X|Y) $$<br>中其中，H(X) 就是 X 的熵，度量的是 X 的不确定性。<br>H(X|Y) 是 x, y 的条件熵，表述在已知 Y 的情况下 X 的不确定性。</p>
+<p>把互信息应用在文本特征提取上面来，比较简单的一种做法就是来度量目标词 X 与文本类别 Y 的互信息，简单来说就是去度量目标 X 的存在给文本来别 Y 所带来的信息量，带入互信息公式即可求得一个依赖度分数，以高到低取 n 个来作为目标文本的特征词。</p>
+<h3 id="TF-IDF"><a href="#TF-IDF" class="headerlink" title="TF-IDF"></a>TF-IDF</h3><p>这个还是一个基于统计的计算方法，是一种经常被用在信息检索和文本挖掘的加权算法。它主用用来评估一个词对于一个文本的重要程度。<br>它其实是两个计算结果的运算结果<br>其中 TF 全称 Term Frequency，也就是词频。对于一个文本来说，一个词的词频就是指该词出现在该文本中的频率。主要用来表述其对于目标文本的内容描述能力<br>$$ V(tf) = \frac{V(出现次数)}{V(总词汇数)} $$</p>
+<p>而 IDF 全称 Inverse Document Frequency，逆向文件频率。是一个词普遍重要性的度量，可以由总文件数目除包含该词的文本数再对其结果求对数得到。主要用来表述其对文本的区分能力<br>$$ V(idf) = log\frac{V(文档总数)}{V(包含该词的文档数)} $$</p>
+<p>最终得分取二者的乘积：<br>$$ V(tf-idf) = V(tf) * V(idf) $$</p>
+<p>可以看出，最终得分与目标词在目标文档中出现的次数成正比，与目标词在整个文档集中出现的次数成反比。</p>
+<p>TF-IDF 认为对于区分文档最有意义的词是在文档中出现频率高，而在整个文档集的其它文档中出现频率少的词。其引入逆文本频率 idf 的目的其实是一种抑制噪声的加权，其目的主要是突出重要词而抑制次要词。<br>它的缺点也显而易见，它单纯认为文本频度小的词要比文本频度大的更有用，而这其实并不一定正确，另一方面 tf-idf 算法毫不关心单词出现的位置信息。但虽然如此，在计算单词权重的方面它依然是一个简单但却非常有效的方式。</p>
+<p>下面看下我基于 TF-IDF 处理的文本特征词汇结果，首先是拜托勤劳的运营妹纸收集到的一些目标文本集合，大概像这样：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">召文字输入元，没有其他限制 一千字③0，⑤千字①⑤0 以此类推，工資當天發放 多勞多得，每天賺9⑨0～①⑧0不等 詳情+威信945630502</span><br><span class="line">独家减肥丸子，自己吃了瘦了14斤。推荐给大家，月瘦10-20斤，不反弹，不忌口，➕v：Lmumu5</span><br><span class="line">召文字输入元，没有其他限制 一千字③0，⑤千字①⑤0 以此类推，工資當天發放 多勞多得，每天賺9⑨0～①⑧0不等 詳情+威信:9⃣4⃣5⃣6⃣3⃣0⃣5⃣0⃣2⃣ 正规平台 支副宝实名认证收款</span><br><span class="line">啦啦啦，我是卖套的小行家💁唯一一款玻尿酸套套➕002极限薄➕女人有滋阴效果 男人有延时作用[偷笑][偷笑] V信 yunyun335108</span><br><span class="line">入职打字 有兼职加2085379596     </span><br><span class="line">这个真的有这么好吗，我脸上的癍也跟着很多年，总是祛不了。怎么关注，希望能够帮得到我。</span><br><span class="line">......</span><br><span class="line">......</span><br><span class="line">......</span><br><span class="line">vk118网络兼职赚钱~无论你是学生还是上班族还是宝妈，只要你敢尝试，带你赚到飞~正规平台绝不欺骗！正规平台绝不骗人！只要你有手机，将空闲时间变成最高价值！加微信号AnastasiaLeslie咨询~</span><br><span class="line">吃点水果，喝杯瘦身奶茶好像还不错哦！</span><br></pre></td></tr></table></figure></p>
+<p>我这里的目标文本集合数量有限，大致只有 50 条左右</p>
+<p>先进行分词处理，这里使用成熟的中文分词库来直接处理，我的脚本是用 python 实现的，分词使用 jieba 来进行细粒度分词<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[&apos;000&apos;, &apos;002&apos;, &apos;10&apos;, &apos;100&apos;, ... , &apos;17767253101&apos;, &apos;18726533213&apos;, &apos;1919903720&apos;, &apos;20&apos;, &apos;200&apos;, &apos;一下&apos;, &apos;一个&apos;, &apos;一个月&apos;, &apos;一些&apos;, &apos;一千&apos;, &apos;一款&apos;, &apos;一直&apos;, &apos;一种&apos;, &apos;一起&apos;, &apos;万字&apos;, &apos;三十&apos;, &apos;上班&apos;, &apos;上班族&apos;, &apos;下去&apos;, &apos;下来&apos;, &apos;不了&apos;, &apos;不到&apos;, &apos;不敢&apos;, &apos;不是&apos;, &apos;不用&apos;, &apos;不错&apos;, &apos;专属&apos;, &apos;丸子&apos;, &apos;了解&apos;, &apos;二天&apos;, &apos;互助&apos;, &apos;互相&apos;, &apos;互相监督&apos;, &apos;产后&apos;, &apos;产品&apos;, &apos;享瘦&apos;, &apos;亲爱&apos;, &apos;亲身&apos;, &apos;亲身经历&apos;, &apos;人设&apos;, &apos;以上&apos;, &apos;以此&apos;, &apos;以此类推&apos;, &apos;价值&apos;, &apos;任务&apos;, &apos;优惠&apos;, &apos;优惠券&apos;, &apos;体质&apos;, &apos;作用&apos;, &apos;你们&apos;, &apos;佣金&apos;, &apos;佩服&apos;, &apos;佳人&apos;, &apos;信号&apos;, &apos;信息&apos;, &apos;健康&apos;,</span><br><span class="line">...</span><br><span class="line">&apos;皮夫&apos;, &apos;皮肤&apos;, &apos;监督&apos;, &apos;目前&apos;, &apos;目标&apos;, &apos;相关&apos;, &apos;看来&apos;, &apos;真的&apos;, &apos;知识&apos;, &apos;离远点&apos;, &apos;私信&apos;, &apos;空余&apos;, &apos;空闲&apos;, &apos;第二&apos;, &apos;第二天&apos;, &apos;简单&apos;, &apos;类推&apos;, &apos;精选&apos;, &apos;糖果&apos;, &apos;纠正&apos;, &apos;纯天然&apos;, &apos;终结&apos;, &apos;经历&apos;, &apos;绝不&apos;, &apos;网站&apos;, &apos;网络&apos;, &apos;群主&apos;, &apos;聊会&apos;, &apos;肥胖&apos;, &apos;能加&apos;, &apos;能够&apos;, &apos;脸上&apos;, &apos;调理&apos;, &apos;贝基&apos;, &apos;资料&apos;, &apos;资源&apos;, &apos;赚钱&apos;, &apos;跟着&apos;, &apos;路过&apos;, &apos;身体&apos;, &apos;身经&apos;, &apos;软件&apos;, &apos;轻松&apos;, &apos;输入&apos;, &apos;过食&apos;, &apos;运动&apos;, &apos;还是&apos;, &apos;还有&apos;, &apos;这个&apos;, &apos;这么&apos;, &apos;这里&apos;, &apos;远点&apos;, &apos;里面&apos;, &apos;链接&apos;, &apos;长高&apos;, &apos;门槛&apos;, &apos;问题&apos;, &apos;阅读&apos;, &apos;限制&apos;, &apos;需敷包&apos;, &apos;需要&apos;, &apos;靓伊&apos;, &apos;饮食&apos;, &apos;验证&apos;, &apos;骗人&apos;, &apos;麻烦&apos;, &apos;鼓励&apos;]</span><br></pre></td></tr></table></figure></p>
+<p>大概分出 340 个词汇</p>
+<p>接下来对每个词计算其 TF-IDF 得分，下面就只取前面几个来作为示例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">减肥 0.287097663035</span><br><span class="line">关注 0.234898087937</span><br><span class="line">每天 0.18269851284</span><br><span class="line">可以 0.156598725292</span><br><span class="line">平台 0.156598725292</span><br><span class="line">以此 0.130498937743</span><br><span class="line">以此类推 0.130498937743</span><br><span class="line">分享 0.130498937743</span><br><span class="line">文字 0.130498937743</span><br><span class="line">此类 0.130498937743</span><br><span class="line">没有 0.130498937743</span><br><span class="line">类推 0.130498937743</span><br><span class="line">自己 0.130498937743</span><br><span class="line">这个 0.130498937743</span><br><span class="line">300 0.104399150194</span><br><span class="line">一下 0.104399150194</span><br><span class="line">一个 0.104399150194</span><br><span class="line">不是 0.104399150194</span><br><span class="line">了解 0.104399150194</span><br><span class="line">互相 0.104399150194</span><br><span class="line">威信 0.104399150194</span><br><span class="line">很多 0.104399150194</span><br><span class="line">怎么 0.104399150194</span><br><span class="line">推荐 0.104399150194</span><br><span class="line">时间 0.104399150194</span><br><span class="line">正规 0.104399150194</span><br><span class="line">瘦身 0.104399150194</span><br><span class="line">發放 0.104399150194</span><br><span class="line">詳情 0.104399150194</span><br><span class="line">输入 0.104399150194</span><br><span class="line">限制 0.104399150194</span><br><span class="line">10 0.0782993626458</span><br><span class="line">100 0.0782993626458</span><br><span class="line">一千 0.0782993626458</span><br><span class="line">一款 0.0782993626458</span><br><span class="line">千字 0.0782993626458</span><br><span class="line">工資 0.0782993626458</span><br><span class="line">打开 0.0782993626458</span><br><span class="line">攻众號 0.0782993626458</span><br><span class="line">效果 0.0782993626458</span><br><span class="line">朋友 0.0782993626458</span><br><span class="line">淘宝 0.0782993626458</span><br><span class="line">脸上 0.0782993626458</span><br></pre></td></tr></table></figure></p>
+<p>因为目标文本数量比较少，而且我计算 IDF 的值是在目标文本的基础上来计算的（IDF 的计算可以去网上去找一个语料库来作为目标文本集），所以其结果的精确度还是不够理想。</p>
+<p>总结：<br>上面介绍的两种算法都是基于统计的方法，其实基于统计的其他方法还有很多，如二次信息熵、信息增益方法、x2统计法、遗传算法、模拟退火法等等，当然也有很多非统计方法的算法这里就不一一列举了。</p>
+<p>另外，TF-IDF 不单用在文本特征处理上，在搜索方面也非常普遍，我前些时间了解 Elasticsearch 的时候，它默认也是使用 TF-IDF 来作为相似度算法的，主要被应用在相关性评分 _score 的计算上。</p>
+<hr>
+<p>参考：<br><a href="https://nlp.stanford.edu/IR-book/html/htmledition/mutual-information-1.html" target="_blank" rel="noopener">Introduction to Information Retrieval - Feature selection</a></p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MachineLearning/" rel="tag">#MachineLearning</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/30/XXXIII-MachineLearning-Linear-Regression/" rel="next" title="简单机器学习模型 - Linear Regression">
+                <i class="fa fa-chevron-left"></i> 简单机器学习模型 - Linear Regression
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/12/XXXV-Text-Naive-Bayes-Classification/" rel="prev" title="基于朴素贝叶斯的广告识别分类尝试">
+                基于朴素贝叶斯的广告识别分类尝试 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/08/05/XXXIV-NLP-Text-Feature-Extraction/"
+           data-title="文本特征提取" data-url="http://elibinary.com/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mutual-Information"><span class="nav-number">1.</span> <span class="nav-text">Mutual Information</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TF-IDF"><span class="nav-number">2.</span> <span class="nav-text">TF-IDF</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

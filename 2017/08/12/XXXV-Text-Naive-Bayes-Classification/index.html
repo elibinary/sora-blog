@@ -1,0 +1,720 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MachineLearning," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="因为最近伙伴部分各种广告过于猖獗且很难有效管理，所以打算搞一个广告识别过滤的模块，下面是基于朴素贝叶斯的广告分类模型构建及具体思路的尝试">
+<meta name="keywords" content="MachineLearning">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于朴素贝叶斯的广告识别分类尝试">
+<meta property="og:url" content="http://elibinary.com/2017/08/12/XXXV-Text-Naive-Bayes-Classification/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="因为最近伙伴部分各种广告过于猖獗且很难有效管理，所以打算搞一个广告识别过滤的模块，下面是基于朴素贝叶斯的广告分类模型构建及具体思路的尝试">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T10:18:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于朴素贝叶斯的广告识别分类尝试">
+<meta name="twitter:description" content="因为最近伙伴部分各种广告过于猖獗且很难有效管理，所以打算搞一个广告识别过滤的模块，下面是基于朴素贝叶斯的广告分类模型构建及具体思路的尝试">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 基于朴素贝叶斯的广告识别分类尝试 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                基于朴素贝叶斯的广告识别分类尝试
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-08-12T17:06:58+08:00" content="2017-08-12">
+              2017-08-12
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/08/12/XXXV-Text-Naive-Bayes-Classification/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/12/XXXV-Text-Naive-Bayes-Classification/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="贝叶斯定理"><a href="#贝叶斯定理" class="headerlink" title="贝叶斯定理"></a>贝叶斯定理</h3><p>贝叶斯定理是关于随机事件 A 和 B 的条件概率的一则定理，用公式来描述就是：<br>$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$</p>
+<p>可以看出，通过贝叶斯公式我们可以在已知三个概率函数时推出第四个。重要应用之一就是根据<br>$$P(A|B)\quad -&gt;\quad P(B|A)$$</p>
+<p>独立变量的联合分布：<br>$$ P(a_1, a_2, … , a_n|y_j) = \prod_{i=1}^nP(a_i|y_j)$$</p>
+<h3 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h3><p>假设：<br>A: features<br>$$ A = (w_1, w_2, w_3, … , w_n) $$<br>B: category</p>
+<p>求值：$ P(B|A) $<br>$$ P(B|A) = P(B|w_1, w_2, …, w_n) = \frac{P(w_1, w_2, …, w_n|B)P(B)}{P(w_1, w_2, … , w_n)} $$</p>
+<p>假设各特征之间相互独立，也就是 $w_1, w_2, w_3, … , w_n$ 之间都相互独立，那么就有<br>$$<br>P(w_1, w_2, … , w_n|B) = P(w_1|B)P(w_2|B)…P(w_n|B)<br>= \prod_{i=1}^nP(w_i|B)<br>$$</p>
+<p>那么最终问题就转化为了对 $P(B)$ 和 $P(w_x|B)$ 求值，或者叫估值<br>$P(B)$ 就是 B 在训练集中的相对频率<br>在处理 $P(w_x|B)$ 时，有几种不同的处理方式</p>
+<p><strong>高斯模型</strong><br>高斯模型假设特征在各类别下的观测值符合高斯分布<br>也就是说对于 $w_x$ 有 $w_x$ ~ $N(\mu_b, \sigma_b^2)$</p>
+<p>$$ P(w_x|B)<br>=<br>\frac{1}{\sigma\sqrt{2\pi}} \, \exp \left( -\frac{(w_x- \mu)^2}{2\sigma^2} \right)$$</p>
+<p>其中参数 $\mu, \sigma$ 可通过极大似然法来估计</p>
+<p><strong>多项式模型</strong><br>多项式模型假设数据服从多项式分布<br>$$ P(w_x|B)<br>=<br>\frac{N_{bx} + \alpha}{N_b + \alpha n}$$</p>
+<p>$P(w_x|B)$ 是对于特征 x 在一个样本中被类 B 拥有的概率<br>$N_{bi}$ 是在训练集中，特征 x 在属于类 B 的样本中出现的次数<br>$N_b$ 是类 B 中的所有特征数量和</p>
+<h3 id="广告分类"><a href="#广告分类" class="headerlink" title="广告分类"></a>广告分类</h3><p>朴素贝叶斯尽管看起来其假设非常简单，但是在很多场景下朴素贝叶斯分类器却工作的相当优秀。<br>而广告识别说白了其实就是一个二分类，给定一个文本，它要么是广告，要么是正常文本，也就是说<br>$$ B \in (b_{ad}, b_{normal}) $$</p>
+<p>下面我尝试使用多项式模型构建模型并估计参数</p>
+<p>首先还是使用上一篇中讲的 <a href="https://www.zybuluo.com/elibinary/note/840183" target="_blank" rel="noopener">文本特征提起</a> 来对训练集进行特征提取，然后就是估计模型以及判别方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">import jieba</span><br><span class="line">from sklearn import feature_extraction</span><br><span class="line">from sklearn.feature_extraction.text import TfidfTransformer</span><br><span class="line">from sklearn.feature_extraction.text import CountVectorizer</span><br><span class="line">from collections import defaultdict</span><br><span class="line">import math</span><br><span class="line"></span><br><span class="line"># global var for probability</span><br><span class="line">probability_module = &#123;&#125;</span><br><span class="line"># &#123; y_i: len_of_i_docs &#125;</span><br><span class="line">t_n = &#123;&#125;</span><br><span class="line"># &#123; feature_i: &#123;num_of_y_1, num_of_y_2 ... ,num_of_y_n&#125; &#125;</span><br><span class="line"># features_num = defaultdict(dict)</span><br><span class="line">features_num = &#123;&#125;</span><br><span class="line">total_doc_num = 0</span><br><span class="line"></span><br><span class="line">samples = []</span><br><span class="line"></span><br><span class="line">def tf_idf(file_path):</span><br><span class="line">  file = open(file_path, &apos;r&apos;)</span><br><span class="line">  corpus = []</span><br><span class="line">  temp_str = &apos;&apos;</span><br><span class="line"></span><br><span class="line">  temp_samples = []</span><br><span class="line">  for line in file:</span><br><span class="line">    cut_res = jieba.lcut_for_search(line)</span><br><span class="line">    temp_samples.append(cut_res)</span><br><span class="line">    # corpus.append(&apos; &apos;.join(cut_res))</span><br><span class="line">    temp_str += &apos; &apos;.join(cut_res)</span><br><span class="line">    temp_str += &apos; &apos;</span><br><span class="line"></span><br><span class="line">  file.close</span><br><span class="line">  samples.append(temp_samples)</span><br><span class="line"></span><br><span class="line">  corpus.append(temp_str)</span><br><span class="line">  vectorizer = CountVectorizer()</span><br><span class="line">  transformer = TfidfTransformer()</span><br><span class="line">  word_freq = vectorizer.fit_transform(corpus)</span><br><span class="line">  tf_idf = transformer.fit_transform(word_freq)</span><br><span class="line"></span><br><span class="line">  words = vectorizer.get_feature_names()</span><br><span class="line">  scores = tf_idf.toarray()[0]</span><br><span class="line">  return zip(words, scores)</span><br><span class="line"></span><br><span class="line"># for i in range(len(scores)):</span><br><span class="line">#   print(words[i], scores[i])</span><br><span class="line"># sort_res = sorted(list(arr), key=lambda item: item[1], reverse=True)</span><br><span class="line"></span><br><span class="line">def predict_module(samples, y, features):</span><br><span class="line">  global total_doc_num</span><br><span class="line"></span><br><span class="line">  for i in range(len(y)):</span><br><span class="line">    if y[i] not in t_n:</span><br><span class="line">      t_n[y[i]] = &#123;&#125;</span><br><span class="line">    t_n[y[i]][&apos;docs&apos;] = len(samples[i])</span><br><span class="line">    t_n[y[i]][&apos;features&apos;] = len(features[i])</span><br><span class="line">    t_n[y[i]][&apos;total&apos;] = 0</span><br><span class="line"></span><br><span class="line">  for features_i in features:</span><br><span class="line">    for item in features_i:</span><br><span class="line">      features_num[item] = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  for i in range(len(samples)):</span><br><span class="line">    for sample in samples[i]:</span><br><span class="line">      total_doc_num += 1</span><br><span class="line">      for word in sample:</span><br><span class="line">        if word in features_num:</span><br><span class="line">          t_n[y[i]][&apos;total&apos;] += 1</span><br><span class="line">          if y[i] in features_num[word]:</span><br><span class="line">            features_num[word][y[i]] += 1</span><br><span class="line">          else:</span><br><span class="line">            features_num[word][y[i]] = 1</span><br><span class="line"></span><br><span class="line">def bayes_multinomial(doc, y):</span><br><span class="line">  v = len(features_num)</span><br><span class="line">  cut_res = jieba.lcut_for_search(doc)</span><br><span class="line">  scores = &#123;&#125;</span><br><span class="line">  for y_i in y:</span><br><span class="line">    p_y = t_n[y_i][&apos;docs&apos;] / total_doc_num</span><br><span class="line">    scores[y_i] = math.log(p_y)</span><br><span class="line">    for word in cut_res:</span><br><span class="line">      if word in features_num:</span><br><span class="line">        if y_i in features_num[word]:</span><br><span class="line">          p_y_w = (features_num[word][y_i] + 1) / (t_n[y_i][&apos;total&apos;] + v)</span><br><span class="line">        else:</span><br><span class="line">          p_y_w = 1 / (t_n[y_i][&apos;total&apos;] + v)</span><br><span class="line">        scores[y_i] += math.log(p_y_w)</span><br><span class="line"></span><br><span class="line">  return scores</span><br></pre></td></tr></table></figure></p>
+<p>接下来就是测试其分类效果了<br>本来是要把训练数据分成两份，一份用于参数估计，另一份用于测试模型准确率的。但是因为我本身的训练数据量比较少，一共也就几百条。。。所以只在其中随机挑了几十条作为测试集，准确度在 80% 左右，在输入正常样本是产生误判的几率较大，另外由于训练集和测试集过小，我暂时并不能确定模型完善度。<br>接下来我打算先使用 NumPy 对实现中参数向量结构部分进行重写，然后去找一个现有的语料库找个大点的数据集跑测一下。顺便有时间再试一下高斯模型以及伯努利模型的效果。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MachineLearning/" rel="tag">#MachineLearning</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/" rel="next" title="文本特征提取">
+                <i class="fa fa-chevron-left"></i> 文本特征提取
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/20/XXXVI-NLP-Segmentation-ABC/" rel="prev" title="笔记 - 了解分词">
+                笔记 - 了解分词 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/08/12/XXXV-Text-Naive-Bayes-Classification/"
+           data-title="基于朴素贝叶斯的广告识别分类尝试" data-url="http://elibinary.com/2017/08/12/XXXV-Text-Naive-Bayes-Classification/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">65</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#贝叶斯定理"><span class="nav-number">1.</span> <span class="nav-text">贝叶斯定理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用"><span class="nav-number">2.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#广告分类"><span class="nav-number">3.</span> <span class="nav-text">广告分类</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>
