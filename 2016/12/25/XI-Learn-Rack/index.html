@@ -1,0 +1,776 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Rails," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="Rack provides a minimal interface between webservers that support Ruby and Ruby frameworks.">
+<meta name="keywords" content="Rails">
+<meta property="og:type" content="article">
+<meta property="og:title" content="了解 Rack">
+<meta property="og:url" content="http://elibinary.com/2016/12/25/XI-Learn-Rack/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="Rack provides a minimal interface between webservers that support Ruby and Ruby frameworks.">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/rack-1.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/middleware-1.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/rack-2.png">
+<meta property="og:updated_time" content="2018-03-24T04:34:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="了解 Rack">
+<meta name="twitter:description" content="Rack provides a minimal interface between webservers that support Ruby and Ruby frameworks.">
+<meta name="twitter:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/rack-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 了解 Rack | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                了解 Rack
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-12-25T12:58:59+08:00" content="2016-12-25">
+              2016-12-25
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/25/XI-Learn-Rack/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/25/XI-Learn-Rack/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>Rack provides a minimal interface between webservers that support Ruby and Ruby frameworks.</p>
+</blockquote>
+<blockquote>
+<p>To use Rack, provide an “app”: an object that responds to the call method, taking the environment hash as a parameter, and returning an Array with three elements:</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>The HTTP response code</li>
+<li>A Hash of headers</li>
+<li>The response body, which must respond to each</li>
+</ul>
+</blockquote>
+<p><em>以上描述来自 rack doc</em><br>不看不知道，一看吓一跳，rack 的包容之大，应用之广出乎我的想象。<br>看 <a href="http://rack.rubyforge.org/doc/" target="_blank" rel="noopener">rack doc</a><br>对 WEBrick, Mongrel, FCGI, Thin, Puma等等还有很多的 web server 都进行了支持，rack-base 的框架也是多的不行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">These frameworks include Rack adapters in their distributions:</span><br><span class="line"></span><br><span class="line">Camping</span><br><span class="line">Coset</span><br><span class="line">Espresso</span><br><span class="line">Halcyon</span><br><span class="line">Mack</span><br><span class="line">Maveric</span><br><span class="line">Merb</span><br><span class="line">Racktools::SimpleApplication</span><br><span class="line">Ramaze</span><br><span class="line">Rails</span><br><span class="line">Rum</span><br><span class="line">Sinatra</span><br><span class="line">Sin</span><br><span class="line">Vintage</span><br><span class="line">Waves</span><br><span class="line">Wee</span><br><span class="line">… and many others.</span><br></pre></td></tr></table></figure>
+<p>‘Any valid Rack app will run the same on all these handlers, without changing anything.’ – doc</p>
+<h3 id="Rack-是什么"><a href="#Rack-是什么" class="headerlink" title="Rack 是什么"></a>Rack 是什么</h3><blockquote>
+<p>Rack provides a minimal, modular and adaptable interface for developing web applications in Ruby.</p>
+</blockquote>
+<p>rack 对 HTTP 请求和响应进行了封装，并对上层提供了一套统一的接口。它需要一个能够响应（response）call 方法的对象，该call方法接收一个 hash 类型的参数 env，并且返回一个三元素的数组<br> [code, headers, body]</p>
+<ul>
+<li>code: The HTTP response code</li>
+<li>headers: A Hash of headers</li>
+<li>body: The response body, which must respond to each</li>
+</ul>
+<p>一个简单的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">require &quot;rack&quot;</span><br><span class="line">require &quot;awesome_print&quot;</span><br><span class="line"></span><br><span class="line">class HelloWorld</span><br><span class="line">  def call(env)</span><br><span class="line">    ap env</span><br><span class="line">    [200, &#123;&apos;tp&apos; =&gt; &apos;tp&apos;&#125;, [&apos;hello world~&apos;]]  </span><br><span class="line">  end  </span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Rack::Handler::WEBrick.run HelloWorld.new, Port: 3333</span><br></pre></td></tr></table></figure></p>
+<p>很简单吧</p>
+<p>根据文档说明 app 只要是一个拥有一个可以接收 env 参数并返回三元素数组的 call 方法的对象就可以，那么就有了更简单的写法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">app = Proc.new do |env|</span><br><span class="line">   [&apos;200&apos;, &#123;&apos;Content-Type&apos; =&gt; &apos;text/html&apos;&#125;, [&apos;hello world~&apos;]]</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Rack::Handler::WEBrick.run app, Port: 3333</span><br></pre></td></tr></table></figure></p>
+<p>它其实就是处于这样一个位置：<br><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/rack-1.png" alt="rack-1"></p>
+<h3 id="Middleware"><a href="#Middleware" class="headerlink" title="Middleware"></a>Middleware</h3><blockquote>
+<p>Rack middleware is a way to filter a request and response coming into your application.</p>
+</blockquote>
+<p>废话不多说，先看个例子:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">require &quot;rack&quot;</span><br><span class="line">require &quot;awesome_print&quot;</span><br><span class="line"></span><br><span class="line">class Clock</span><br><span class="line">  def initialize(app)</span><br><span class="line">    @app = app</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def call(env)</span><br><span class="line">    puts &quot;Current Time: #&#123;Time.now&#125;&quot;</span><br><span class="line">    code, headers, body = @app.call(env)</span><br><span class="line">    [code, headers, body &lt;&lt; &quot;Current Time: #&#123;Time.now&#125;&quot;]</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">app = Proc.new do |env|</span><br><span class="line">  [&apos;200&apos;, &#123;&apos;Content-Type&apos; =&gt; &apos;text/html&apos;&#125;, [&apos;hello world~&apos;]]</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Rack::Handler::WEBrick.run Clock.new(app), Port: 3333</span><br></pre></td></tr></table></figure></p>
+<p>从代码可以非常清晰的明白其思路就是对 app 的一层包装，先一步获取请求并对其进行修饰，获取 response 后也可进行修饰后返回。<br>简单的说，Rack 的 一个 middleware 就是一个类，这个类的实例对象符合 rack 对 ‘app’ 的所有要求。也就是说它的实例本身就可以作为一个 rack app 传递给 Rack::Handler::WEBrick.run，那么 Middleware 也就是可以一层一层的嵌套下去的。<br>就像这样：<br><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/middleware-1.png" alt="middleware-1"><br>（看它的结构像什么，我的第一感觉是这玩意就像一个俄罗斯套娃）</p>
+<p>再来看一下其工作流：<br><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/rack-2.png" alt="rack-2"><br>有没有很熟悉，处理方式有没有很像 pipeline design pattern</p>
+<h3 id="rackup"><a href="#rackup" class="headerlink" title="rackup"></a>rackup</h3><p>在接着往下探索之前，先让我们来看一个强大的工具：rackup</p>
+<blockquote>
+<p>rackup is a useful tool for running Rack applications, which uses the Rack::Builder DSL to configure middleware and build up applications easily.<br>– rack doc</p>
+</blockquote>
+<p>使用 rackup 可以轻松构建并运行一个 rack app<br>比如这样：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"># config.ru</span><br><span class="line"></span><br><span class="line">class Clock</span><br><span class="line">  def initialize(app)</span><br><span class="line">    @app = app</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def call(env)</span><br><span class="line">    puts &quot;Current Time: #&#123;Time.now&#125;&quot;</span><br><span class="line">    code, headers, body = @app.call(env)</span><br><span class="line">    [code, headers, body &lt;&lt; &quot;Current Time: #&#123;Time.now&#125;&quot;]</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class BodyUpper</span><br><span class="line">  def initialize(app)</span><br><span class="line">    @app = app</span><br><span class="line">  end</span><br><span class="line">  def call(env)</span><br><span class="line">    status, head, body = @app.call(env)</span><br><span class="line">    upcased_body = body.map&#123;|chunk| chunk.upcase &#125;</span><br><span class="line">    [status, head, upcased_body]</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">app = Proc.new do |env|</span><br><span class="line">  [&apos;200&apos;, &#123;&apos;Content-Type&apos; =&gt; &apos;text/html&apos;&#125;, [&apos;hello world~&apos;]]</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">use Clock</span><br><span class="line">use BodyUpper</span><br><span class="line">run app</span><br></pre></td></tr></table></figure></p>
+<p>直接使用rackup命令就可以运行这个样例。<br>可以看出它使用了一系列方法，约定以及配置帮忙简化了 stack 的生成以及 app 的运行。这些方法来自于 Rack::Builder ，让我们来看一下这个类</p>
+<blockquote>
+<p>Rack::Builder implements a small DSL to iteratively construct Rack applications.<br>– comments</p>
+</blockquote>
+<p>其核心方法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"># All requests through to this application will first be processed by the middleware class.</span><br><span class="line"># The +call+ method in this example sets an additional environment key which then can be</span><br><span class="line"># referenced in the application if required.</span><br><span class="line">def use(middleware, *args, &amp;block)</span><br><span class="line">  if @map</span><br><span class="line">    mapping, @map = @map, nil</span><br><span class="line">    @use &lt;&lt; proc &#123; |app| generate_map app, mapping &#125;</span><br><span class="line">  end</span><br><span class="line">  @use &lt;&lt; proc &#123; |app| middleware.new(app, *args, &amp;block) &#125;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># Takes an argument that is an object that responds to #call and returns a Rack response.</span><br><span class="line">def run(app)</span><br><span class="line">  @run = app</span><br><span class="line">end</span><br><span class="line">    </span><br><span class="line"># Creates a route within the application.</span><br><span class="line">#</span><br><span class="line"># The +use+ method can also be used here to specify middleware to run under a specific path:</span><br><span class="line">#</span><br><span class="line">#   Rack::Builder.app do</span><br><span class="line">#     map &apos;/&apos; do</span><br><span class="line">#       use Middleware</span><br><span class="line">#       run Heartbeat</span><br><span class="line">#     end</span><br><span class="line">#   end</span><br><span class="line">#</span><br><span class="line"># This example includes a piece of middleware which will run before requests hit +Heartbeat+.</span><br><span class="line">#</span><br><span class="line">def map(path, &amp;block)</span><br><span class="line">  @map ||= &#123;&#125;</span><br><span class="line">  @map[path] = block</span><br><span class="line">end</span><br><span class="line">    </span><br><span class="line">def to_app</span><br><span class="line">  app = @map ? generate_map(@run, @map) : @run</span><br><span class="line">  fail &quot;missing run or map statement&quot; unless app</span><br><span class="line">  app = @use.reverse.inject(app) &#123; |a,e| e[a] &#125;</span><br><span class="line">  @warmup.call(app) if @warmup</span><br><span class="line">  app</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def call(env)</span><br><span class="line">  to_app.call(env)</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>可以看出 to_app 方法最终生成了完整的 app stack ,它已经将 app 以及 middlewares 全部串在了一起, 并且保证一次调用call, 就会按规则经过所有的 middlewares 。</p>
+<h3 id="Rails-on-Rack"><a href="#Rails-on-Rack" class="headerlink" title="Rails on Rack"></a>Rails on Rack</h3><blockquote>
+<p>Rails.application is the primary Rack application object of a Rails application. Any Rack compliant web server should be using Rails.application object to serve a Rails application.<br>– rails_on_rack</p>
+</blockquote>
+<p>Rails::Server 加载中间件的方式是这样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def middleware</span><br><span class="line">  middlewares = []</span><br><span class="line">  middlewares &lt;&lt; [Rails::Rack::Debugger] if options[:debugger]</span><br><span class="line">  middlewares &lt;&lt; [::Rack::ContentLength]</span><br><span class="line">  Hash.new(middlewares)</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>Rails::Application 通过 ActionDispatch::MiddlewareStack 把内部和外部的中间件组合在一起，形成一个完整的 Rails Rack 程序。</p>
+<p>同时rails也提供了命令来查看正在使用的中间件链<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"># rake middleware</span><br><span class="line"></span><br><span class="line">use Rack::Sendfile</span><br><span class="line">use ActionDispatch::Static</span><br><span class="line">use Rack::Lock</span><br><span class="line">use #&lt;ActiveSupport::Cache::Strategy::LocalCache::Middleware:0x000000029a0838&gt;</span><br><span class="line">use Rack::Runtime</span><br><span class="line">use Rack::MethodOverride</span><br><span class="line">use ActionDispatch::RequestId</span><br><span class="line">use Rails::Rack::Logger</span><br><span class="line">use ActionDispatch::ShowExceptions</span><br><span class="line">use ActionDispatch::DebugExceptions</span><br><span class="line">use ActionDispatch::RemoteIp</span><br><span class="line">use ActionDispatch::Reloader</span><br><span class="line">use ActionDispatch::Callbacks</span><br><span class="line">use ActiveRecord::Migration::CheckPending</span><br><span class="line">use ActiveRecord::ConnectionAdapters::ConnectionManagement</span><br><span class="line">use ActiveRecord::QueryCache</span><br><span class="line">use ActionDispatch::Cookies</span><br><span class="line">use ActionDispatch::Session::CookieStore</span><br><span class="line">use ActionDispatch::Flash</span><br><span class="line">use ActionDispatch::ParamsParser</span><br><span class="line">use Rack::Head</span><br><span class="line">use Rack::ConditionalGet</span><br><span class="line">use Rack::ETag</span><br><span class="line">run MyApp::Application.routes</span><br></pre></td></tr></table></figure></p>
+<p>添加一个自己的中间件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># config/application.rb</span><br><span class="line"> </span><br><span class="line"># Push Rack::BounceFavicon at the bottom</span><br><span class="line">config.middleware.use My::SelfMiddle</span><br></pre></td></tr></table></figure></p>
+<p>rails 提供了几个方法来更加方便进行这个操作：</p>
+<ul>
+<li><p>config.middleware.use(new_middleware, args) - Adds the new middleware at the bottom of the middleware stack.</p>
+</li>
+<li><p>config.middleware.insert_before(existing_middleware, new_middleware, args) - Adds the new middleware before the specified existing middleware in the middleware stack.</p>
+</li>
+<li><p>config.middleware.insert_after(existing_middleware, new_middleware, args) - Adds the new middleware after the specified existing middleware in the middleware stack.</p>
+</li>
+<li><p>config.middleware.swap ActionDispatch::ShowExceptions, Lifo::ShowExceptions - Replace ActionDispatch::ShowExceptions with Lifo::ShowExceptions</p>
+</li>
+<li><p>config.middleware.delete Rack::Runtime - delete Rack::Runtime</p>
+</li>
+</ul>
+<hr>
+<p><a href="http://guides.rubyonrails.org/rails_on_rack.html" target="_blank" rel="noopener">Rails on Rack — Ruby on Rails Guides</a></p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rails/" rel="tag">#Rails</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/10/X-Review-Base-Cryptology/" rel="next" title="久违多年重新看密码学">
+                <i class="fa fa-chevron-left"></i> 久违多年重新看密码学
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/01/XII-Considerations-For-Carrierwave/" rel="prev" title="关于 carrierwave 的实践报告">
+                关于 carrierwave 的实践报告 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/12/25/XI-Learn-Rack/"
+           data-title="了解 Rack" data-url="http://elibinary.com/2016/12/25/XI-Learn-Rack/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rack-是什么"><span class="nav-number">1.</span> <span class="nav-text">Rack 是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Middleware"><span class="nav-number">2.</span> <span class="nav-text">Middleware</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rackup"><span class="nav-number">3.</span> <span class="nav-text">rackup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rails-on-Rack"><span class="nav-number">4.</span> <span class="nav-text">Rails on Rack</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

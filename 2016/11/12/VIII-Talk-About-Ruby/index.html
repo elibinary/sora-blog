@@ -1,0 +1,724 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="Ruby 是有很多语言发展而来的，它在借鉴了这些语言的很多特性的同时，也有很多自己处理问题的方式，有时候这些方式会令你困惑或惊讶。">
+<meta name="keywords" content="Ruby">
+<meta property="og:type" content="article">
+<meta property="og:title" content="了解 Ruby">
+<meta property="og:url" content="http://elibinary.com/2016/11/12/VIII-Talk-About-Ruby/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="Ruby 是有很多语言发展而来的，它在借鉴了这些语言的很多特性的同时，也有很多自己处理问题的方式，有时候这些方式会令你困惑或惊讶。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T04:34:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="了解 Ruby">
+<meta name="twitter:description" content="Ruby 是有很多语言发展而来的，它在借鉴了这些语言的很多特性的同时，也有很多自己处理问题的方式，有时候这些方式会令你困惑或惊讶。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 了解 Ruby | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                了解 Ruby
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-12T21:00:59+08:00" content="2016-11-12">
+              2016-11-12
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/12/VIII-Talk-About-Ruby/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/12/VIII-Talk-About-Ruby/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>Ruby 是有很多语言发展而来的，它在借鉴了这些语言的很多特性的同时，也有很多自己处理问题的方式，有时候这些方式会令你困惑或惊讶。</p>
+</blockquote>
+<h3 id="True-amp-False"><a href="#True-amp-False" class="headerlink" title="True &amp; False"></a>True &amp; False</h3><p>首先先来看一下 ruby 中的 True 和 False。在处理真值假值上面，很多语言都有着不同的处理方式。在我以前用过的语言中，就有很多 0 表示假的例子，比如 c 语言中的定义： 0 为 false，!0 （即所有非 0 值）为 true 。</p>
+<p>那么在 ruby 中是怎样呢，实际上在 ruby 中区别真假值的规则非常简单，有别于其它很多语言，ruby 中的定义是这样的： 除了 false 和 nil ，其余的所有值都是真！没错，0 值也是真，这一点曾令我栽过不止一次跟头。</p>
+<p>并且在 ruby 中，true 和 false 不同于很多其它语言，它们不是关键字，当你查看它们的 class 时，会发现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">true.class</span><br><span class="line"># =&gt; TrueClass</span><br><span class="line">false.class</span><br><span class="line"># =&gt; FalseClass</span><br></pre></td></tr></table></figure></p>
+<p>可以看出，true 和 false 和普通的对象一样，可以调用在它之上的任意方法，同时 ruby 也定义了 TRUE 和 FALSE 常量，而它们仅仅是对这些 true 和 false 对象的引用。其实在上边就已经说过了，在 ruby 中除了 false 和 nil 之外的任何对象都可以表示真值，因此定义的 true 对象来专门表示真值是冗余的，true 对象的存在其实只是单纯的为了方便而已。</p>
+<p>但是这个时候又会引出另一个困惑，那就是有时我们需要去区别 false 和 nil，这个时候通常会选用两种方式来判断： nil? 或 ‘==’. </p>
+<p>并且在使用 ‘==’ 方法的时候，书中建议把 false 作为左操作对象。这并不是有些语言中一些建议规范或 style 一样的建议，而是这样做是有其用意的。当你把 false 作为左值的时候其实就相当于调用 FalseClass#== 这个方法，这样可以很放心的确定如果右边的操作对象也是 false 对象时，返回 true。而如果把待比较对象置于左位置，那么就相当于调用该待比较对象的 ‘==’ 方法，当然其也是继承自 Object 方法，但是如果它复写了 Object#== 方法的话，就有可能导致出现预期以外的结果，这是我们不想看到的。</p>
+<h3 id="nil"><a href="#nil" class="headerlink" title="nil"></a>nil</h3><p>而对于 nil 来说，还有另外一些问题。在 Ruby 的类型系统的运作方式下，任何对象都可以是 nil，因为 Ruby 程序中的每一个对象都源自 BasicObject 这个类，那么也就是说在程序运行过程中一个类的对象是能够被另一个类的对象轻易替换的。在Ruby程序中，相比于当前对象是什么(is_a?)，它更在意当前对象能够响应什么方法(respond_to?)。当该对象无法响应其方法时，就抛出 error。</p>
+<p>在程序中，很多时候一些错误都产生自<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">undefined method xxx for nil::NilClass</span><br></pre></td></tr></table></figure></p>
+<p>真是令人讨厌呀，这就导致当你在定义方法时最好都假设任何对象都可以为nil并做好处理工作，比如做 nil? 等这类判断。<br>或者很多时候还使用 Object 定义的几种基础转换方法: to_s, to_i 等。因为令人愉悦的，NilClass 也是可以正常响应这类方法的，比如 nil.to_s 就会返回一个空字符串。另外还有一点要指出， 比如 String#to_s 方法只是简单的返回 self 而不会去做任何的转换和复制，这样的就有一大好处，当 to_s 的调用方本身就是一个 string 时，那么此方法的开销相当的小。</p>
+<h3 id="几种不同的等价判断"><a href="#几种不同的等价判断" class="headerlink" title="几种不同的等价判断"></a>几种不同的等价判断</h3><p>和其它很多语言一样，在 Ruby 中也存在数种等价比较的方法，有时在不注意的时候就会因为对某种方法的误用得到意料之外的结果。这次就来把这几种方法扒拉扒拉清楚。</p>
+<p>首先先来看看 ‘==’ 和 ‘equal?’</p>
+<p>‘==’ 很常用，也很简单，它的惯例行为是当两个对象表示相同的值时返回真值。就比如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&apos;abc&apos; == &apos;abc&apos;</span><br><span class="line"># =&gt; true</span><br></pre></td></tr></table></figure></p>
+<p>还有一点，平时经常会用到但是可能并没有注意到的是，很多表示数字的类在使用 ‘==’ 操作符比较对象时通常会做类型的隐式转换。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 == 1.0</span><br><span class="line"># =&gt; true</span><br></pre></td></tr></table></figure></p>
+<p>而 ‘equal?’ 方法就与此完全不同，就比如当你比较两个字符串时：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&apos;abc&apos; == &apos;abc&apos;</span><br><span class="line"># =&gt; true</span><br><span class="line"></span><br><span class="line">&apos;abc&apos;.equal? &apos;abc&apos;</span><br><span class="line"># =&gt; false</span><br></pre></td></tr></table></figure></p>
+<p>发现它们并不相等。equal? 方法其实并不是比较的两个对象的内容和值，而是检查它们是否为同一个对象，也就是说当你使用 equal? 方法时，只有当两者具有相同的 object_id 时，返回值才为真，它其实检查的是两个对象的指针是否指向内存中的同一块地址。</p>
+<p>还有一个方法 ‘eql?’ ，这个方法可能你并没有显示的使用过它，但是它在 Hash 类中被广泛的用于比较对象的键，以确保同一个键不会被插入多次。</p>
+<p>‘eql?’ 方法的默认行为和 ‘equal?’ 是一样的，那么它在 Hash 类中到底是起什么作用呢，我们先来看另外一个方法 hash ，这个方法决定了将对象存在数据结构的什么地方。当两个对象表示相同的键时它们的 hash 方法应该返回相同的值，但是有时不同的对象在调用 hash 方法时也可能会返回相同的值，这就是哈希冲突，在这里就不过多阐述这方面相关的东西了。接下来说 eql? 方法，当 hash 值一致就会进一步通过 eql? 方法来确定其是否真的具有相同的键值。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/23/VII-Cookie-Session/" rel="next" title="Cookie & Session">
+                <i class="fa fa-chevron-left"></i> Cookie & Session
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/19/IX-Sugar-And-Trap/" rel="prev" title="语法糖与小陷阱">
+                语法糖与小陷阱 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/12/VIII-Talk-About-Ruby/"
+           data-title="了解 Ruby" data-url="http://elibinary.com/2016/11/12/VIII-Talk-About-Ruby/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#True-amp-False"><span class="nav-number">1.</span> <span class="nav-text">True &amp; False</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nil"><span class="nav-number">2.</span> <span class="nav-text">nil</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#几种不同的等价判断"><span class="nav-number">3.</span> <span class="nav-text">几种不同的等价判断</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

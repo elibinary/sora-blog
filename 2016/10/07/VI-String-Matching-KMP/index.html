@@ -1,0 +1,759 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Algorithm," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="最近在复习一些基础算法，正好把字符串匹配的各种知识总结记录一下。">
+<meta name="keywords" content="Algorithm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VI-String-Matching-KMP">
+<meta property="og:url" content="http://elibinary.com/2016/10/07/VI-String-Matching-KMP/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="最近在复习一些基础算法，正好把字符串匹配的各种知识总结记录一下。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T04:34:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="VI-String-Matching-KMP">
+<meta name="twitter:description" content="最近在复习一些基础算法，正好把字符串匹配的各种知识总结记录一下。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> VI-String-Matching-KMP | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                VI-String-Matching-KMP
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-10-07T00:32:37+08:00" content="2016-10-07">
+              2016-10-07
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/07/VI-String-Matching-KMP/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/07/VI-String-Matching-KMP/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近在复习一些基础算法，正好把字符串匹配的各种知识总结记录一下。关于字符串匹配我们都不陌生，例如 ruby 中 String 的 index 等一系列方法。下面先说一下最简单粗暴的解法。</p>
+<p>先分解下问题，现在我们要解决的问题可以简单描述为这样：现有一字符串 S ，现查找目标字符串 P 在 S 中的位置。</p>
+<h3 id="暴力解法"><a href="#暴力解法" class="headerlink" title="暴力解法"></a>暴力解法</h3><p>所谓暴力法就是逐字符便利匹配字符串具体过程是这样的：</p>
+<ol>
+<li>从头部开始逐字符匹配 S 与 P，设置指针 i 指向 S 头部</li>
+<li>如果遇到字符不匹配，则令指针 i 向后移，并重头开始匹配 P</li>
+<li>重复第二步，直至成功匹配或者失配</li>
+</ol>
+<p>举个简单的例子：<br>现有字符串 S ： ‘acdfcacdchd’ , 现查找目标字符串 P： ‘acdc’在 S 中的位置。其匹配过程是这样的：</p>
+<ol>
+<li>首先 S[0] 与 P[0] 比较，发现匹配，继续向后匹配 S[1] 和 P[1]</li>
+<li>直至匹配到 S[3] 与 P[3] 时，发现不匹配。向后移从 S[1] 开始匹配 P</li>
+<li>发现 S[1] 与 P[0] 不匹配，继续后移从 S[2] 开始</li>
+<li>（重复过程略）</li>
+<li>发现 S[5] 与 P[0] 匹配，各自向后移一位，继续向后匹配 S[6] 和 P[1]</li>
+<li>最终完成匹配</li>
+</ol>
+<p>说起来挺啰嗦，其实就是循环匹配的过程，实现起来很简单：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">method_one</span></span></span><br><span class="line">  i = j = <span class="number">0</span></span><br><span class="line">  <span class="keyword">while</span> i &lt; @a_length &amp;&amp; j &lt; @p_length</span><br><span class="line">    <span class="keyword">if</span> @string_a[i] == @string_p[j]</span><br><span class="line">      i += <span class="number">1</span></span><br><span class="line">      j += <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      i = i - j + <span class="number">1</span></span><br><span class="line">      j = <span class="number">0</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># matching complete</span></span><br><span class="line">  <span class="keyword">if</span> j == @p_length</span><br><span class="line">    i - j</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    -<span class="number">1</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>或者下面这种写法更容易看明白，还可以通过适当剪枝来减少循环数：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">method_two</span></span></span><br><span class="line">  res = -<span class="number">1</span></span><br><span class="line">  (<span class="number">0</span>..(@a_length - @p_length)).each <span class="keyword">do</span> <span class="params">|i|</span></span><br><span class="line">    (<span class="number">0</span>..(@p_length-<span class="number">1</span>)).each <span class="keyword">do</span> <span class="params">|j|</span></span><br><span class="line">      <span class="keyword">break</span> <span class="keyword">if</span> @string_a[i + j] != @string_p[j]</span><br><span class="line">      <span class="keyword">return</span> i <span class="keyword">if</span> j == @p_length - <span class="number">1</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  res</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>经典的 KMP 算法叙述起来可能会比较繁复</p>
+<h3 id="KMP"><a href="#KMP" class="headerlink" title="KMP"></a>KMP</h3><p>Knuth-Morris-Pratt 字符串查找算法，简称为“KMP算法”，此算法可在一个主“文本字符串”S内查找一个“词”W的出现位置。此算法通过运用对这个词在不匹配时本身就包含足够的信息来确定下一个匹配将在哪里开始的发现，从而避免重新检查先前匹配的字符。（来自Wiki的简要解释）</p>
+<h4 id="“部分匹配”表"><a href="#“部分匹配”表" class="headerlink" title="“部分匹配”表"></a>“部分匹配”表</h4><p>从上面解释中最重要的就是如何确定下一个匹配将在哪里开始。这里KMP使用了一个“部分匹配”表，当失配时将通过这个表来确定下一个匹配将在哪里开始，因为可以用数组来表示，我们又称其为 next 数组。那么这个 next 数组到底长什么样子又是怎么算出来的呢。</p>
+<p>next 数组的构成是这样的，它的下标对应于目标字符串 P 的每个字符的位置，它的 value 就是当失配时下一个匹配将在何处开始的数值，也就是说当 P 的第 j 的字符匹配失败时，下一次将从字符串 P 的 next[j] 处开始匹配。下面举个例子来说明：</p>
+<p>现有目标字符串 P = ‘abdabch’，经计算其对应的 next 数组就是 [-1, 0, 0, 0, 1, 2, 0]。（下面会详细介绍 next 数组的计算方式）<br>现在先来看下 next 数组的使用方式：<br>假设现有主字符串 S = ‘cdabdabpoabvb’</p>
+<ol>
+<li>依次匹配，当匹配到第6位时，也就是 S[7] != P[5]</li>
+<li>查找 next 数组，next[5] = 2</li>
+<li>保持 S 的指针不变，移动 P 的指针到 P[next[5]] 也就是 P[2] 位置继续匹配</li>
+<li>重复</li>
+</ol>
+<p>下面再来说说 next 数组本身，还是借助上面例子来说明：</p>
+<ol>
+<li>假设指向 S, P 的指针分别为 i, j</li>
+<li>那么当 j = 5, i = 7 时，S[7] != P[5] ，P[5] 前面的字符 ‘abdab’ 与 S 已完成匹配</li>
+<li>那么假如 ‘abdab’ 首部尾部有重复字符串，如现在就有重复前后缀 ab ，那么当匹配失败时，可以知道后缀一定是匹配成功的，那么与后缀匹配的前缀也一定匹配成功，那么下一次的匹配就可以从之后的一位开始（在此处也就是 p[2] 处）。</li>
+</ol>
+<p>那么至此问题就转化为了求给定字符串的最长匹配的前缀后缀的问题。</p>
+<h4 id="怎么构建"><a href="#怎么构建" class="headerlink" title="怎么构建"></a>怎么构建</h4><p>用递推的方式来解释</p>
+<p>有 P = ‘abdabch’</p>
+<ol>
+<li>对于一个常数 k , 有p0 p1, …, pk-1 = pj-k pj-k+1, …, pj-1， 那么就得出 next[j] = k</li>
+<li>那么对于已经知道 next[j] 的值，如何算出 next[j+1]</li>
+</ol>
+<p>那么分解</p>
+<ol>
+<li>当 p[k] == p[j] 时，next[j + 1] = next[j] + 1 = k + 1</li>
+<li>当 p[k] != p[j] 时，就需要去找更短的匹配前缀，也即比较 p[next[k]] 是否等于 p[j]，如果还是不相等，就继续向前找更短的匹配前缀 P[next[next[k]]]，简单来说就是一个自我匹配的过程</li>
+</ol>
+<p>先看构建 next 数组的代码</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">k = -<span class="number">1</span></span><br><span class="line">j = <span class="number">0</span></span><br><span class="line">next_arr = Array.new(p_length, <span class="number">0</span>)</span><br><span class="line">next_arr[<span class="number">0</span>] = -<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> j &lt; p_length</span><br><span class="line">  <span class="comment"># when string_p[k] == string_p[j], then next_arr[j+1] = k + 1</span></span><br><span class="line">  <span class="keyword">if</span> k == -<span class="number">1</span> <span class="params">||</span> string_p[k] == string_p[j]</span><br><span class="line">    k += <span class="number">1</span></span><br><span class="line">    j += <span class="number">1</span></span><br><span class="line">    next_arr[j] = k</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="comment"># 往前查找较短的匹配项</span></span><br><span class="line">    k = next_arr[k]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">next_arr</span><br></pre></td></tr></table></figure>
+<p>利用 next 数组进行位置查找的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">class StringKmp</span><br><span class="line">  def initialize</span><br><span class="line">    @string_a = &apos;abcddacbabdkllab&apos;</span><br><span class="line">    @string_p = &apos;abd&apos;</span><br><span class="line"></span><br><span class="line">    @a_length = @string_a.length</span><br><span class="line">    @p_length = @string_p.length</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def main</span><br><span class="line">    next_arr = build_next</span><br><span class="line"></span><br><span class="line">    i = 0</span><br><span class="line">    j = 0</span><br><span class="line">    while i &lt; @a_length &amp;&amp; j &lt; @p_length</span><br><span class="line">      if j == -1 || @string_a[i] == @string_p[j]</span><br><span class="line">        j += 1</span><br><span class="line">        i += 1</span><br><span class="line">      else</span><br><span class="line">        j = next_arr[j]</span><br><span class="line">      end</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    # matching complete</span><br><span class="line">    if j == @p_length</span><br><span class="line">      i - j</span><br><span class="line">    else</span><br><span class="line">      -1</span><br><span class="line">    end</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def build_next</span><br><span class="line">    k = -1</span><br><span class="line">    j = 0</span><br><span class="line">    next_arr = Array.new(@p_length, 0)</span><br><span class="line">    next_arr[0] = -1</span><br><span class="line"></span><br><span class="line">    while j &lt; @p_length</span><br><span class="line">      # when string_p[k] == string_p[j], then next_arr[j+1] = k + 1</span><br><span class="line">      if k == -1 || @string_p[k] == @string_p[j]</span><br><span class="line">        k += 1</span><br><span class="line">        j += 1</span><br><span class="line">        next_arr[j] = k</span><br><span class="line">      else</span><br><span class="line">        # 往前查找较短的匹配项</span><br><span class="line">        k = next_arr[k]</span><br><span class="line">      end</span><br><span class="line">    end</span><br><span class="line">    next_arr</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p><em>模式串中<strong>每个字符之前</strong>的前缀和后缀公共部分的最大长度</em></p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithm/" rel="tag">#Algorithm</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/10/V-Rails-Delete-The-Records/" rel="next" title="Rails - Delete the records">
+                <i class="fa fa-chevron-left"></i> Rails - Delete the records
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/21/III-Data-Structure-SkipList/" rel="prev" title="About SkipList">
+                About SkipList <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/10/07/VI-String-Matching-KMP/"
+           data-title="VI-String-Matching-KMP" data-url="http://elibinary.com/2016/10/07/VI-String-Matching-KMP/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#暴力解法"><span class="nav-number">1.</span> <span class="nav-text">暴力解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KMP"><span class="nav-number">2.</span> <span class="nav-text">KMP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#“部分匹配”表"><span class="nav-number">2.1.</span> <span class="nav-text">“部分匹配”表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#怎么构建"><span class="nav-number">2.2.</span> <span class="nav-text">怎么构建</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

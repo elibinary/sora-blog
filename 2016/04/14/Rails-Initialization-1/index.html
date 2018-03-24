@@ -1,0 +1,779 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby,Rails," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="根据4.2.x源码分析rails启动流程。">
+<meta name="keywords" content="Ruby,Rails">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rails Initialization - Briefing">
+<meta property="og:url" content="http://elibinary.com/2016/04/14/Rails-Initialization-1/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="根据4.2.x源码分析rails启动流程。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T04:34:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Rails Initialization - Briefing">
+<meta name="twitter:description" content="根据4.2.x源码分析rails启动流程。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Rails Initialization - Briefing | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Rails Initialization - Briefing
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-14T22:57:03+08:00" content="2016-04-14">
+              2016-04-14
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/14/Rails-Initialization-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/14/Rails-Initialization-1/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>rails 4-2-stable 源码为例</p>
+</blockquote>
+<blockquote>
+<p>rails server 命令为例</p>
+</blockquote>
+<p>当执行这个命令时，实际上是先加载了 rails 的 railties/bin/rails</p>
+<ul>
+<li>railties/bin/rails</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git_path = File.expand_path(&apos;../../../.git&apos;, __FILE__)</span><br><span class="line"></span><br><span class="line">if File.exist?(git_path)</span><br><span class="line">  railties_path = File.expand_path(&apos;../../lib&apos;, __FILE__)</span><br><span class="line">  $:.unshift(railties_path)</span><br><span class="line">end</span><br><span class="line">require &quot;rails/cli&quot;</span><br></pre></td></tr></table></figure>
+<p>前面先引入 railties/lib 文件夹，就不多说了，我们看最后一句它加载了 railties/lib/rails/cli</p>
+<ul>
+<li>railties/lib/rails/cli<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">require &apos;rails/app_rails_loader&apos;</span><br><span class="line"></span><br><span class="line"># If we are inside a Rails application this method performs an exec and thus</span><br><span class="line"># the rest of this script is not run.</span><br><span class="line">Rails::AppRailsLoader.exec_app_rails</span><br><span class="line"></span><br><span class="line">require &apos;rails/ruby_version_check&apos;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>如代码所示，它先加载 railties/lib/rails/ruby_version_check，然后执行方法 exec_app_rails</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">EXECUTABLES = [&apos;bin/rails&apos;, &apos;script/rails&apos;]</span><br><span class="line">  ...</span><br><span class="line">  exe = find_executable</span><br><span class="line">  exec RUBY, exe, *ARGV</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  # If we exhaust the search there is no executable, this could be a</span><br><span class="line">  # call to generate a new application, so restore the original cwd.</span><br><span class="line">  Dir.chdir(original_cwd) and return if Pathname.new(Dir.pwd).root?</span><br><span class="line"></span><br><span class="line">  # Otherwise keep moving upwards in search of an executable.</span><br><span class="line">  Dir.chdir(&apos;..&apos;)</span><br><span class="line">  ...</span><br><span class="line">def find_executable</span><br><span class="line">  EXECUTABLES.find &#123; |exe| File.file?(exe) &#125;</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>可以看出 exec_app_rails 回去执行你项目目录下的 bin/rails 指令，如果当前文件夹下没有bin/rails文件，它会到父级目录去搜索，直到找到为止。所以在Rails应用程序目录下的任意位置，都可以执行rails的命令。</p>
+<ul>
+<li>bin/rails</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env ruby</span></span><br><span class="line">APP_PATH = File.expand_path(<span class="string">'../../config/application'</span>, __FILE_<span class="number">_</span>)</span><br><span class="line">require_relative <span class="string">'../config/boot'</span></span><br><span class="line"><span class="keyword">require</span> <span class="string">'rails/commands'</span></span><br></pre></td></tr></table></figure>
+<p>它加载了项目目录下的 config/boot </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ENV[&apos;BUNDLE_GEMFILE&apos;] ||= File.expand_path(&apos;../../Gemfile&apos;, __FILE__)</span><br><span class="line"></span><br><span class="line">require &apos;bundler/setup&apos; # Set up gems listed in the Gemfile.</span><br></pre></td></tr></table></figure>
+<p>加载执行 bundler/setup 把Gemfile中的相关Gem都加载到load path中。</p>
+<p>接下来回到 bin/rails ，继续加载 rails/commands ，这个文件主要用来解析并执行键入的指令</p>
+<ul>
+<li>railties/lib/rails/commands</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># ...</span><br><span class="line">require &apos;rails/commands/commands_tasks&apos;</span><br><span class="line"></span><br><span class="line">Rails::CommandsTasks.new(ARGV).run_command!(command)</span><br></pre></td></tr></table></figure>
+<p>解析命令参数的部分很简单，就不贴代码了。我们来看下执行的部分，首先加载了 rails/commands/commands_tasks 并执行 run_command!(command)<br>方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"># rails/commands/commands_tasks</span><br><span class="line"></span><br><span class="line">def server</span><br><span class="line">  set_application_directory!</span><br><span class="line">  require_command!(&quot;server&quot;)</span><br><span class="line"></span><br><span class="line">  Rails::Server.new.tap do |server|</span><br><span class="line">    # We need to require application after the server sets environment,</span><br><span class="line">    # otherwise the --environment option given to the server won&apos;t propagate.</span><br><span class="line">    require APP_PATH</span><br><span class="line">    Dir.chdir(Rails.application.root)</span><br><span class="line">    server.start</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def require_command!(command)</span><br><span class="line">  require &quot;rails/commands/#&#123;command&#125;&quot;</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># Change to the application&apos;s path if there is no config.ru file in current directory.</span><br><span class="line"># This allows us to run `rails server` from other directories, but still get</span><br><span class="line"># the main config.ru and properly set the tmp directory.</span><br><span class="line">def set_application_directory!</span><br><span class="line">  Dir.chdir(File.expand_path(&apos;../../&apos;, APP_PATH)) unless File.exist?(File.expand_path(&quot;config.ru&quot;))</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>它会找到项目根目录，然后根据命令去加载 rails/commands/ 目录下的相应文件。<br>接下来创建了一个 Rails::Server 实例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def initialize(*)</span><br><span class="line">  super</span><br><span class="line">  set_environment</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>初始化时会去执行父类的初始化方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># rack/lib/rack/server</span><br><span class="line"></span><br><span class="line">def initialize(options = nil)</span><br><span class="line">  @ignore_options = []</span><br><span class="line"></span><br><span class="line">  if options</span><br><span class="line">    @use_default_options = false</span><br><span class="line">    @options = options</span><br><span class="line">    @app = options[:app] if options[:app]</span><br><span class="line">  else</span><br><span class="line">    argv = defined?(SPEC_ARGV) ? SPEC_ARGV : ARGV</span><br><span class="line">    @use_default_options = true</span><br><span class="line">    @options = parse_options(argv)</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>这里看似没有做什么事情，实际上这里的options设置配置了很多配置选项（如environment、Port、Host、config等等），以便给Rails决定如何运行服务提供支持。</p>
+<p>当初始化执行完成之后会去加载 APP_PATH ，还记得之前 bin/rails 文件的内容么，在那里面定义了 APP_PATH 指向项目目录下的config/application文件。</p>
+<ul>
+<li>config/application</li>
+</ul>
+<blockquote>
+<p>require 不会重复加载已加载过的文件<br>你可以根据需求对该文件进行配置</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">require File.expand_path(&apos;../boot&apos;, __FILE__)</span><br><span class="line"></span><br><span class="line">require &apos;rails/all&apos;</span><br><span class="line"></span><br><span class="line"># ...</span><br></pre></td></tr></table></figure>
+<p>第一句之前已经加载过了，我们直接来看第二句，它加载了 rails/all</p>
+<ul>
+<li>railties/lib/rails/all.rb</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">require &quot;rails&quot;</span><br><span class="line"></span><br><span class="line">%w(</span><br><span class="line">  active_record</span><br><span class="line">  action_controller</span><br><span class="line">  action_view</span><br><span class="line">  action_mailer</span><br><span class="line">  active_job</span><br><span class="line">  rails/test_unit</span><br><span class="line">  sprockets</span><br><span class="line">).each do |framework|</span><br><span class="line">  begin</span><br><span class="line">    require &quot;#&#123;framework&#125;/railtie&quot;</span><br><span class="line">  rescue LoadError</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>从代码中可以看出它一一加载了Rails框架相关的各个内容，每个必要组件都会在这一步被加载</p>
+<p>然后我们回到实例化 server 的部分，加载完毕 config/application 之后，将会执行 server.start</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># server.rb</span><br><span class="line">def start</span><br><span class="line">  print_boot_information</span><br><span class="line">  trap(:INT) &#123; exit &#125;</span><br><span class="line">  create_tmp_directories</span><br><span class="line">  log_to_stdout if options[:log_stdout]</span><br><span class="line"></span><br><span class="line">  super</span><br><span class="line">ensure</span><br><span class="line">  # The &apos;-h&apos; option calls exit before @options is set.</span><br><span class="line">  # If we call &apos;options&apos; with it unset, we get double help banners.</span><br><span class="line">  puts &apos;Exiting&apos; unless @options &amp;&amp; options[:daemonize]</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">private</span><br><span class="line"></span><br><span class="line">def print_boot_information</span><br><span class="line">  url = &quot;#&#123;options[:SSLEnable] ? &apos;https&apos; : &apos;http&apos;&#125;://#&#123;options[:Host]&#125;:#&#123;options[:Port]&#125;&quot;</span><br><span class="line">  puts &quot;=&gt; Booting #&#123;ActiveSupport::Inflector.demodulize(server)&#125;&quot;</span><br><span class="line">  puts &quot;=&gt; Rails #&#123;Rails.version&#125; application starting in #&#123;Rails.env&#125; on #&#123;url&#125;&quot;</span><br><span class="line">  puts &quot;=&gt; Run `rails server -h` for more startup options&quot;</span><br><span class="line"></span><br><span class="line">  puts &quot;=&gt; Ctrl-C to shutdown server&quot; unless options[:daemonize]</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>执行到这里，将会进行第一次控制台输出，可以看到这里还创建了一个INT中断，然后再创建tmp/cache,tmp/pids, tmp/sessions和tmp/sockets一系列目录最后去执行父类中的start方法，在start方法中我们主要来看这个方法 wrapped_app </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"># rack/lib/rack/server</span><br><span class="line"></span><br><span class="line">def wrapped_app</span><br><span class="line">  @wrapped_app ||= build_app app</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def build_app(app)</span><br><span class="line">  middleware[options[:environment]].reverse_each do |middleware|</span><br><span class="line">    middleware = middleware.call(self) if middleware.respond_to?(:call)</span><br><span class="line">    next unless middleware</span><br><span class="line">    klass, *args = middleware</span><br><span class="line">    app = klass.new(app, *args)</span><br><span class="line">  end</span><br><span class="line">  app</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def app</span><br><span class="line">  @app ||= options[:builder] ? build_app_from_string : build_app_and_options_from_config</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def build_app_and_options_from_config</span><br><span class="line">  if !::File.exist? options[:config]</span><br><span class="line">    abort &quot;configuration #&#123;options[:config]&#125; not found&quot;</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  app, options = Rack::Builder.parse_file(self.options[:config], opt_parser)</span><br><span class="line">  @options.merge!(options) &#123; |key, old, new| old &#125;</span><br><span class="line">  app</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def build_app_from_string</span><br><span class="line">  Rack::Builder.new_from_string(self.options[:builder])</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>可以看到app的创建会先去取options[:config]，options[:config]指向项目下的config.ru文件，我们先来看一下这个文件的样子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># config.ru</span><br><span class="line"></span><br><span class="line"># This file is used by Rack-based servers to start the application.</span><br><span class="line"></span><br><span class="line">require ::File.expand_path(&apos;../config/environment&apos;, __FILE__)</span><br><span class="line">run Rails.application</span><br></pre></td></tr></table></figure></p>
+<p>它加载了项目目录下的 config/environment</p>
+<ul>
+<li>config/environment</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># Load the Rails application.</span><br><span class="line">require File.expand_path(&apos;../application&apos;, __FILE__)</span><br><span class="line"></span><br><span class="line"># Initialize the Rails application.</span><br><span class="line">Rails.application.initialize!</span><br></pre></td></tr></table></figure>
+<p>可以看到这里也会加载项目的 config/application</p>
+<p>接下来将会执行 Rails.application.initialize! 这个方法会对所有的组件进行初始化</p>
+<blockquote>
+<p>require 不会重复加载已加载过的文件</p>
+</blockquote>
+<ul>
+<li>railties/lib/rails/application.rb</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def initialize!(group=:default) #:nodoc:</span><br><span class="line">  raise &quot;Application has been already initialized.&quot; if @initialized</span><br><span class="line">  run_initializers(group, self)</span><br><span class="line">  @initialized = true</span><br><span class="line">  self</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>它会调起 railties/lib/rails/initializable.rb 的 run_initializers方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"># railties/lib/rails/initializable.rb</span><br><span class="line"></span><br><span class="line">def run_initializers(group=:default, *args)</span><br><span class="line">  return if instance_variable_defined?(:@ran)</span><br><span class="line">  initializers.tsort_each do |initializer|</span><br><span class="line">    initializer.run(*args) if initializer.belongs_to?(group)</span><br><span class="line">  end</span><br><span class="line">  @ran = true</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">def initializers</span><br><span class="line">  @initializers ||= self.class.initializers_for(self)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">module ClassMethods</span><br><span class="line">  def initializers</span><br><span class="line">    @initializers ||= Collection.new</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def initializers_chain</span><br><span class="line">    initializers = Collection.new</span><br><span class="line">    ancestors.reverse_each do |klass|</span><br><span class="line">      next unless klass.respond_to?(:initializers)</span><br><span class="line">      initializers = initializers + klass.initializers</span><br><span class="line">    end</span><br><span class="line">    initializers</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def initializers_for(binding)</span><br><span class="line">    Collection.new(initializers_chain.map &#123; |i| i.bind(binding) &#125;)</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def initializer(name, opts = &#123;&#125;, &amp;blk)</span><br><span class="line">    raise ArgumentError, &quot;A block must be passed when defining an initializer&quot; unless blk</span><br><span class="line">    opts[:after] ||= initializers.last.name unless initializers.empty? || initializers.find &#123; |i| i.name == opts[:before] &#125;</span><br><span class="line">    initializers &lt;&lt; Initializer.new(name, nil, opts, &amp;blk)</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>在方法 initializers_chain 它去遍历所有祖先链并把拿到它们的initializers方法，之后依次执行。这些执行完成后回到 rack/server.rb 的 build_app 方法，这个方法将会依照环境去加载rack所有的middleware,<br>最后一步 server.run 将会根据你的server类型去启动相应的服务。</p>
+<p>到此，整个启动流程就结束了。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+            <a href="/tags/Rails/" rel="tag">#Rails</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/09/Greedy-And-Annealing/" rel="next" title="Greedy-And-Annealing">
+                <i class="fa fa-chevron-left"></i> Greedy-And-Annealing
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/23/Quick-Sort/" rel="prev" title="Quick-Sort">
+                Quick-Sort <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/04/14/Rails-Initialization-1/"
+           data-title="Rails Initialization - Briefing" data-url="http://elibinary.com/2016/04/14/Rails-Initialization-1/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

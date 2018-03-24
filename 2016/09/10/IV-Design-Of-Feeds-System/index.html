@@ -1,0 +1,743 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Architecture," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="feed 系统也就是维护 sns 系统、微博等应用中好友圈，新鲜事等内容的系统。">
+<meta name="keywords" content="Architecture">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Feed流系统">
+<meta property="og:url" content="http://elibinary.com/2016/09/10/IV-Design-Of-Feeds-System/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="feed 系统也就是维护 sns 系统、微博等应用中好友圈，新鲜事等内容的系统。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-1.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-2.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-4.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-3.png">
+<meta property="og:updated_time" content="2018-03-24T04:34:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Feed流系统">
+<meta name="twitter:description" content="feed 系统也就是维护 sns 系统、微博等应用中好友圈，新鲜事等内容的系统。">
+<meta name="twitter:image" content="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Feed流系统 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Feed流系统
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-09-10T18:19:54+08:00" content="2016-09-10">
+              2016-09-10
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/10/IV-Design-Of-Feeds-System/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/10/IV-Design-Of-Feeds-System/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这里说的 feed 系统也就是维护 sns 系统、微博等应用中好友圈，新鲜事等内容的系统。比较常见的两种模式就是推和拉了，下面就分别介绍一下推拉模式与其中的利与弊。</p>
+<p>就拿微博为例，用户之间有关注和被关注的关系，当一个用户发表一条博文，关注这个用户的所有粉丝都将能够收到这条博文，那么在这个场景下我们来看下各模式细节</p>
+<h3 id="推"><a href="#推" class="headerlink" title="推"></a>推</h3><p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-1.png" alt="此处输入图片的描述"></p>
+<p>如图所示，所谓的推模式整个流程是这样的：</p>
+<ol>
+<li>首先一条博文发出来</li>
+<li>把这条博文的所有信息存到db，并进入分发队列</li>
+<li>根据本用户的 followers list 把该博文推入所有 followers 的存储里</li>
+</ol>
+<p>图中所例每个用户都会维护一个 feeds list ，这个 list 其实就是来 cache 用户各自的首页博文列表，里边包括了自己的和他所关注的所有用户所发的博文。图中实例是用 redis 来存储（此处仅为示例，当然有其他很多种存储方式），其内存储了 feed 的 ID 、发送时间等信息，存储空间不是很大，用户在检索时，直接访问此存储速度很快，性能也非常高。但是这里有一个很大的问题，如果现在有一个用户发了一条博文，而这个用户拥有数十上百万甚至千万的粉丝数，那么第三步推送将会是一个巨大的任务，并且会产生巨大的数据。</p>
+<h3 id="拉"><a href="#拉" class="headerlink" title="拉"></a>拉</h3><p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-2.png" alt="此处输入图片的描述"><br>如图所示，拉模式整个流程是这样的：</p>
+<ol>
+<li>用户发出一条博文</li>
+<li>直接把这条 feed 直接插入 db feeds 表中，这里有两点需要注意下</li>
+<li><p>用户访问时，最新内容直接从 feeds 表中检索</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query = &apos;SELECT id FROM feeds WHERE user_id in (followers) AND created_at &gt; (last_visit_time);&apos;</span><br></pre></td></tr></table></figure>
+<p>检索结果会缓存进 user_feeds_cache 中，用户在检索历史的 feeds 内容时能够从这里直接取值而不需要再次检索数据库。同时更新用户的 last_visit_time 。</p>
+</li>
+</ol>
+<pre><code>* 考虑构造发表队列来处理大请求量
+* 图中feeds表部分画的比较粗略，由于feeds表部分字段检索频度高，考虑把feed主体与索引内容分离
+</code></pre><p>可以看出，这种模式实现起来比较简单，其主要性能瓶颈可能会出现在每次检索时，如果检索目标的 following 比较多时，会给数据库造成很大的压力，而且 feeds 表的数据量也不会多小，这在查询性能上没有推模式的效率高，在查询这一块要多考虑怎么优化缓存结构来提升性能。</p>
+<h3 id="拉-1"><a href="#拉-1" class="headerlink" title="拉+"></a>拉+</h3><p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-4.png" alt="此处输入图片的描述"></p>
+<p>该模式是对拉模式的改进，该改进主要体现在 feeds 的存储上。<br>改进后的存储结构把 feeds 索引表由一个增加到数个，分别存储最近一段时间的、稍长一段近期时间的以及长时期的等。<br>如图所示，拉+模式整个流程是这样的：</p>
+<ol>
+<li>用户发不一条 feed ，这条 feed 将会分别插入到各个分区的 feeds 表中，同时 feed 的详细内容插入 feed_body 表</li>
+<li>当有用户拉取 feeds 数据时，会先到 cache 中去找到 last_visit_time ，然后根据该时间确定到哪个 feeds 分区表中检索 feeds 数据</li>
+<li>将检索出来的数据 cache 到 user_feeds_cache 中，并更新 last_visit_time，用户拉取历史数据时直接从 redis 中取而不用每次都检索数据库</li>
+</ol>
+<p>改进后的拉模式，就能够对经常访问的用户做出极大的优化，因为这些用户的 last_visit_time 都会落在最近也就是最小的 feeds 分区表中，这是查询是非常高效的。对于那些很长时间没有访问的用户，他们在去较长时间的大表中查询过后就会刷新 last_visit_time ，这是他们也就会重新落到最近时间区间的 feeds 表中。<br>可以看出这是一种典型的以空间换时间的做法。关于区间划分应该依据目标系统的用户访问情况以及负载进行合理的设计，不同的情况可以划分出更多的分区，也可以适当减少分区以节省空间。</p>
+<h3 id="推与拉"><a href="#推与拉" class="headerlink" title="推与拉"></a>推与拉</h3><p><img src="http://7xsger.com1.z0.glb.clouddn.com/image/blog/feed-3.png" alt="此处输入图片的描述"></p>
+<p>上面介绍了很多关于推与拉的利弊，可以看出推的瓶颈最先体现在当用户粉丝增多时，其分发任务压力增大并且冗余数据也会越来越大。而拉的瓶颈在于随着系统的扩大，用户关注的人增多其查询效率都会受到影响并且给数据库越来越大的压力，后续缓存优化也会越来越复杂。那么很容易想到的一种策略就是结合推与拉模式来取各自的优点摒弃各自的缺点。</p>
+<p>有一种想法便是区分用户，拿微博为例，微博中存在很多的僵尸用户僵尸粉，这些用户的活跃度极其的低，而在推模式下却不得不同时兼顾这些用户，那么有一种处理方案就是系统计算用户活跃度，然后那些粉丝数量超过一定数量的用户发布博文时只会把新的 feeds 主动推到活跃用户的timeline中（所谓活跃用户定义需要根据系统的具体情况进行具体定制，比如三天内活跃过的，随着系统地复杂度增加这个判定也可能变得极其复杂)，同时将这条进入一个 feeds 池中。当不活跃的用户访问时，将从这个池中拉取并合入自己的 timeline 中。</p>
+<p>这样的做法最重要的就是活跃用户的判定，判定算法的设计会直接影响到系统效率和用户体验。这只是一个想法，具体的可能会有各种各样的实现以及优化，只有我也会跟进更多相关的设计并对本主题进行更新。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Architecture/" rel="tag">#Architecture</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/20/II-Redis-SortedSet/" rel="next" title="Redis - Sorted Set">
+                <i class="fa fa-chevron-left"></i> Redis - Sorted Set
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/10/V-Rails-Delete-The-Records/" rel="prev" title="Rails - Delete the records">
+                Rails - Delete the records <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/10/IV-Design-Of-Feeds-System/"
+           data-title="Feed流系统" data-url="http://elibinary.com/2016/09/10/IV-Design-Of-Feeds-System/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#推"><span class="nav-number">1.</span> <span class="nav-text">推</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拉"><span class="nav-number">2.</span> <span class="nav-text">拉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拉-1"><span class="nav-number">3.</span> <span class="nav-text">拉+</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#推与拉"><span class="nav-number">4.</span> <span class="nav-text">推与拉</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

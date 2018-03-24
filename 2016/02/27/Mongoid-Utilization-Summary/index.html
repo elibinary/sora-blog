@@ -1,0 +1,749 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="db,MongoDB," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="本篇文章主要介绍Mongoid的一些查询命令。">
+<meta name="keywords" content="db,MongoDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mongoid 使用总结之一些查询方法">
+<meta property="og:url" content="http://elibinary.com/2016/02/27/Mongoid-Utilization-Summary/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="本篇文章主要介绍Mongoid的一些查询命令。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T04:34:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mongoid 使用总结之一些查询方法">
+<meta name="twitter:description" content="本篇文章主要介绍Mongoid的一些查询命令。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Mongoid 使用总结之一些查询方法 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Mongoid 使用总结之一些查询方法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-02-27T09:03:29+08:00" content="2016-02-27">
+              2016-02-27
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/02/27/Mongoid-Utilization-Summary/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/27/Mongoid-Utilization-Summary/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>MongoDB 的数据是用JSON格式存储的</p>
+</blockquote>
+<p>同时MongoDB支持丰富的查询方式，查询指令使用JSON形式的标记，能够对document中的embed对象及array对象进行很方便的检索</p>
+<blockquote>
+<p>MongoDB 不限制每个key对应的values的个数，MongoDB也不要求同一个集合里的不同的文档有相同的key</p>
+</blockquote>
+<p>比如一张”表”中的一个document有：name，title，record_on，like属性，同”表”中的另一个document可以是这样：name，title，record_on，hate，body。</p>
+<blockquote>
+<p>MongoDB 可以通过分片来支持数据库集群，以此来增加存储容量和吞吐量</p>
+</blockquote>
+<p>分片是使用多个机器存储数据的方法，MongoDB使用分片以支持巨大的数据存储量与对数据操作。</p>
+<p>MongoDB中数据的分片是以集合为基本单位的，集合中的数据通过片键被分成多部分。不做展开，详细<a href="http://docs.mongoing.com/manual/core/sharding-introduction.html" target="_blank" rel="noopener">sharding-introduction</a></p>
+<blockquote>
+<p>MongoDB 的复制功能和高可用</p>
+</blockquote>
+<p>MongoDB可以通过配置主从服务器来实现高可用，使用复制功能来同步主从服务器之间的数据。由于从节点从主节点的复制过程是异步的所以从节点返回给client的数据可能不是最新的。详细<a href="http://docs.mongoing.com/manual/core/replication-introduction.html" target="_blank" rel="noopener">replication-introduction</a></p>
+<p>上面写了一些MongoDB的特性，下面开始本篇的正题</p>
+<ul>
+<li><strong> 关于模糊查询 </strong></li>
+</ul>
+<p>通常的关系数据库SQL写法是这样的</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User.where(<span class="string">"name like ?"</span>, <span class="string">'%...%'</span>)</span><br></pre></td></tr></table></figure>
+<p>Mongoid的写法</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User.where(<span class="symbol">:name</span> =&gt; <span class="regexp">/abc/</span>)</span><br><span class="line">User.where(<span class="symbol">:name</span> =&gt; <span class="regexp">/<span class="subst">#&#123;str&#125;</span>/</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong> query for array field </strong></li>
+</ul>
+<p>前面提到 mongodb 的存储格式是json文件，其 document 的type可以是array等格式，mongo 对于这种内容也提供了很多方便的检索方法：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 现有一张活动的表，其中 user_ids 是array类型</span></span><br><span class="line">a1 = create(<span class="symbol">user_ids:</span> [<span class="number">11</span>, <span class="number">22</span>, <span class="number">12</span>])</span><br><span class="line">a2 = create(<span class="symbol">user_ids:</span> [<span class="number">22</span>, <span class="number">33</span>, <span class="number">23</span>])</span><br><span class="line">a3 = create(<span class="symbol">user_ids:</span> [<span class="number">11</span>, <span class="number">22</span>, <span class="number">33</span>])</span><br><span class="line">a4 = create(<span class="symbol">user_ids:</span> [<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检索出user_ids数组中包含所查数字的记录</span></span><br><span class="line">Activity.where(<span class="symbol">user_ids:</span> <span class="number">11</span>)</span><br><span class="line"><span class="comment"># =&gt; [a1, a3]</span></span><br><span class="line">Activity.where(<span class="symbol">user_ids:</span> <span class="number">22</span>)</span><br><span class="line"><span class="comment"># =&gt; [a1, a2, a3]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 检索出user_ids数组中包含所查数组任意数字的记录</span></span><br><span class="line">Activity.where(<span class="symbol">:user_ids</span>.<span class="keyword">in</span> =&gt; [<span class="number">12</span>, <span class="number">23</span>])</span><br><span class="line"><span class="comment"># =&gt; [a1, a2]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 检索出user_ids数组中包含所查数组所有数字的记录（子集）</span></span><br><span class="line">Activity.all_in(<span class="symbol">user_ids:</span> [<span class="number">22</span>, <span class="number">33</span>])</span><br><span class="line"><span class="comment"># =&gt; [a2, a3]</span></span><br><span class="line">Activity.all_in(<span class="symbol">user_ids:</span> [<span class="number">11</span>, <span class="number">22</span>, <span class="number">23</span>])</span><br><span class="line"><span class="comment"># =&gt; []</span></span><br><span class="line"><span class="comment"># 也可以这样写</span></span><br><span class="line">Activity.where(<span class="symbol">:user_ids</span>.all =&gt; [<span class="number">22</span>, <span class="number">33</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 还能这样查</span></span><br><span class="line"><span class="comment"># 检索出user_ids数组中有大于/小于所给数字的记录</span></span><br><span class="line"><span class="comment"># gt: 大于</span></span><br><span class="line"><span class="comment"># lt: 小于</span></span><br><span class="line"><span class="comment"># gte: 大于等于</span></span><br><span class="line"><span class="comment"># lte: 小于等于</span></span><br><span class="line">Activity.where(<span class="symbol">:user_ids</span>.gte =&gt; <span class="number">23</span>)</span><br><span class="line"><span class="comment"># =&gt; [a2, a3]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 还可以按个数查</span></span><br><span class="line"><span class="comment"># 检索出user_ids数组中包含所给个数个元素的记录</span></span><br><span class="line"><span class="comment"># 检索出user_ids数组只包含一个元素的记录</span></span><br><span class="line">Activity.where(<span class="symbol">:user_ids</span>.with_size =&gt; <span class="number">1</span>)</span><br><span class="line"><span class="comment"># =&gt; [a4]</span></span><br><span class="line"><span class="comment"># 真是mongodb的语句是这样的</span></span><br><span class="line"><span class="comment"># db.model.find(&#123;user_ids: &#123;$size: 1&#125;&#125;)</span></span><br><span class="line"><span class="comment"># 当然也能检索不等于所给数目的</span></span><br><span class="line"><span class="comment"># db.model.find(&#123;user_ids: &#123;$not: &#123;$size: 1&#125;&#125;&#125;)</span></span><br><span class="line"><span class="comment"># 转换成mongoid所给方法：</span></span><br><span class="line">Activity.where(<span class="symbol">:user_ids</span>.<span class="keyword">not</span> =&gt; &#123;<span class="string">"$size"</span> =&gt; <span class="number">1</span>&#125;)</span><br><span class="line"><span class="comment"># =&gt; [a1, a2, a3]</span></span><br></pre></td></tr></table></figure>
+<p>因为mongodb是不要求同一个集合里的不同的文档有相同的key的，所有就有可能 Activity 表中某些 document 没有 user_ids 这个 key，可以用下面方法来检索</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 判断哪些 document 中没有 user_ids 这个 key（不是这个字段为空）</span></span><br><span class="line">Activity.where(<span class="symbol">:user_ids</span>.exists =&gt; <span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<p>需要提到一点的是，如果使用 $size 方法 mongodb 将不会使用索引，下面有更好的写法</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Activity.where(<span class="symbol">:user_ids</span>.ne =&gt; [])</span><br><span class="line"><span class="comment"># 等价于</span></span><br><span class="line">Activity.where(<span class="symbol">:user_ids</span>.<span class="keyword">not</span> =&gt; &#123;<span class="string">"$size"</span> =&gt; <span class="number">0</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># $ne: not equal</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong> about embeds </strong></li>
+</ul>
+<p>有很多 embeds_one 、embeds_many 的用法，也是可以深入检索的</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">embeds_one:</span> attachment</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对 Activity 表的内嵌对象 attachment 的 key 进行检索</span></span><br><span class="line">Activity.where(<span class="symbol">:<span class="string">'attachment.url'</span></span> =&gt; <span class="regexp">/<span class="subst">#&#123;str&#125;</span>/</span>)</span><br></pre></td></tr></table></figure>
+<p><br><br>使用过程中还遇到了 mongoid limit 的一个小问题<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">activity = Activity.limit(<span class="number">3</span>)</span><br><span class="line"><span class="comment"># if Activity.count = 1111, then activity.count = 1111</span></span><br><span class="line"><span class="comment"># 这是因为 count ignores 了 limit操作,</span></span><br><span class="line"><span class="comment"># don't mind</span></span><br><span class="line"><span class="comment"># If you want to know how many results are returned</span></span><br><span class="line">Array(activity).length = <span class="number">3</span></span><br></pre></td></tr></table></figure></p>
+<p><br><br><br> </p>
+<hr>
+<p>PS: 后续使用遇到的使用的查询和方法将持续更新进本篇文章 ~_~</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/db/" rel="tag">#db</a>
+          
+            <a href="/tags/MongoDB/" rel="tag">#MongoDB</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/19/NetWork-Flow-Problem-Maximum-Flow/" rel="next" title="NetWork Flow Problem - Maximum Flow">
+                <i class="fa fa-chevron-left"></i> NetWork Flow Problem - Maximum Flow
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/04/API-Security-Design/" rel="prev" title="API Security Design">
+                API Security Design <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/02/27/Mongoid-Utilization-Summary/"
+           data-title="Mongoid 使用总结之一些查询方法" data-url="http://elibinary.com/2016/02/27/Mongoid-Utilization-Summary/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">This post does not have a Table of Contents</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

@@ -1,0 +1,738 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MachineLearning," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="图灵测试： 这是图灵提出的一种验证及其是否有智能的方法，就是让人和机器进行交流，如果人无法判断自己交流的对象是人还是机器，就说明这个机器具备了智能。">
+<meta name="keywords" content="MachineLearning">
+<meta property="og:type" content="article">
+<meta property="og:title" content="读书笔记 - 初识自然语言处理">
+<meta property="og:url" content="http://elibinary.com/2017/02/18/XVI-Natural-Language-Pocessing-Taste/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="图灵测试： 这是图灵提出的一种验证及其是否有智能的方法，就是让人和机器进行交流，如果人无法判断自己交流的对象是人还是机器，就说明这个机器具备了智能。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-03-24T04:48:25.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="读书笔记 - 初识自然语言处理">
+<meta name="twitter:description" content="图灵测试： 这是图灵提出的一种验证及其是否有智能的方法，就是让人和机器进行交流，如果人无法判断自己交流的对象是人还是机器，就说明这个机器具备了智能。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 读书笔记 - 初识自然语言处理 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                读书笔记 - 初识自然语言处理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2017-02-18T14:07:04+08:00" content="2017-02-18">
+              2017-02-18
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/18/XVI-Natural-Language-Pocessing-Taste/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/18/XVI-Natural-Language-Pocessing-Taste/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>最近一段时间一直在重拾那些被我遗忘的数学知识，以便能够更好的理解机器学习领域，经过这一小段时间的学习让我深刻的认识到以往念书时完全没有感受到的数学的统一和美妙，念书时学习线性代数这门课时简直像是在学习一门独立的完全不知所谓的说是数学但又有大量的需要死记硬背的规则和公式，学完之后完全就不知道这玩意到底是干啥用的，只记住了一大堆的莫名其妙的计算方法比如行列式矩阵的各种计算（好吧，其实之前连这些东西也都忘光了）。再一次深刻的理解到只有理解领会并转化为自己的东西才是能够长久的记忆并使用的东西，那些死记硬背的却又完全不知所云的知识会以和记忆时困难无比所不同的轻易就会忘记。好吧扯远了，下面开始简单说一下这段时间对自然语言处理的一些简单了解</p>
+</blockquote>
+<h3 id="人工智能"><a href="#人工智能" class="headerlink" title="人工智能"></a>人工智能</h3><blockquote>
+<p>图灵测试： 这是图灵提出的一种验证及其是否有智能的方法，就是让人和机器进行交流，如果人无法判断自己交流的对象是人还是机器，就说明这个机器具备了智能。</p>
+</blockquote>
+<p>首先语言的出现是为了人类之间的相互交流通信，在数学之美这本书中提到：字母、文字和数字实际上是信息编码的不同单位，任何一种语言都是一种编码的方式，而语言的语法规则就是编解码的算法。其过程类似于：</p>
+<ol>
+<li>要表达的意思 + 选择某种语言 -&gt; 某种语言的一句话，用语言来表达出我们的意思其实就是用这种语言的编码方式对脑中信息进行一次编码，编码的结果就是一句话</li>
+<li>某种语言的一句话 -&gt; 确定语言种类 -&gt; 理解这句话的意思，这其实就是一个解码的过程，接收者使用这门语言的解码方式获得说话人要表达的信息。</li>
+</ol>
+<p>这个过程就体现了语言的数学本质。</p>
+<h3 id="基于规则"><a href="#基于规则" class="headerlink" title="基于规则"></a>基于规则</h3><p>在自然语言处理领域最早提出来的思想是基于语言规则的处理方法，就是语法规则、词性以及构词法这些东西，而且这些东西有非常容易用计算机的算法所描述。不过最终这种方法并不能解决现实中的一些实际问题。</p>
+<p>其中最关键的部分就是无法处理各种各样的语义规则，自然语言中词的多义性很难用规则来描述，要依赖上下文才能定义甚至是常识这种意识的形式才能确定意义。</p>
+<h3 id="基于统计"><a href="#基于统计" class="headerlink" title="基于统计"></a>基于统计</h3><blockquote>
+<p>基于统计的处理方法使自然语言处理有了突破性的进展，统计语言模型的成为了现今所有自然语言处理的基础，广泛应用于机器翻译、语音识别等各个领域</p>
+</blockquote>
+<p>这种基于统计的方法可以描述为，现在有 S 这一句子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">S = w1w2w3w4...wn</span><br></pre></td></tr></table></figure></p>
+<p>这个句子有一连串顺序排列的词 w1,w2,w3…wn 组成，现在我们想知道 S 在文本中出现的概率。首先能想到的就是把人类史上的文本统计一下然后得出这句话可能出现的概率，很显然这种方法是行不通的。我们需要一种更加朴实的模型来估算。<br>首先把 P(S) 展开<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P(S) = P(w1,w2,w3...wn)</span><br></pre></td></tr></table></figure></p>
+<p>根据条件概率可知<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P(w1,w2,w3...wn) = P(w1) * P(w2|w1) * p(w3|w1,w2) ... P(wn|w1,w2...w(n-1))</span><br></pre></td></tr></table></figure></p>
+<p>理解起来很简单，其中 P(w1) 就是第一个词 w1 出现的概率，P(w2|w1) 是在已知第一个词的前提下，w2 出现的概率，以此类推 wn 这个词的出现概率依赖于前面所有的词。<br>另一种表述可能更清楚，把前面的词统一称为句子开头部分，那么当前词 wi 的概率就是这个词 wi 在句子开头条件下的概率。<br>这个模型中，前面出现的概率算起来还算容易但是越往后越难算当达到一定规模（这个规模比你想象的要小）就可能由于可能性太多而无法估算了。</p>
+<p>在这种情况下，马尔可夫提出了一种偷懒的简化概念，那就是每当遇到这种情况就假设任意一个词 wi 出现的概率只与它前面的词 w(i-1) 有关，这样整个问题就变的简单起来。其数学公式也变得非常简单：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P(w1,w2,w3...wn) = P(w1) * P(w2|w1) * p(w3|w2) ... P(wn|w(n-1))</span><br></pre></td></tr></table></figure></p>
+<p>这个公式对应的统计语言模型就是 Bigram Model，二元模型。</p>
+<p>这样就来看下如何计算 P(wi|w(i-1))，通过遍历语料库可以见到那统计出词 w(i-1) 出现的次数和 (w(i-1),wi) 出现的次数，然后就可以使用公式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P(wi|w(i-1)) = P(w(i-1),wi)/P(w(i-1))</span><br></pre></td></tr></table></figure></p>
+<p>计算 P(w(i-1),wi) ， P(w(i-1)) 由于是统计这个语料库中出现的并不是世界上全部的（事实上也不可能），所以这只是个近似值，根据大数定理近似认为这个就是这个词的概率。</p>
+<blockquote>
+<p>在数学与统计学中，大数定律又称大数法则、大数律，是描述相当多次数重复实验的结果的定律。根据这个定律知道，样本数量越多，则其平均就越趋近期望值。</p>
+</blockquote>
+<p>是否感觉到数学的神奇，它能把一个复杂的问题变得如此统一简单。</p>
+<p>当然二元模型虽然能够解决很多问题，但是由于太过简化而会有很多例外的词组。因此，更加普遍的假设是某个词和前面若干个词有关，关联词越多越准确。</p>
+<blockquote>
+<p>N-1 阶马尔可夫假设，假设文本中的每个词 wi 和前面 n-1 个词有关，而与更前面的词无关，那么 wi 的概率就是 P(wi|w(i-n+1)…w(i-1))，其对应的语言模型称为 N元模型，N-Gram Model。<br>以此类推，当 N=1 时其实就是一个上下文无关模型，也就是假设当前词出现的概率与前面的词无关。</p>
+</blockquote>
+<p>目前现实应用的最多的是 N=3 的三元模型，因为 N元模型的空间复杂度几乎是N的指数函数，因此N不能太大。但是就算是四元甚至更高阶的模型也是不可能覆盖所有的语言现象的。比如有时上下文中间的相关性可能跨度非常之大，甚至可以从一个段落到另一个段落，这就是马尔可夫假设的局限性。需要采用一些其他的手段来解决。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MachineLearning/" rel="tag">#MachineLearning</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/11/XV-Rails-Render-view/" rel="next" title="关于Rails视图渲染">
+                <i class="fa fa-chevron-left"></i> 关于Rails视图渲染
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/19/XVII-Bitmap-Sorting/" rel="prev" title="位图排序">
+                位图排序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/18/XVI-Natural-Language-Pocessing-Taste/"
+           data-title="读书笔记 - 初识自然语言处理" data-url="http://elibinary.com/2017/02/18/XVI-Natural-Language-Pocessing-Taste/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#人工智能"><span class="nav-number">1.</span> <span class="nav-text">人工智能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于规则"><span class="nav-number">2.</span> <span class="nav-text">基于规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于统计"><span class="nav-number">3.</span> <span class="nav-text">基于统计</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>
