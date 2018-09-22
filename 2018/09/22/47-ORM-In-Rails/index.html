@@ -1,0 +1,799 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="ORM In Rails">
+<meta name="keywords" content="Ruby">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ActiveRecord In Rails">
+<meta property="og:url" content="http://elibinary.com/2018/09/22/47-ORM-In-Rails/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="ORM In Rails">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/ar_struct.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/what_in_ar.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/what_in_at_associa_reflect.png">
+<meta property="og:image" content="http://7xsger.com1.z0.glb.clouddn.com/relation_value_methods.png">
+<meta property="og:updated_time" content="2018-09-22T08:00:59.747Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ActiveRecord In Rails">
+<meta name="twitter:description" content="ORM In Rails">
+<meta name="twitter:image" content="http://7xsger.com1.z0.glb.clouddn.com/ar_struct.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> ActiveRecord In Rails | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ActiveRecord In Rails
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-09-22T15:56:46+08:00" content="2018-09-22">
+              2018-09-22
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/09/22/47-ORM-In-Rails/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/09/22/47-ORM-In-Rails/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="What-is-ORM"><a href="#What-is-ORM" class="headerlink" title="What is ORM"></a>What is ORM</h2><p>ORM 全称 Object Relational Mapping<br>简单来说就是建立面向对象编程中对象与 db 存储之间的映射及转换，使得可以通过在编程中操作虚拟对象的形式来操作数据库</p>
+<p>关于到底要不要用 ORM 的疑问，我觉得这完全是一个取舍的问题。ORM 不是必须的，但它确是一个非常有价值的设计，它将软件开发人员从大量相同的数据持久层相关编程工作中解放出来。另外在贴个链接（<a href="https://stackoverflow.com/questions/398134/what-are-the-advantages-of-using-an-orm" target="_blank" rel="noopener">what-are-the-advantages-of-using-an-orm</a>）吧</p>
+<h2 id="Active-Record"><a href="#Active-Record" class="headerlink" title="Active Record"></a>Active Record</h2><blockquote>
+<p>AR(Object-relational mapping in Rails) connects classes to relational database tables to establish an almost zero-configuration persistence layer for applications.</p>
+</blockquote>
+<p>AR 在 rails 中不仅仅是其 ORM ，同时也被用来驱动整个 MVC 的 M 层</p>
+<p>另外，Active Record 本身是一个领域模型，领域模型记录了一个系统中的关键概念和词汇表，显示出了系统中的主要实体之间的关系，并确定了它们的重要的方法和属性（以可视化的形式描述系统中的各个实体及其之间的关系）</p>
+<p>基于 Active Record 领域模型的框架在别的语言中也被广泛使用，如：</p>
+<ul>
+<li>python - SQLObject</li>
+<li>PHP - Yii Framework ActiveRecord</li>
+</ul>
+<hr>
+<p><em>之后文中出现的 AR 默认为 Rails 中的 ActiveRecord</em></p>
+<hr>
+<h2 id="What’s-in-the-AR"><a href="#What’s-in-the-AR" class="headerlink" title="What’s in the AR"></a>What’s in the AR</h2><p>先看张图</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/ar_struct.png" alt="AR_Struct"></p>
+<p>先简单来看，AR 可以简单分为三个部分</p>
+<ul>
+<li>Model: 整个 M 层的驱动者，封装了许多相关的方法（为 model 提供了许多祖先）</li>
+<li>Relation: 抽象语法数的上层应用，提供了惰性查询的支持</li>
+<li>Adapter: 提供了 db connection, db driver 的封装</li>
+</ul>
+<p>首先先来看 Model 这一部分：</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/what_in_ar.png" alt="What in AR"></p>
+<p>Rails 的 AR model 继承自 <code>ActiveRecord::Base</code> 并从此处获得了一连串的‘祖先’，此处只列取了一少部分。</p>
+<p>在当前版本中（Rails 5.2），使用 <code>#ancestors</code> 看下大概当一个 model 出生时，它就有了 65 个祖先（从侧面也说明了 AR 确是挺重的 [笑]），当然这些祖先并不完全都是属于 AR 的</p>
+<p>下面就简单介绍下每个<code>祖先</code>都是干嘛的，它们是如何为这个 AR 丰富的功能添砖加瓦的</p>
+<h3 id="ActiveRecord-Suppressor"><a href="#ActiveRecord-Suppressor" class="headerlink" title="ActiveRecord::Suppressor"></a>ActiveRecord::Suppressor</h3><blockquote>
+<p>ActiveRecord::Suppressor prevents the receiver from being saved during a given block</p>
+</blockquote>
+<p>简单来讲， Suppressor [səˈpresə(r)]  提供了方法来使得你可以跳过 callback 中的链式创建项，举个例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class A &lt; ApplicationRecord</span><br><span class="line">  after_save do</span><br><span class="line">    B.create</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>有时可能你并不想在保存 A 的时候创建 B，那么可以通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">B.suppress do</span><br><span class="line">  A.create(something)</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>来达到目的</p>
+<p>不过多提一句，这个功能使用场景并不多，而且我个人不太建议随便使用，因为这会为个例而改变主流程的行为，降低代码的可读性</p>
+<h3 id="ActiveRecord-Reflection"><a href="#ActiveRecord-Reflection" class="headerlink" title="ActiveRecord::Reflection"></a>ActiveRecord::Reflection</h3><blockquote>
+<p>An association is a connection between two Active Record models</p>
+</blockquote>
+<blockquote>
+<p>Reflection enables the ability to examine the associations of Active Record classes and objects</p>
+</blockquote>
+<p>这里 Reflection 不仅仅支撑了 Association，它也为 Aggregation 提供了基础支持</p>
+<p>可以说 Reflection obj 是对 association 和 association 的支持和描述，Rails 通过它们来实现对关系数据库的外键关联关系的映射<br>（<em>在 db 模型设计中是建议避免使用 db 的外键来约束关联模型的，取而代之应该在代码层面去维护这层关联关系，而实现这一目标的辅助方法也是在这一层实现提供的（比如关联，比如校验）</em>）</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/what_in_at_associa_reflect.png" alt="此处输入图片的描述"></p>
+<p>每个 association 关系都会先建立与之对应的 reflection obj</p>
+<p>reflection 提供了很多方法支持，如 table_name, join_keys, join_table, counter_cache, foreign_key</p>
+<h3 id="ActiveRecord-Transactions"><a href="#ActiveRecord-Transactions" class="headerlink" title="ActiveRecord::Transactions"></a>ActiveRecord::Transactions</h3><blockquote>
+<p>Transactions are protective blocks where SQL statements are only permanent if they can all succeed as one atomic action(save and destroy are automatically wrapped in a transaction)</p>
+</blockquote>
+<p>这一层并不是真正的 <code>DB Transaction</code> 功能提供者，它的主要功能</p>
+<ul>
+<li>为 AR Model 提供 commit, rollback 等 callback 钩子</li>
+<li>为 AR Model 提供封装好的简单易用的 transaction 方法支持（ActiveRecord::Base#transaction）</li>
+</ul>
+<p>真正提供 <code>Transaction</code> 功能封装的是 <code>ActiveRecord::ConnectionAdapters Transaction</code></p>
+<h3 id="ActiveRecord-NestedAttributes-ActiveRecord-AutosaveAssociation"><a href="#ActiveRecord-NestedAttributes-ActiveRecord-AutosaveAssociation" class="headerlink" title="ActiveRecord::NestedAttributes, ActiveRecord::AutosaveAssociation"></a>ActiveRecord::NestedAttributes, ActiveRecord::AutosaveAssociation</h3><blockquote>
+<p>NestedAttributes allow you to save attributes on associated records through the parent</p>
+</blockquote>
+<blockquote>
+<p>AutosaveAssociation is a module that takes care of automatically saving associated records when their parent is saved</p>
+</blockquote>
+<p>这两层提供的方法和实现都比较简单就不做赘述了，想深入了解的可以直接浏览下源码</p>
+<h3 id="ActiveRecord-Timestamp"><a href="#ActiveRecord-Timestamp" class="headerlink" title="ActiveRecord::Timestamp"></a>ActiveRecord::Timestamp</h3><blockquote>
+<p>Automatically timestamps create and update operations if the table has fields named</p>
+</blockquote>
+<p>这一层也相当简单，代码量也极少，但同时也是我们最常用的，<code>created_at</code> <code>updated_at</code> 就来自这一层</p>
+<p>同时也封装了其自动填充及 <code>updated_at</code> 的触发更新</p>
+<h3 id="ActiveRecord-Callbacks"><a href="#ActiveRecord-Callbacks" class="headerlink" title="ActiveRecord::Callbacks"></a>ActiveRecord::Callbacks</h3><blockquote>
+<p>Callbacks are hooks into the life cycle of an Active Record object that allow you to trigger logic before or after an alteration of the object state</p>
+</blockquote>
+<p>callback 相信大家都不陌生，其实定义的所有 callbacks 都存储在 queues 中，想要查看可以通过方法拿到整个 callback list</p>
+<p>一下复制自 AR 注释</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># == Debugging callbacks</span><br><span class="line"> #</span><br><span class="line"> # The callback chain is accessible via the &lt;tt&gt;_*_callbacks&lt;/tt&gt; method on an object. Active Model \Callbacks support</span><br><span class="line"> # &lt;tt&gt;:before&lt;/tt&gt;, &lt;tt&gt;:after&lt;/tt&gt; and &lt;tt&gt;:around&lt;/tt&gt; as values for the &lt;tt&gt;kind&lt;/tt&gt; property. The &lt;tt&gt;kind&lt;/tt&gt; property</span><br><span class="line"> # defines what part of the chain the callback runs in.</span><br><span class="line"> #</span><br><span class="line"> # To find all callbacks in the before_save callback chain:</span><br><span class="line"> #</span><br><span class="line"> #   Topic._save_callbacks.select &#123; |cb| cb.kind.eql?(:before) &#125;</span><br><span class="line"> #</span><br><span class="line"> # Returns an array of callback objects that form the before_save chain.</span><br><span class="line"> #</span><br><span class="line"> # To further check if the before_save chain contains a proc defined as &lt;tt&gt;rest_when_dead&lt;/tt&gt; use the &lt;tt&gt;filter&lt;/tt&gt; property of the callback object:</span><br><span class="line"> #</span><br><span class="line"> #   Topic._save_callbacks.select &#123; |cb| cb.kind.eql?(:before) &#125;.collect(&amp;:filter).include?(:rest_when_dead)</span><br><span class="line"> #</span><br><span class="line"> # Returns true or false depending on whether the proc is contained in the before_save callback chain on a Topic model.</span><br></pre></td></tr></table></figure>
+<h3 id="Dirty"><a href="#Dirty" class="headerlink" title="Dirty"></a>Dirty</h3><blockquote>
+<p>Dirty provides a way to track changes in your object</p>
+</blockquote>
+<h3 id="ActiveRecord-AttributeMethods"><a href="#ActiveRecord-AttributeMethods" class="headerlink" title="ActiveRecord::AttributeMethods"></a>ActiveRecord::AttributeMethods</h3><blockquote>
+<p>AttributeMethods generates attribute related methods for columns in the database accessors, mutators and query methods</p>
+</blockquote>
+<h3 id="ActiveRecord-Attributes"><a href="#ActiveRecord-Attributes" class="headerlink" title="ActiveRecord::Attributes"></a>ActiveRecord::Attributes</h3><blockquote>
+<p>Attributes defines an attribute with a type on this model, it will override the type of existing attributes if needed</p>
+</blockquote>
+<hr>
+<h3 id="ActiveRecord-Relation"><a href="#ActiveRecord-Relation" class="headerlink" title="ActiveRecord::Relation"></a>ActiveRecord::Relation</h3><blockquote>
+<p>Arel provides an SQL abstraction that simplifies out Active Record and provides the underpinnings for the relation functionality in Active Record</p>
+</blockquote>
+<p>Relation 背后就是 arel 抽象语法树</p>
+<p><a href="https://robots.thoughtbot.com/using-arel-to-compose-sql-queries" target="_blank" rel="noopener">using-arel-to-compose-sql-queries</a></p>
+<p>Relation 的 value methods 大致分为这三类</p>
+<p><img src="http://7xsger.com1.z0.glb.clouddn.com/relation_value_methods.png" alt="Relation Values"></p>
+<p>在语法树的存储中也会根据这三个类别进行不同规则的处理</p>
+<p>可以通过 relation#values 来返回语法树中存储的所有查询条件</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/26/46-ActiveRecord-connection-pool/" rel="next" title="ActiveRecord 的 connection pool 设计">
+                <i class="fa fa-chevron-left"></i> ActiveRecord 的 connection pool 设计
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/09/22/47-ORM-In-Rails/"
+           data-title="ActiveRecord In Rails" data-url="http://elibinary.com/2018/09/22/47-ORM-In-Rails/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">71</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#What-is-ORM"><span class="nav-number">1.</span> <span class="nav-text">What is ORM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Active-Record"><span class="nav-number">2.</span> <span class="nav-text">Active Record</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What’s-in-the-AR"><span class="nav-number">3.</span> <span class="nav-text">What’s in the AR</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-Suppressor"><span class="nav-number">3.1.</span> <span class="nav-text">ActiveRecord::Suppressor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-Reflection"><span class="nav-number">3.2.</span> <span class="nav-text">ActiveRecord::Reflection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-Transactions"><span class="nav-number">3.3.</span> <span class="nav-text">ActiveRecord::Transactions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-NestedAttributes-ActiveRecord-AutosaveAssociation"><span class="nav-number">3.4.</span> <span class="nav-text">ActiveRecord::NestedAttributes, ActiveRecord::AutosaveAssociation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-Timestamp"><span class="nav-number">3.5.</span> <span class="nav-text">ActiveRecord::Timestamp</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-Callbacks"><span class="nav-number">3.6.</span> <span class="nav-text">ActiveRecord::Callbacks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dirty"><span class="nav-number">3.7.</span> <span class="nav-text">Dirty</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-AttributeMethods"><span class="nav-number">3.8.</span> <span class="nav-text">ActiveRecord::AttributeMethods</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-Attributes"><span class="nav-number">3.9.</span> <span class="nav-text">ActiveRecord::Attributes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActiveRecord-Relation"><span class="nav-number">3.10.</span> <span class="nav-text">ActiveRecord::Relation</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

@@ -1,0 +1,837 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="Rails 5 升级笔记">
+<meta name="keywords" content="Ruby">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rails 5 升级日记">
+<meta property="og:url" content="http://elibinary.com/2018/08/02/45-Upgrade-Rails-form4-to5/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="Rails 5 升级笔记">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-22T07:52:49.879Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Rails 5 升级日记">
+<meta name="twitter:description" content="Rails 5 升级笔记">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Rails 5 升级日记 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Rails 5 升级日记
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-08-02T19:54:39+08:00" content="2018-08-02">
+              2018-08-02
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/08/02/45-Upgrade-Rails-form4-to5/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/02/45-Upgrade-Rails-form4-to5/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Rails-5-deprecates-alias-method-chain"><a href="#Rails-5-deprecates-alias-method-chain" class="headerlink" title="Rails 5 deprecates alias_method_chain"></a>Rails 5 deprecates alias_method_chain</h2><blockquote>
+<p><a href="https://github.com/rails/rails/pull/19434" target="_blank" rel="noopener">https://github.com/rails/rails/pull/19434</a></p>
+</blockquote>
+<p>在此之前 <code>alias_method_chain</code> 经常被用来给父类的方法定义环绕别名，比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class A</span><br><span class="line">  def name</span><br><span class="line">    &apos;A...&apos;</span><br><span class="line">  end</span><br><span class="line">  </span><br><span class="line">  def say_name</span><br><span class="line">    puts name</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class B &lt; A</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>如果想要在调用 name 前后做一些自己的小动作就可以</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class B &lt; A</span><br><span class="line">  </span><br><span class="line">  alias_method_chain :name, :with_b</span><br><span class="line">  # 效果等同于</span><br><span class="line">  # alias_method :name_without_b, :name</span><br><span class="line">  # alias_method :name, :name_with_b</span><br><span class="line">  </span><br><span class="line">  def name_with_b</span><br><span class="line">    puts &apos;B-1...&apos;</span><br><span class="line">    name_without_b</span><br><span class="line">    puts &apos;B-2...&apos;</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>Rails 5 之后推荐使用 <code>Module.prepend</code> 来实现类似的功能</p>
+<h2 id="Rails-5-2-Remove-deprecated-support-to-passing-a-class-to-‘-class-name’-on-associations"><a href="#Rails-5-2-Remove-deprecated-support-to-passing-a-class-to-‘-class-name’-on-associations" class="headerlink" title="[Rails 5.2] Remove deprecated support to passing a class to ‘:class_name’ on associations"></a>[Rails 5.2] Remove deprecated support to passing a class to ‘:class_name’ on associations</h2><blockquote>
+<p>It eagerloads more classes than necessary and potentially creates circular dependencies.</p>
+</blockquote>
+<h2 id="Rails-5-0-Removed-deprecated-‘serialized-attributes’"><a href="#Rails-5-0-Removed-deprecated-‘serialized-attributes’" class="headerlink" title="[Rails 5.0] Removed deprecated ‘serialized_attributes’"></a>[Rails 5.0] Removed deprecated ‘serialized_attributes’</h2><p>Rails 5 开始如果想要获得<br><code>ActiveRecord::ConnectionAdapters::MySQL::Column</code> 的 <code>cast_type</code><br>可以使用<br><code>model.type_for_attribute(column.name)</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># columns.select &#123; |t| t.cast_type.is_a?(ActiveRecord::Type::Serialized) &#125;.map &#123; |c| [c.name, c.cast_type.coder] &#125;</span><br><span class="line"></span><br><span class="line">columns.select &#123; |t| type_for_attribute(t.name).is_a?(ActiveRecord::Type::Serialized) &#125;.map &#123; |c| [c.name, type_for_attribute(c.name).coder]</span><br></pre></td></tr></table></figure>
+<h2 id="Rails-5-1-‘index-name-exists-’-方法不再接受-default-参数"><a href="#Rails-5-1-‘index-name-exists-’-方法不再接受-default-参数" class="headerlink" title="[Rails 5.1] ‘index_name_exists?’ 方法不再接受 default 参数"></a>[Rails 5.1] ‘index_name_exists?’ 方法不再接受 default 参数</h2><blockquote>
+<p>The default arg of index_name_exists? is only used the adapter does not implemented indexes. But currently all adapters implemented indexes (See <a href="https://github.com/rails/rails/pull/26688" target="_blank" rel="noopener">#26688</a>). Therefore the default arg is never used.</p>
+</blockquote>
+<h2 id="Rails-5-1-Correctly-dump-native-timestamp-types-for-MySQL"><a href="#Rails-5-1-Correctly-dump-native-timestamp-types-for-MySQL" class="headerlink" title="[Rails 5.1] Correctly dump native timestamp types for MySQL"></a>[Rails 5.1] Correctly dump native timestamp types for MySQL</h2><p><a href="https://github.com/rails/rails/pull/23553" target="_blank" rel="noopener">https://github.com/rails/rails/pull/23553</a></p>
+<p>before this:</p>
+<blockquote>
+<p>Rails actually makes some of these decisions for you. Both :timestamp and :datetime will default to DATETIME</p>
+</blockquote>
+<p>一些相关的 Issues: </p>
+<ul>
+<li><a href="https://github.com/rails/rails/issues/31804" target="_blank" rel="noopener">https://github.com/rails/rails/issues/31804</a></li>
+<li><a href="https://stackoverflow.com/questions/3928275/in-ruby-on-rails-whats-the-difference-between-datetime-timestamp-time-and-da" target="_blank" rel="noopener">https://stackoverflow.com/questions/3928275/in-ruby-on-rails-whats-the-difference-between-datetime-timestamp-time-and-da</a></li>
+</ul>
+<p>Mysql:</p>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_explicit_defaults_for_timestamp" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_explicit_defaults_for_timestamp</a></li>
+</ul>
+<h2 id="Rails-5-Don’t-default-to-YAML-dumping-when-quoting-values"><a href="#Rails-5-Don’t-default-to-YAML-dumping-when-quoting-values" class="headerlink" title="[Rails 5] Don’t default to YAML dumping when quoting values"></a>[Rails 5] Don’t default to YAML dumping when quoting values</h2><p><a href="https://github.com/rails/rails/commit/aa31d21f5f4fc4d679e74a60f9df9706da7de373" target="_blank" rel="noopener">https://github.com/rails/rails/commit/aa31d21f5f4fc4d679e74a60f9df9706da7de373</a></p>
+<blockquote>
+<p>This behavior exists only to support fixtures, so we should handle it there. Leaving it in <code>#quote</code> can cause very subtle bugs to slip through, by things appearing to work when they should be blowing up loudly, such as <a href="https://github.com/rails/rails/issues/18385" target="_blank" rel="noopener">#18385</a>.</p>
+</blockquote>
+<p>Rails 5 之后将不能再使用类似下面的声明形式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">t.string :arr_ids, array: true, default: []</span><br></pre></td></tr></table></figure></p>
+<p>Rails 将不会在对其做 <code>YAML#dump</code> 处理，而是直接抛出异常<br><code>can&#39;t quote Array</code></p>
+<p>如果实在需要一个默认值，可将其替换为 dump 后的 string 来解决<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">t.string :arr_ids, array: true, default: &quot;--- []\n&quot;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Rails-5-Replace-deprecated-‘-load-schema’-with-‘-load-schema-for’"><a href="#Rails-5-Replace-deprecated-‘-load-schema’-with-‘-load-schema-for’" class="headerlink" title="[Rails 5] Replace deprecated ‘#load_schema’ with ‘#load_schema_for’"></a>[Rails 5] Replace deprecated ‘#load_schema’ with ‘#load_schema_for’</h2><ul>
+<li>[5.0] <a href="https://github.com/rails/rails/commit/ad783136d747f73329350b9bb5a5e17c8f8800da" target="_blank" rel="noopener">https://github.com/rails/rails/commit/ad783136d747f73329350b9bb5a5e17c8f8800da</a></li>
+<li>[5.1] <a href="https://github.com/rails/rails/commit/419e06b56c3b0229f0c72d3e4cdf59d34d8e5545" target="_blank" rel="noopener">https://github.com/rails/rails/commit/419e06b56c3b0229f0c72d3e4cdf59d34d8e5545</a></li>
+</ul>
+<h2 id="Rails-5-2-Refactor-migration-to-move-migrations-paths-to-connection"><a href="#Rails-5-2-Refactor-migration-to-move-migrations-paths-to-connection" class="headerlink" title="[Rails 5.2] Refactor migration to move migrations paths to connection"></a>[Rails 5.2] Refactor migration to move migrations paths to connection</h2><blockquote>
+<p>“<code>ActiveRecord::Migrator.migrations_paths=</code> is now deprecated and will be removed in Rails 6.0. You can set the <code>migrations_paths</code> on the <code>connection</code> instead through the <code>database.yml</code>.”</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">development:</span><br><span class="line">  adapter: mysql2</span><br><span class="line">  username: root</span><br><span class="line">  password:</span><br><span class="line"></span><br><span class="line">development_seconddb:</span><br><span class="line">  adapter: mysql2</span><br><span class="line">  username: root</span><br><span class="line">  password:</span><br><span class="line">  migrations_paths: &quot;db/second_db_migrate&quot;</span><br></pre></td></tr></table></figure>
+<p><a href="https://github.com/rails/rails/commit/a2827ec9811b5012e8e366011fd44c8eb53fc714" target="_blank" rel="noopener">https://github.com/rails/rails/commit/a2827ec9811b5012e8e366011fd44c8eb53fc714</a></p>
+<p>这个改动可能会对你的 migrate 脚本造成影响<br>在 <code>AR 5.2</code> 开始如果使用了<br><code>ActiveRecord::Migrator.migrate(&quot;db/migrate/&quot;)</code><br>需要替换为<br><code>ActiveRecord::MigrationContext.new(&quot;db/migrate/&quot;).migrate</code></p>
+<p><code>rollback</code> 同理替换为<br><code>ActiveRecord::MigrationContext.new(&quot;db/migrate/&quot;).rollback</code></p>
+<h2 id="Rails-5-1-Fixed-Optimistic-locking-does-not-work-well-with-null-in-the-database"><a href="#Rails-5-1-Fixed-Optimistic-locking-does-not-work-well-with-null-in-the-database" class="headerlink" title="[Rails 5.1] Fixed: Optimistic locking does not work well with null in the database"></a>[Rails 5.1] Fixed: Optimistic locking does not work well with null in the database</h2><p><a href="https://github.com/rails/rails/commit/22a822e5813ef7ea9ab6dbbb670a363899a083af" target="_blank" rel="noopener">https://github.com/rails/rails/commit/22a822e5813ef7ea9ab6dbbb670a363899a083af</a></p>
+<p>此问题会导致使用乐观锁的表记录无法更新。</p>
+<p>原因：<br>定义 <code>locking_column</code> 的时候没有设置默认值（默认为 NULL）时<br>老版本代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># activerecord/lib/active_record/locking/optimistic.rb:82</span><br><span class="line">lock_col = self.class.locking_column</span><br><span class="line">previous_lock_value = send(lock_col).to_i</span><br></pre></td></tr></table></figure></p>
+<p>尝试去取旧的 <code>locking_column</code> 字段的值时，取得 <code>0</code> 值<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># activerecord/lib/active_record/persistence.rb:193</span><br><span class="line">um = arel_table.where(</span><br><span class="line">          constraints.reduce(&amp;:and)</span><br><span class="line">        ).compile_update(_substitute_values(values), primary_key)</span><br></pre></td></tr></table></figure></p>
+<p>DB 中真实存储的是 NULL，<code>update</code> 操作将永远不被执行</p>
+<h2 id="Rails-5-1-Underrated-and-enhanced-dirty-attributes-changes"><a href="#Rails-5-1-Underrated-and-enhanced-dirty-attributes-changes" class="headerlink" title="[Rails 5.1] Underrated and enhanced dirty attributes changes"></a>[Rails 5.1] Underrated and enhanced dirty attributes changes</h2><h2 id="Rails-5-When-use-FactoryBot-association-ActiveRecord-association-will-load"><a href="#Rails-5-When-use-FactoryBot-association-ActiveRecord-association-will-load" class="headerlink" title="[Rails 5] When use FactoryBot#association, ActiveRecord#association will load"></a>[Rails 5] When use FactoryBot#association, ActiveRecord#association will load</h2><p><strong>Rails 5.2</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">class Ax &lt; ApplicationRecord</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">class Bx &lt; ApplicationRecord</span><br><span class="line">  belongs_to :ax</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">FactoryBot.define do</span><br><span class="line">  factory :bx do</span><br><span class="line">    association :ax</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># when create with &apos;association&apos;</span><br><span class="line">b = FactoryBot.create(:bx)</span><br><span class="line"></span><br><span class="line"># association :ax will be loaded</span><br><span class="line">b.association(:bx).loaded?</span><br><span class="line">=&gt; true</span><br><span class="line"></span><br><span class="line"># or</span><br><span class="line"></span><br><span class="line">a = FactoryBot.create(:ax)</span><br><span class="line">b = FactoryBot.create(:bx, ax: a)</span><br><span class="line">b.association(:bx).loaded?</span><br><span class="line">=&gt; true</span><br></pre></td></tr></table></figure></p>
+<h2 id="Rails-5-ActiveRecord-enum-will-not-redefine-attribute"><a href="#Rails-5-ActiveRecord-enum-will-not-redefine-attribute" class="headerlink" title="[Rails 5] ActiveRecord#enum will not redefine attribute"></a>[Rails 5] ActiveRecord#enum will not redefine attribute</h2><p><strong>Commit:</strong> <a href="https://github.com/rails/rails/commit/c51f9b61ce1e167f5f58f07441adcfa117694301" target="_blank" rel="noopener">Refactor enum to be defined in terms of the attributes API</a></p>
+<blockquote>
+<p>In addition to cleaning up the implementation, this allows type casting behavior to be applied consistently everywhere. (#where for example). A good example of this was the previous need for handling value to key conversion in the setter, because the number had to be passed to <code>where</code> directly. This is no longer required, since we can just pass the string along to where. (It’s left around for backwards compat)</p>
+</blockquote>
+<h2 id="Rails-5-1-Remove-deprecated-conditions-parameter-from-destroy-all-and-delete-all"><a href="#Rails-5-1-Remove-deprecated-conditions-parameter-from-destroy-all-and-delete-all" class="headerlink" title="[Rails 5.1] Remove deprecated conditions parameter from #destroy_all and #delete_all"></a>[Rails 5.1] Remove deprecated conditions parameter from #destroy_all and #delete_all</h2><p><a href="https://github.com/rails/rails/pull/27503/commits/e7381d289e4f8751dcec9553dcb4d32153bd922b" target="_blank" rel="noopener">https://github.com/rails/rails/pull/27503/commits/e7381d289e4f8751dcec9553dcb4d32153bd922b</a></p>
+<blockquote>
+<p>Passing conditions to delete_all is deprecated and will be removed in Rails 5.1.<br>To achieve the same use where(conditions).delete_all.</p>
+</blockquote>
+<h2 id="Rails-5-Deprecate-locking-of-dirty-records"><a href="#Rails-5-Deprecate-locking-of-dirty-records" class="headerlink" title="[Rails 5] Deprecate locking of dirty records"></a>[Rails 5] Deprecate locking of dirty records</h2><p><a href="https://github.com/rails/rails/commit/578f283012f2f047b9e79ac046a32fd51e274761" target="_blank" rel="noopener">Deprecate locking of dirty records</a></p>
+<blockquote>
+<p>Locking a record with unpersisted changes is deprecated and will raise an exception in Rails 5.2. Use <code>save</code> to persist the changes, or <code>reload</code> to discard them explicitly.</p>
+</blockquote>
+<p><a href="https://github.com/rails/rails/commit/63cf15877bae859ff7b4ebaf05186f3ca79c1863" target="_blank" rel="noopener">Raises when calling <code>lock!</code> in a dirty record.</a></p>
+<blockquote>
+<p>Locking a record with unpersisted changes is not supported. Use <code>save</code> to persist the changes, or <code>reload</code> to discard them explicitly.</p>
+</blockquote>
+<h2 id="Rails-5-Rename-‘-type-cast-’-methods"><a href="#Rails-5-Rename-‘-type-cast-’-methods" class="headerlink" title="[Rails 5] Rename ‘#type_cast_’ methods"></a>[Rails 5] Rename ‘#type_cast_’ methods</h2><ul>
+<li><a href="https://github.com/rails/rails/commit/4a3cb840b0c992b0f15b66274dfa7de71a38fa03" target="_blank" rel="noopener">Type#type_cast_from_database -&gt; Type#deserialize</a></li>
+<li><a href="https://github.com/rails/rails/commit/1455c4c22feb24b0ff2cbb191afb0bd98ebf7b06" target="_blank" rel="noopener">type_cast_for_database -&gt; serialize</a></li>
+<li><p><a href="https://github.com/rails/rails/commit/9ca6948f72bef56445030a60e346376a821dbc72" target="_blank" rel="noopener">type_cast_from_user -&gt; cast</a></p>
+</li>
+<li><p><a href="https://github.com/rails/rails/commit/ad127d8836165bba70290a9429eee5b16033e20c" target="_blank" rel="noopener">Remove Type#type_cast</a></p>
+<blockquote>
+<p>This helper no longer makes sense as a separate method. Instead I’ll just have <code>deserialize</code> call <code>cast</code> by default. This led to a random infinite loop in the <code>JSON</code> pg type, when it called <code>super</code> from <code>deserialize</code>. Not really a great way to fix that other than not calling super, or continuing to have the separate method, which makes the public API differ from what we say it is.</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="Rails-5-Remove-internal-‘typecasted-attribute-value’-method"><a href="#Rails-5-Remove-internal-‘typecasted-attribute-value’-method" class="headerlink" title="[Rails 5] Remove internal ‘typecasted_attribute_value’ method"></a>[Rails 5] Remove internal ‘typecasted_attribute_value’ method</h2><p><a href="https://github.com/rails/rails/commit/057ba1280b1a5a33446387b286adb4a75acdebe4" target="_blank" rel="noopener">https://github.com/rails/rails/commit/057ba1280b1a5a33446387b286adb4a75acdebe4</a></p>
+<blockquote>
+<p><a href="https://github.com/rails/rails/commit/90c8be76a7d00475be5ff4db2eeedde5cc936c2d" target="_blank" rel="noopener">It is useless since 90c8be7</a></p>
+</blockquote>
+<blockquote>
+<p><strong>Remove most code related to serialized properties</strong></p>
+</blockquote>
+<blockquote>
+<p>Nearly completely implemented in terms of custom properties.<br><code>_before_type_cast</code> now stores the raw serialized string consistently, which removes the need to keep track of “state”. The following is now<br>consistently true:</p>
+</blockquote>
+<blockquote>
+<ul>
+<li><code>model.serialized == model.reload.serialized</code></li>
+<li>A model can be dumped and loaded infinitely without changing</li>
+<li>A model can be saved and reloaded infinitely without changing</li>
+</ul>
+</blockquote>
+<h2 id="Rails-5-Raise-ArgumentError-when-a-instance-of-ActiveRecord-Base-is-passed-to-find-and-exists-and-update"><a href="#Rails-5-Raise-ArgumentError-when-a-instance-of-ActiveRecord-Base-is-passed-to-find-and-exists-and-update" class="headerlink" title="[Rails 5] Raise ArgumentError when a instance of ActiveRecord::Base is passed to find and exists? and update"></a>[Rails 5] Raise ArgumentError when a instance of ActiveRecord::Base is passed to find and exists? and update</h2><h2 id="Rails-5-TimeHelpers-travel-travel-to-travel-time-helpers-now-raise-on-nested-calls-as-this-can-lead-to-confusing-time-stubbing"><a href="#Rails-5-TimeHelpers-travel-travel-to-travel-time-helpers-now-raise-on-nested-calls-as-this-can-lead-to-confusing-time-stubbing" class="headerlink" title="[Rails 5] TimeHelpers#travel/travel_to travel time helpers, now raise on nested calls, as this can lead to confusing time stubbing"></a>[Rails 5] TimeHelpers#travel/travel_to travel time helpers, now raise on nested calls, as this can lead to confusing time stubbing</h2><blockquote>
+<p>Calling <code>travel_to</code> with a block, when we have previously already made a call to <code>travel_to</code>, can lead to confusing time stubbing.</p>
+</blockquote>
+<p>Instead of:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">travel_to 2.days.from_now do</span><br><span class="line">   # 2 days from today</span><br><span class="line">   travel_to 3.days.from_now do</span><br><span class="line">     # 5 days from today</span><br><span class="line">   end</span><br><span class="line"> end</span><br></pre></td></tr></table></figure></p>
+<p>preferred way to achieve above is:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">travel 2.days do</span><br><span class="line">   # 2 days from today</span><br><span class="line"> end</span><br><span class="line"></span><br><span class="line"> travel 5.days do</span><br><span class="line">   # 5 days from today</span><br><span class="line"> end</span><br></pre></td></tr></table></figure></p>
+<h2 id="optimistic-locking-An-explicitly-passed-nil-value-is-now-converted-to-0-on-LockingType"><a href="#optimistic-locking-An-explicitly-passed-nil-value-is-now-converted-to-0-on-LockingType" class="headerlink" title="[optimistic locking] An explicitly passed nil value is now converted to 0 on LockingType"></a>[optimistic locking] An explicitly passed nil value is now converted to 0 on LockingType</h2><ul>
+<li><a href="https://github.com/rails/rails/commit/210729c4cc05eae875b1e990c5bce39dee23e8f1" target="_blank" rel="noopener">https://github.com/rails/rails/commit/210729c4cc05eae875b1e990c5bce39dee23e8f1</a></li>
+<li><a href="https://github.com/rails/rails/commit/7b37e3edaf25627b6db023be5a1f8bf9733aafdd" target="_blank" rel="noopener">https://github.com/rails/rails/commit/7b37e3edaf25627b6db023be5a1f8bf9733aafdd</a></li>
+</ul>
+<blockquote>
+<p>Make sure we handle explicitly passed nil’s to lock_version as well. An explicitly passed nil value is now converted to 0 on LockingType, so that we don’t end up with ActiveRecord::StaleObjectError in update record</p>
+</blockquote>
+<h2 id="Rails-5-1-Remove-deprecated-support-to-non-keyword-arguments-for-ADTest-get-process"><a href="#Rails-5-1-Remove-deprecated-support-to-non-keyword-arguments-for-ADTest-get-process" class="headerlink" title="[Rails 5.1] Remove deprecated support to non-keyword arguments for ADTest#get/process"></a>[Rails 5.1] Remove deprecated support to non-keyword arguments for ADTest#get/process</h2><blockquote>
+<p>Removed support for non-keyword arguments in <code>#process</code>, <code>#get</code>, <code>#post</code>, <code>#patch</code>, <code>#put</code>, <code>#delete</code>, and <code>#head</code> for the <code>ActionDispatch::IntegrationTest</code> and <code>ActionController::TestCase</code> classes.</p>
+</blockquote>
+<ul>
+<li><a href="https://github.com/rails/rails/commit/98b8309569a326910a723f521911e54994b112fb" target="_blank" rel="noopener">https://github.com/rails/rails/commit/98b8309569a326910a723f521911e54994b112fb</a></li>
+<li><a href="https://github.com/rails/rails/commit/de9542acd56f60d281465a59eac11e15ca8b3323" target="_blank" rel="noopener">https://github.com/rails/rails/commit/de9542acd56f60d281465a59eac11e15ca8b3323</a></li>
+</ul>
+<p>old:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">get &apos;/profile&apos;, &#123; id: 1 &#125;, &#123; &apos;HTTP-XX-Header&apos; =&gt; &apos;111&apos; &#125;</span><br></pre></td></tr></table></figure></p>
+<p>now:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">get &apos;/profile&apos;,</span><br><span class="line">  params: &#123; id: 1 &#125;,</span><br><span class="line">  headers: &#123; &apos;HTTP-XX-Header&apos; =&gt; &apos;111&apos; &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Rails-5-ActionDispatch-ParamsParser-is-deprecated-and-was-removed-from-the-middleware-stack"><a href="#Rails-5-ActionDispatch-ParamsParser-is-deprecated-and-was-removed-from-the-middleware-stack" class="headerlink" title="[Rails 5] ActionDispatch::ParamsParser is deprecated and was removed from the middleware stack"></a>[Rails 5] ActionDispatch::ParamsParser is deprecated and was removed from the middleware stack</h2><p>[Rails 5.2] Remove deprecated <code>ActionController::ParamsParser::ParseError</code>.<br><a href="https://github.com/rails/rails/commit/e16c765ac6dcff068ff2e5554d69ff345c003de1" target="_blank" rel="noopener">https://github.com/rails/rails/commit/e16c765ac6dcff068ff2e5554d69ff345c003de1</a></p>
+<p>[Rails 5.0] <code>ActionDispatch::ParamsParser</code> is deprecated<br><a href="https://github.com/rails/rails/commit/38d2bf5fd1f3e014f2397898d371c339baa627b1" target="_blank" rel="noopener">https://github.com/rails/rails/commit/38d2bf5fd1f3e014f2397898d371c339baa627b1</a><br><a href="https://github.com/rails/rails/commit/5ed38014811d4ce6d6f957510b9153938370173b" target="_blank" rel="noopener">https://github.com/rails/rails/commit/5ed38014811d4ce6d6f957510b9153938370173b</a></p>
+<p><code>ActionDispatch::ParamsParser</code> was removed from the middleware.</p>
+<p>Now call <code>parse_formatted_parameters</code> and set <code>env[&quot;action_dispatch.request.request_parameters&quot;]</code> in <code>ActionDispatch::Request#POST</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># Override Rack&apos;s POST method to support indifferent access.</span><br><span class="line">def POST</span><br><span class="line">  fetch_header(&quot;action_dispatch.request.request_parameters&quot;) do</span><br><span class="line">    pr = parse_formatted_parameters(params_parsers) do |params|</span><br><span class="line">      super || &#123;&#125;</span><br><span class="line">    end</span><br><span class="line">    self.request_parameters = Request::Utils.normalize_encode_params(pr)</span><br><span class="line">  end</span><br><span class="line">rescue Http::Parameters::ParseError # one of the parse strategies blew up</span><br><span class="line">  self.request_parameters = Request::Utils.normalize_encode_params(super || &#123;&#125;)</span><br><span class="line">  raise</span><br><span class="line">rescue Rack::Utils::ParameterTypeError, Rack::Utils::InvalidParameterError =&gt; e</span><br><span class="line">  raise ActionController::BadRequest.new(&quot;Invalid request parameters: #&#123;e.message&#125;&quot;)</span><br><span class="line">send</span><br></pre></td></tr></table></figure>
+<p><strong>Rack#request json parser</strong><br>You can override Rack’s POST method to support indifferent access.<br>Or, define middleware like:<br><a href="https://github.com/rack/rack-contrib/blob/master/lib/rack/contrib/post_body_content_type_parser.rb" target="_blank" rel="noopener">https://github.com/rack/rack-contrib/blob/master/lib/rack/contrib/post_body_content_type_parser.rb</a></p>
+<h2 id="Rails-5-0-ActionController-Parameters-no-longer-inherits-from-HashWithIndifferentAccess"><a href="#Rails-5-0-ActionController-Parameters-no-longer-inherits-from-HashWithIndifferentAccess" class="headerlink" title="[Rails 5.0] ActionController::Parameters no longer inherits from HashWithIndifferentAccess"></a>[Rails 5.0] ActionController::Parameters no longer inherits from HashWithIndifferentAccess</h2><p>Commit: <a href="https://github.com/rails/rails/pull/20868/files" target="_blank" rel="noopener">Make AC::Parameters not inherited from Hash</a></p>
+<blockquote>
+<p>Inheriting from <code>HashWithIndifferentAccess</code> allowed users to call any enumerable methods on <code>Parameters</code> object, resulting in a risk of losing the <code>permitted?</code> status or even getting back a pure <code>Hash</code> object instead of a <code>Parameters</code> object with proper sanitization.<br>By not inheriting from <code>HashWithIndifferentAccess</code>, we are able to make sure that all methods that are defined in <code>Parameters</code> object will return a proper <code>Parameters</code> object with a correct <code>permitted?</code> flag.</p>
+</blockquote>
+<p>When use nested hashe in params, <code>Parameters#[]</code> will return a <code>ActionController::Parameters</code> object, like:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">params = ActionController::Parameters.new(&#123;a: 1, b: &#123;b1: &apos;b1&apos;, b2: &apos;b2&apos;&#125;&#125;)</span><br><span class="line">#=&gt; &lt;ActionController::Parameters &#123;&quot;a&quot;=&gt;1, &quot;b&quot;=&gt;&#123;&quot;b1&quot;=&gt;&quot;b1&quot;, &quot;b2&quot;=&gt;&quot;b2&quot;&#125;&#125; permitted: false&gt;</span><br><span class="line"></span><br><span class="line">params[:b]</span><br><span class="line">#=&gt; &lt;ActionController::Parameters &#123;&quot;b1&quot;=&gt;&quot;b1&quot;, &quot;b2&quot;=&gt;&quot;b2&quot;&#125; permitted: false&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># actionpack-5.2.0/lib/action_controller/metal/strong_parameters.rb:813</span><br><span class="line"></span><br><span class="line">def convert_parameters_to_hashes(value, using)</span><br><span class="line">  case value</span><br><span class="line">  when Array</span><br><span class="line">    value.map &#123; |v| convert_parameters_to_hashes(v, using) &#125;</span><br><span class="line">  when Hash</span><br><span class="line">    value.transform_values do |v|</span><br><span class="line">      convert_parameters_to_hashes(v, using)</span><br><span class="line">    end.with_indifferent_access</span><br><span class="line">  when Parameters</span><br><span class="line">    value.send(using)</span><br><span class="line">  else</span><br><span class="line">    value</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<h2 id="Rails-5-2-Allow-attributes-with-a-proc-default-to-be-marshalled"><a href="#Rails-5-2-Allow-attributes-with-a-proc-default-to-be-marshalled" class="headerlink" title="[Rails 5.2] Allow attributes with a proc default to be marshalled"></a>[Rails 5.2] Allow attributes with a proc default to be marshalled</h2><p><a href="https://github.com/rails/rails/commit/0af36c62a5710e023402e37b019ad9982e69de4b" target="_blank" rel="noopener">Models using the attributes API with a proc default can now be marshalled.</a></p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/06/44-Ruby-Constant-Look-Up/" rel="next" title="由 'uninitialized constant' 引发的关于常量查找和词法作用域的思考">
+                <i class="fa fa-chevron-left"></i> 由 'uninitialized constant' 引发的关于常量查找和词法作用域的思考
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/26/46-ActiveRecord-connection-pool/" rel="prev" title="ActiveRecord 的 connection pool 设计">
+                ActiveRecord 的 connection pool 设计 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/08/02/45-Upgrade-Rails-form4-to5/"
+           data-title="Rails 5 升级日记" data-url="http://elibinary.com/2018/08/02/45-Upgrade-Rails-form4-to5/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">71</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-deprecates-alias-method-chain"><span class="nav-number">1.</span> <span class="nav-text">Rails 5 deprecates alias_method_chain</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-2-Remove-deprecated-support-to-passing-a-class-to-‘-class-name’-on-associations"><span class="nav-number">2.</span> <span class="nav-text">[Rails 5.2] Remove deprecated support to passing a class to ‘:class_name’ on associations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-0-Removed-deprecated-‘serialized-attributes’"><span class="nav-number">3.</span> <span class="nav-text">[Rails 5.0] Removed deprecated ‘serialized_attributes’</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-1-‘index-name-exists-’-方法不再接受-default-参数"><span class="nav-number">4.</span> <span class="nav-text">[Rails 5.1] ‘index_name_exists?’ 方法不再接受 default 参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-1-Correctly-dump-native-timestamp-types-for-MySQL"><span class="nav-number">5.</span> <span class="nav-text">[Rails 5.1] Correctly dump native timestamp types for MySQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-Don’t-default-to-YAML-dumping-when-quoting-values"><span class="nav-number">6.</span> <span class="nav-text">[Rails 5] Don’t default to YAML dumping when quoting values</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-Replace-deprecated-‘-load-schema’-with-‘-load-schema-for’"><span class="nav-number">7.</span> <span class="nav-text">[Rails 5] Replace deprecated ‘#load_schema’ with ‘#load_schema_for’</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-2-Refactor-migration-to-move-migrations-paths-to-connection"><span class="nav-number">8.</span> <span class="nav-text">[Rails 5.2] Refactor migration to move migrations paths to connection</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-1-Fixed-Optimistic-locking-does-not-work-well-with-null-in-the-database"><span class="nav-number">9.</span> <span class="nav-text">[Rails 5.1] Fixed: Optimistic locking does not work well with null in the database</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-1-Underrated-and-enhanced-dirty-attributes-changes"><span class="nav-number">10.</span> <span class="nav-text">[Rails 5.1] Underrated and enhanced dirty attributes changes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-When-use-FactoryBot-association-ActiveRecord-association-will-load"><span class="nav-number">11.</span> <span class="nav-text">[Rails 5] When use FactoryBot#association, ActiveRecord#association will load</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-ActiveRecord-enum-will-not-redefine-attribute"><span class="nav-number">12.</span> <span class="nav-text">[Rails 5] ActiveRecord#enum will not redefine attribute</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-1-Remove-deprecated-conditions-parameter-from-destroy-all-and-delete-all"><span class="nav-number">13.</span> <span class="nav-text">[Rails 5.1] Remove deprecated conditions parameter from #destroy_all and #delete_all</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-Deprecate-locking-of-dirty-records"><span class="nav-number">14.</span> <span class="nav-text">[Rails 5] Deprecate locking of dirty records</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-Rename-‘-type-cast-’-methods"><span class="nav-number">15.</span> <span class="nav-text">[Rails 5] Rename ‘#type_cast_’ methods</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-Remove-internal-‘typecasted-attribute-value’-method"><span class="nav-number">16.</span> <span class="nav-text">[Rails 5] Remove internal ‘typecasted_attribute_value’ method</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-Raise-ArgumentError-when-a-instance-of-ActiveRecord-Base-is-passed-to-find-and-exists-and-update"><span class="nav-number">17.</span> <span class="nav-text">[Rails 5] Raise ArgumentError when a instance of ActiveRecord::Base is passed to find and exists? and update</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-TimeHelpers-travel-travel-to-travel-time-helpers-now-raise-on-nested-calls-as-this-can-lead-to-confusing-time-stubbing"><span class="nav-number">18.</span> <span class="nav-text">[Rails 5] TimeHelpers#travel/travel_to travel time helpers, now raise on nested calls, as this can lead to confusing time stubbing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#optimistic-locking-An-explicitly-passed-nil-value-is-now-converted-to-0-on-LockingType"><span class="nav-number">19.</span> <span class="nav-text">[optimistic locking] An explicitly passed nil value is now converted to 0 on LockingType</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-1-Remove-deprecated-support-to-non-keyword-arguments-for-ADTest-get-process"><span class="nav-number">20.</span> <span class="nav-text">[Rails 5.1] Remove deprecated support to non-keyword arguments for ADTest#get/process</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-ActionDispatch-ParamsParser-is-deprecated-and-was-removed-from-the-middleware-stack"><span class="nav-number">21.</span> <span class="nav-text">[Rails 5] ActionDispatch::ParamsParser is deprecated and was removed from the middleware stack</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-0-ActionController-Parameters-no-longer-inherits-from-HashWithIndifferentAccess"><span class="nav-number">22.</span> <span class="nav-text">[Rails 5.0] ActionController::Parameters no longer inherits from HashWithIndifferentAccess</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rails-5-2-Allow-attributes-with-a-proc-default-to-be-marshalled"><span class="nav-number">23.</span> <span class="nav-text">[Rails 5.2] Allow attributes with a proc default to be marshalled</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>
