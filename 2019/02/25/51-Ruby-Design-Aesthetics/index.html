@@ -1,0 +1,789 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ruby," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="There are many ways to do it.   最小惊讶原则 (Matz)   璀璨微笑理念 (DHH)  对象与类的构成面向对象设计 在 ruby 中，一些皆是对象  哪怕是基本数据类型1234562.5.1 :001 &amp;gt; 1.class =&amp;gt; Integer2.5.1 :002 &amp;gt; true.class =&amp;gt; TrueClass2.5.1 :006 &amp;">
+<meta name="keywords" content="Ruby">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ruby 的设计美学">
+<meta property="og:url" content="http://elibinary.com/2019/02/25/51-Ruby-Design-Aesthetics/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="There are many ways to do it.   最小惊讶原则 (Matz)   璀璨微笑理念 (DHH)  对象与类的构成面向对象设计 在 ruby 中，一些皆是对象  哪怕是基本数据类型1234562.5.1 :001 &amp;gt; 1.class =&amp;gt; Integer2.5.1 :002 &amp;gt; true.class =&amp;gt; TrueClass2.5.1 :006 &amp;">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-09-12T05:12:27.094Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ruby 的设计美学">
+<meta name="twitter:description" content="There are many ways to do it.   最小惊讶原则 (Matz)   璀璨微笑理念 (DHH)  对象与类的构成面向对象设计 在 ruby 中，一些皆是对象  哪怕是基本数据类型1234562.5.1 :001 &amp;gt; 1.class =&amp;gt; Integer2.5.1 :002 &amp;gt; true.class =&amp;gt; TrueClass2.5.1 :006 &amp;">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Ruby 的设计美学 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Ruby 的设计美学
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-02-25T20:57:08+08:00" content="2019-02-25">
+              2019-02-25
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2019/02/25/51-Ruby-Design-Aesthetics/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/02/25/51-Ruby-Design-Aesthetics/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>There are many ways to do it.</p>
+</blockquote>
+<blockquote>
+<p>最小惊讶原则 (Matz)</p>
+</blockquote>
+<blockquote>
+<p>璀璨微笑理念 (DHH)</p>
+</blockquote>
+<h2 id="对象与类的构成"><a href="#对象与类的构成" class="headerlink" title="对象与类的构成"></a>对象与类的构成</h2><h3 id="面向对象设计"><a href="#面向对象设计" class="headerlink" title="面向对象设计"></a>面向对象设计</h3><blockquote>
+<p>在 ruby 中，一些皆是对象</p>
+</blockquote>
+<p>哪怕是基本数据类型<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">2.5.1 :001 &gt; 1.class</span><br><span class="line"> =&gt; Integer</span><br><span class="line">2.5.1 :002 &gt; true.class</span><br><span class="line"> =&gt; TrueClass</span><br><span class="line">2.5.1 :006 &gt; &quot;a&quot;.class</span><br><span class="line"> =&gt; String</span><br></pre></td></tr></table></figure></p>
+<p>甚至是类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">2.5.1 :003 &gt; class A</span><br><span class="line">2.5.1 :004?&gt; end</span><br><span class="line"> =&gt; nil</span><br><span class="line">2.5.1 :005 &gt; A.class</span><br><span class="line"> =&gt; Class</span><br></pre></td></tr></table></figure></p>
+<p>简单归结起来，一个 ruby 程序其实就是由一组对象和这组对象彼此间发送的消息组成的</p>
+<blockquote>
+<p>Ruby是面向对象语言，面向对象最基本的特性之一，就是消息传递。 </p>
+</blockquote>
+<p>当然这并不是说，在使用 ruby 时你只能应用面向对象设计<br>事实上 ruby 借鉴了 lisp 的部分理念，这就是 ruby 中的 block (闭包)  及 lambda 设计，函数在 ruby 中是作为一等公民出现的</p>
+<blockquote>
+<p>Ruby 的 block 本质上和高阶函数是一样的，高阶函数是接受函数作为参数的函数</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">def rescue_error</span><br><span class="line">  # do some things</span><br><span class="line">  begin</span><br><span class="line">    yield</span><br><span class="line">  rescue =&gt; e</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">2.5.1 :008 &gt; rescue_error do</span><br><span class="line">2.5.1 :009 &gt;     puts &quot;I am err&quot;</span><br><span class="line">2.5.1 :010?&gt;   end</span><br><span class="line">I am err</span><br><span class="line"> =&gt; nil</span><br><span class="line"> </span><br><span class="line"># or</span><br><span class="line">succ = lambda &#123; |x| x + 1 &#125;</span><br><span class="line"># ||</span><br><span class="line">succ = -&gt;(x)&#123; x + 1 &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="深入对象内部"><a href="#深入对象内部" class="headerlink" title="深入对象内部"></a>深入对象内部</h3><blockquote>
+<p>每个 Ruby 对象都是类指针和实例变量数组的组合</p>
+</blockquote>
+<p>让我们深入对象内部看看它到底是如何构成的</p>
+<p>每个自定义对象都保存在 RObject 的结构体中 (c struct)</p>
+<p>RObject 中包含了内部 RBasic 结构体和一些特有信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/ruby.h</span><br><span class="line"></span><br><span class="line">struct RUBY_ALIGNAS(SIZEOF_VALUE) RBasic &#123;</span><br><span class="line">    VALUE flags;</span><br><span class="line">    const VALUE klass;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RObject &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    union &#123;</span><br><span class="line">        struct &#123;</span><br><span class="line">            uint32_t numiv;</span><br><span class="line">            VALUE *ivptr;</span><br><span class="line">            void *iv_index_tbl; /* shortcut for RCLASS_IV_INDEX_TBL(rb_obj_class(obj)) */</span><br><span class="line">        &#125; heap;</span><br><span class="line">        VALUE ary[ROBJECT_EMBED_LEN_MAX];</span><br><span class="line">    &#125; as;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><em><code>open ruby-robject.png</code></em></p>
+<p><em>一组 flags 的布尔值，用来存储各种内部专用的值</em></p>
+<p>所有自定义对象的底层存储结构皆是如此</p>
+<p>上面曾说过基础数据类型也是对象，那么它们的底层存储也是如此吗</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/ruby.h</span><br><span class="line"></span><br><span class="line">struct RString &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    union &#123;</span><br><span class="line">        struct &#123;</span><br><span class="line">            long len;</span><br><span class="line">            char *ptr;</span><br><span class="line">            union &#123;</span><br><span class="line">                long capa;</span><br><span class="line">                VALUE shared;</span><br><span class="line">            &#125; aux;</span><br><span class="line">        &#125; heap;</span><br><span class="line">        char ary[RSTRING_EMBED_LEN_MAX + 1];</span><br><span class="line">    &#125; as;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RArray &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    union &#123;</span><br><span class="line">        struct &#123;</span><br><span class="line">            long len;</span><br><span class="line">            union &#123;</span><br><span class="line">                long capa;</span><br><span class="line">                VALUE shared;</span><br><span class="line">            &#125; aux;</span><br><span class="line">            const VALUE *ptr;</span><br><span class="line">        &#125; heap;</span><br><span class="line">        const VALUE ary[RARRAY_EMBED_LEN_MAX];</span><br><span class="line">    &#125; as;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RRegexp &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    struct re_pattern_buffer *ptr;</span><br><span class="line">    const VALUE src;</span><br><span class="line">    unsigned long usecnt;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RFile &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    struct rb_io_t *fptr;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RData &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    void (*dmark)(void*);</span><br><span class="line">    void (*dfree)(void*);</span><br><span class="line">    void *data;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>Ruby 中使用一些不一样的结构来保存每个基本数据类型的值</p>
+<p>那么简单立即值呢，比如整形，true，false<br>事实上，这些简单立即值是没有结构体的，它们的值直接存储在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VALUE</span><br></pre></td></tr></table></figure></p>
+<p>中，ruby 会在 <code>VALUE</code> 的前几个 bits 保存一串比特标记来标明这些值的类，这类 <code>VALUE</code> 就不是指针了，而是立即值本身<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0100...100|00000001</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">#if USE_FLONUM</span><br><span class="line">    RUBY_Qfalse = 0x00,     /* ...0000 0000 */</span><br><span class="line">    RUBY_Qtrue  = 0x14,     /* ...0001 0100 */</span><br><span class="line">    RUBY_Qnil   = 0x08,     /* ...0000 1000 */</span><br><span class="line">    RUBY_Qundef = 0x34,     /* ...0011 0100 */</span><br><span class="line"></span><br><span class="line">    RUBY_IMMEDIATE_MASK = 0x07,</span><br><span class="line">    RUBY_FIXNUM_FLAG    = 0x01, /* ...xxxx xxx1 */</span><br><span class="line">    RUBY_FLONUM_MASK    = 0x03,</span><br><span class="line">    RUBY_FLONUM_FLAG    = 0x02, /* ...xxxx xx10 */</span><br><span class="line">    RUBY_SYMBOL_FLAG    = 0x0c, /* ...0000 1100 */</span><br><span class="line">#else</span><br><span class="line">    RUBY_Qfalse = 0,        /* ...0000 0000 */</span><br><span class="line">    RUBY_Qtrue  = 2,        /* ...0000 0010 */</span><br><span class="line">    RUBY_Qnil   = 4,        /* ...0000 0100 */</span><br><span class="line">    RUBY_Qundef = 6,        /* ...0000 0110 */</span><br><span class="line"></span><br><span class="line">    RUBY_IMMEDIATE_MASK = 0x03,</span><br><span class="line">    RUBY_FIXNUM_FLAG    = 0x01, /* ...xxxx xxx1 */</span><br><span class="line">    RUBY_FLONUM_MASK    = 0x00, /* any values ANDed with FLONUM_MASK cannot be FLONUM_FLAG */</span><br><span class="line">    RUBY_FLONUM_FLAG    = 0x02,</span><br><span class="line">    RUBY_SYMBOL_FLAG    = 0x0e, /* ...0000 1110 */</span><br><span class="line">#endif</span><br><span class="line">    RUBY_SPECIAL_SHIFT  = 8</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>那么方法呢？</p>
+<p><strong>深入类的内部</strong></p>
+<p>每个对象都是通过保存指向 <code>RClass</code> 结构体的指针来标记自身的类<br>那么 <code>RClass</code> 内部又是怎么构成的呢</p>
+<p>要搞清楚这个问题，我们需要现在思考一下，类中都保存那些信息。</p>
+<p>首先非常容易想到，类中保存有方法定义，实例变量名，常量，以及必不可少的类指针</p>
+<p>上面有提到过，RObject 结构体中有存一个 ivptr 的指针指向实例变量值数组，也就是说 RObject 中保存了实例变量的值，但其实并没有保存实例变量的名字，实例变量名实际被保存在对象的类中。</p>
+<p>除此之外还有些什么呢？不要忘了类中是可以定义类级的实例变量以及变量的，那么类实例变量和类变量是怎么保存的。</p>
+<p>先来看看类实例变量，所谓类实例变量，如果你还没有转过来这个弯的话不妨再回想一下上面反复说道的一句话：ruby 中一切皆对象。这样一来是不是就非常容易理解所谓类实例变量到底是个啥了，类也是对象，是对象就有类指针和实例变量。</p>
+<p>其实类级别的实例变量就是在类的上下文中创建的实例变量，如同对象级别的实例变量就是在对象上下文中创建的实例变量一样。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class Myclass</span><br><span class="line">  @variable_alpha</span><br><span class="line"></span><br><span class="line">  def self.variable_alpha=(value)</span><br><span class="line">    @variable_alpha = value</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def self.variable_alpha</span><br><span class="line">    @variable_alpha</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Myclass.variable_alpha</span><br><span class="line">#=&gt; nil</span><br><span class="line">Myclass.variable_alpha = &apos;go&apos;</span><br><span class="line">Myclass.variable_alpha</span><br><span class="line">#=&gt; &quot;go&quot;</span><br></pre></td></tr></table></figure>
+<p>如果说类实例变量是把类看做一个对象来在其上下文中创建的实例变量的话，类变量就是把类就看做是类来在其上下文中创建的变量。</p>
+<p><em>创建类变量时，Ruby 会在该类中创建唯一的值，并在其任意子类中共享该值。<br>如果是类实例变量，Ruby 会在该类和其子类中创建各自独立使用的值。</em></p>
+<p>除此之外，在创建类时，Ruby 允许随意指定一个超类来实现单继承。如果没有指定超类，Ruby 会默认指派 Object 类作为超类。这就需要存储一个指向其超类的指针</p>
+<blockquote>
+<p>Ruby 类就是包含方法定义，属性名称，超类指针和常量表的 Ruby 对象</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/ruby.h</span><br><span class="line"></span><br><span class="line">struct rb_classext_struct &#123;</span><br><span class="line">    struct st_table *iv_index_tbl;</span><br><span class="line">    struct st_table *iv_tbl;</span><br><span class="line">    struct rb_id_table *const_tbl;</span><br><span class="line">    struct rb_id_table *callable_m_tbl;</span><br><span class="line">    rb_subclass_entry_t *subclasses;</span><br><span class="line">    rb_subclass_entry_t **parent_subclasses;</span><br><span class="line">    /**</span><br><span class="line">     * In the case that this is an `ICLASS`, `module_subclasses` points to the link</span><br><span class="line">     * in the module&apos;s `subclasses` list that indicates that the klass has been</span><br><span class="line">     * included. Hopefully that makes sense.</span><br><span class="line">     */</span><br><span class="line">    rb_subclass_entry_t **module_subclasses;</span><br><span class="line">    rb_serial_t class_serial;</span><br><span class="line">    const VALUE origin_;</span><br><span class="line">    VALUE refined_class;</span><br><span class="line">    rb_alloc_func_t allocator;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">typedef struct rb_classext_struct rb_classext_t;</span><br><span class="line"></span><br><span class="line">#undef RClass</span><br><span class="line">struct RClass &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    VALUE super;</span><br><span class="line">    rb_classext_t *ptr;</span><br><span class="line">    struct rb_id_table *m_tbl;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>m_tbl</code>: 以方法名为 key，每个方法定义的指针（编译好的 YARV 指令）为 value</li>
+<li><code>super</code>: 指向超类的 RClass 结构体的指针</li>
+<li><code>iv_tbl</code>: 类实例变量和类变量的名字和值</li>
+<li><code>allocator</code>: ruby 内部使用 allocator 为类的每个新的实例分配内存</li>
+</ul>
+<p>反复出现的 <code>st_table</code> 结构是 ruby 的散列表数据结构<br>而 <code>rb_id_table</code> 其实是 ruby 2.4 时引入的改进，主要用来优化 ID key table 的性能，具体的可以看下面的 feature 描述👇<br><a href="https://bugs.ruby-lang.org/issues/11420" target="_blank" rel="noopener">https://bugs.ruby-lang.org/issues/11420</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># ruby/id_table.c</span><br><span class="line"></span><br><span class="line">struct rb_id_table &#123;</span><br><span class="line">    int capa;</span><br><span class="line">    int num;</span><br><span class="line">    int used;</span><br><span class="line">    item_t *items;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/st.h</span><br><span class="line"></span><br><span class="line">struct st_table &#123;</span><br><span class="line">    /* Cached features of the table -- see st.c for more details.  */</span><br><span class="line">    unsigned char entry_power, bin_power, size_ind;</span><br><span class="line">    /* How many times the table was rebuilt.  */</span><br><span class="line">    unsigned int rebuilds_num;</span><br><span class="line">    const struct st_hash_type *type;</span><br><span class="line">    /* Number of entries currently in the table.  */</span><br><span class="line">    st_index_t num_entries;</span><br><span class="line">    /* Array of bins used for access by keys.  */</span><br><span class="line">    st_index_t *bins;</span><br><span class="line">    /* Start and bound index of entries in array entries.</span><br><span class="line">       entries_starts and entries_bound are in interval</span><br><span class="line">       [0,allocated_entries].  */</span><br><span class="line">    st_index_t entries_start, entries_bound;</span><br><span class="line">    /* Array of size 2^entry_power.  */</span><br><span class="line">    st_table_entry *entries;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>klass ptr 与 super ptr</strong></p>
+<p>Class 类在理论上是每个 Ruby 类的类</p>
+<ul>
+<li>klass 指针标示该类是哪个类的实例</li>
+<li>super 指针则标示该类的超类</li>
+</ul>
+<blockquote>
+<p>metaclass &amp; singleton class</p>
+</blockquote>
+<p>首先实例对象的方法是定义在其对应的类中的，那么是不是类的方法将被定义在类的类中呢？</p>
+<p>在 ruby 中默认情况下所有类的类都是 Class，显而易见肯定是不能把类方法定义在其中的。实际上当创建新的类的时候，ruby 会创建两个类，类本身以及 metaclass ，然后 ruby 会把新类的 RClass 结构体中的 klass 指针指向 metaclass。而类方法将会被放在类对应的 metaclass 中。</p>
+<p><a href="http://elibinary.com/2017/07/08/XXXI-Ruby-Method-Definition/">http://elibinary.com/2017/07/08/XXXI-Ruby-Method-Definition/</a></p>
+<p><strong>常量</strong></p>
+<p>常量以大写字母开头，在当前类的作用域内有效</p>
+<p><em>类名，module名都是常量</em></p>
+<hr>
+<p>ps</p>
+<blockquote>
+<p>A monkey patch is a way for a program to extend or modify supporting system software locally (affecting only the running instance of the program).</p>
+</blockquote>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ruby/" rel="tag">#Ruby</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/24/50-DeadLock-LiveLock-Hunger/" rel="next" title="死锁、活锁和饥饿">
+                <i class="fa fa-chevron-left"></i> 死锁、活锁和饥饿
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/05/54-Master-Slave-Lag/" rel="prev" title="MySQL master-slave lag">
+                MySQL master-slave lag <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2019/02/25/51-Ruby-Design-Aesthetics/"
+           data-title="Ruby 的设计美学" data-url="http://elibinary.com/2019/02/25/51-Ruby-Design-Aesthetics/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#对象与类的构成"><span class="nav-number">1.</span> <span class="nav-text">对象与类的构成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#面向对象设计"><span class="nav-number">1.1.</span> <span class="nav-text">面向对象设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#深入对象内部"><span class="nav-number">1.2.</span> <span class="nav-text">深入对象内部</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

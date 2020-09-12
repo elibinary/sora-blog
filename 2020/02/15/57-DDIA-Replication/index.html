@@ -1,0 +1,766 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="db," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="数据在分布式存储下有两种常见方式：  复制-replication 在不同节点存储数据的相同副本 replication 提供了冗余   分区-partitioning  replication 和 partitioning 是两种不同的机制，但它们经常一起使用（比如 kafka 的存储） 复制 Replication几个目的：  使地理上更接近，降低传输延迟 灾备，提高可用性 横向扩展处理 re">
+<meta name="keywords" content="db">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DDIA-分布式存储-复制">
+<meta property="og:url" content="http://elibinary.com/2020/02/15/57-DDIA-Replication/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="数据在分布式存储下有两种常见方式：  复制-replication 在不同节点存储数据的相同副本 replication 提供了冗余   分区-partitioning  replication 和 partitioning 是两种不同的机制，但它们经常一起使用（比如 kafka 的存储） 复制 Replication几个目的：  使地理上更接近，降低传输延迟 灾备，提高可用性 横向扩展处理 re">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-09-12T05:27:25.479Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DDIA-分布式存储-复制">
+<meta name="twitter:description" content="数据在分布式存储下有两种常见方式：  复制-replication 在不同节点存储数据的相同副本 replication 提供了冗余   分区-partitioning  replication 和 partitioning 是两种不同的机制，但它们经常一起使用（比如 kafka 的存储） 复制 Replication几个目的：  使地理上更接近，降低传输延迟 灾备，提高可用性 横向扩展处理 re">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> DDIA-分布式存储-复制 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                DDIA-分布式存储-复制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2020-02-15T16:26:50+08:00" content="2020-02-15">
+              2020-02-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2020/02/15/57-DDIA-Replication/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/02/15/57-DDIA-Replication/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>数据在分布式存储下有两种常见方式：</p>
+<ol>
+<li>复制-replication<ul>
+<li>在不同节点存储数据的相同副本</li>
+<li>replication 提供了冗余</li>
+</ul>
+</li>
+<li>分区-partitioning</li>
+</ol>
+<p>replication 和 partitioning 是两种不同的机制，但它们经常一起使用（比如 kafka 的存储）</p>
+<h2 id="复制-Replication"><a href="#复制-Replication" class="headerlink" title="复制 Replication"></a>复制 Replication</h2><p><strong>几个目的：</strong></p>
+<ol>
+<li>使地理上更接近，降低传输延迟</li>
+<li>灾备，提高可用性</li>
+<li>横向扩展处理 read 请求的节点，提高吞吐</li>
+</ol>
+<p><strong>复制操作最常见的三种模式：</strong></p>
+<ol>
+<li>单领导者-single leader</li>
+<li>多领导者-multi leader</li>
+<li>无领导者-leaderless</li>
+</ol>
+<p>单主复制：<br>client 把写操作发给 master，master 会把写入同步给 slaves；读操作可以在任意节点进行。<br>多主复制：<br>client 把写操作发送给 masters 中的任一个，每个 master 都可以接受写操作，master 会把写入同步给其他 masters 以及 slaves。<br>无主复制：<br>client 把写操作发送给几个或全部节点（n 个节点返回成功即可认为成功），读取时从多个节点读取（节点数最小为 n+1）</p>
+<p><strong>快速拉起一个新从库：</strong></p>
+<ol>
+<li>获取主库某一时刻（最新）的快照</li>
+<li>将快照复制到新的 slave 节点</li>
+<li>slave 连上 master，并开始拉取&amp;同步快照后的所有数据变更。（例如 MySQL 的 binlog）</li>
+<li>当 slave 处理完所有挤压数据变更（追平），就可以正式投入工作</li>
+</ol>
+<p><strong>主库故障切换（failover）：</strong></p>
+<ol>
+<li>确认 master 故障，自动化流程中大多数系统会使用简单的超时来判断：比如各节点间有定时心跳检查，如果一段时间内无响应就认为挂了</li>
+<li>选择一个新的 master，共识算法</li>
+<li>重新配置系统以启用新的 master</li>
+</ol>
+<p><strong>分布式系统中的基本问题：节点故障，不可靠的网络，对副本一致性&amp;持久性&amp;可用性&amp;延迟的权衡</strong></p>
+<h3 id="多从库读取的问题"><a href="#多从库读取的问题" class="headerlink" title="多从库读取的问题"></a>多从库读取的问题</h3><p>当一个用户的重复读取操作落在了不同的从库上，不同从库同步延迟过大时就可能出现：多次读取结果不一致的情况。<br><strong>单调读：</strong> 这时候一般的处理方式就是保证一个用户的读取操作都落在同一个 slave 上</p>
+<p>还有一种特殊情况，比如问答（在线对话）的数据写入是有顺序性的，但由于延迟等不一致情况下，用户可能出现对话顺序错乱的问题<br><strong>一直前缀读：</strong> 一种解决方案是，确保任何有因果顺序的写入都写到相同的分区。如果因为一些情况无法确保这种操作，那就需要一些跟踪因果依赖关系的算法来处理</p>
+<p><em>明明是异步复制，却假设复制是同步的，这是很多麻烦的根源</em></p>
+<h3 id="多主写入冲突"><a href="#多主写入冲突" class="headerlink" title="多主写入冲突"></a>多主写入冲突</h3><p><code>多主复制</code> 是基于领导者的复制模型的一种延伸。与单领导者相对的是它允许多个节点接受写入，且这些节点必须把写入同步给所有节点。</p>
+<p>多主模式具有更高的复杂性，比较常见于拥有多个数据中心的情况。由于复杂度关系单数据中心使用多主性价比较低。</p>
+<p>在多数据中心的场景下，一般每个数据中心都会配备有主库。在数据中心之间，每个数据中心的主库都需要将写入复制到其他数据中心的主库。</p>
+<p>虽然在多主时，可以让一个写操作同步写所有的主库，并全部成功才算成功。但这样一来整体系统的性能和吞吐将急剧下降，且对网络延迟非常敏感。<br>并且在多活配置中，必须能够容忍单个数据中心的临时宕机，每个数据中心应该可以独立于其他数据中心运行。<br>所以通常还是需要采用异步复制的方式来进行写同步。但这也正式麻烦的来源：</p>
+<ul>
+<li>自增主键问题</li>
+<li>写入冲突</li>
+</ul>
+<p>自增主键问题还好解决，多领导者复制的最大问题是可能发生写冲突：当多个数据中心同时接收到同一条数据的写操作时，在后续异步复制过程中将大概率面临数据冲突。常见解决方式：</p>
+<ul>
+<li>通过设置写范围来避免冲突</li>
+<li>通过收敛至一致状态来合并冲突</li>
+</ul>
+<p><strong>避免冲突</strong><br>可以通过应用逻辑层增加处理，保证特定用户/特定数据的写操作始终路由到同一个数据中心，从而杜绝多数据中心同时修改同一数据的问题。由于很多冲突解决实现上都有副作用，相比之下避免冲突是一种经常推荐的做法。</p>
+<p>但需要注意的是，当数据中心宕机时，该路由需要能够重新路由到另外的数据中心。</p>
+<p><strong>合并冲突</strong><br><code>合并冲突</code> 必须保证所有节点在复制完成后的数据一致性，也就是说到最后所有节点的状态必须收敛到一致。一般有两种思路：</p>
+<ol>
+<li>Last Write Wins，最后写入胜利(LWW)</li>
+<li>保留所有冲突数据，并交由应用层处理</li>
+</ol>
+<p>在多主配置中，写入顺序没有定义，每个主库只能看到自己的写入顺序。所以在 LWW 思路中一般会给每个写入一个递增的唯一 ID（分布式唯一 ID），最后合并冲突时保留 ID 最大的，丢弃掉其他写入。<br>LWW 这种方式非常流行，但它有一个很大的缺点就是会造成数据丢失。</p>
+<p>还有另一种处理方式是，数据层面会把所有的写入按一定规则拼起来（或利用一些数据结构）从而把所有写入都存下来，让后交由应用层（用户）处理冲突。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/db/" rel="tag">#db</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/16/56-Go-Concurrency-Model/" rel="next" title="Golang 并发模型">
+                <i class="fa fa-chevron-left"></i> Golang 并发模型
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/12/58-DDIA-Partition/" rel="prev" title="DDIA-分布式存储-分区">
+                DDIA-分布式存储-分区 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2020/02/15/57-DDIA-Replication/"
+           data-title="DDIA-分布式存储-复制" data-url="http://elibinary.com/2020/02/15/57-DDIA-Replication/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#复制-Replication"><span class="nav-number">1.</span> <span class="nav-text">复制 Replication</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#多从库读取的问题"><span class="nav-number">1.1.</span> <span class="nav-text">多从库读取的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多主写入冲突"><span class="nav-number">1.2.</span> <span class="nav-text">多主写入冲突</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

@@ -1,0 +1,805 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Golang," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识 进程和线程首先按教科书上现代操作系统的定义：  进程是资源管理的最小单位 线程是程序执行（系统调度）的最小单位  简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销  SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构AMP——">
+<meta name="keywords" content="Golang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang 并发模型">
+<meta property="og:url" content="http://elibinary.com/2019/11/16/56-Go-Concurrency-Model/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识 进程和线程首先按教科书上现代操作系统的定义：  进程是资源管理的最小单位 线程是程序执行（系统调度）的最小单位  简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销  SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构AMP——">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-09-12T05:25:49.273Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golang 并发模型">
+<meta name="twitter:description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识 进程和线程首先按教科书上现代操作系统的定义：  进程是资源管理的最小单位 线程是程序执行（系统调度）的最小单位  简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销  SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构AMP——">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Golang 并发模型 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Golang 并发模型
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-11-16T14:12:25+08:00" content="2019-11-16">
+              2019-11-16
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2019/11/16/56-Go-Concurrency-Model/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/11/16/56-Go-Concurrency-Model/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在介绍 golang 的并发调度模型之前，先来看下几个基础知识</p>
+<h2 id="进程和线程"><a href="#进程和线程" class="headerlink" title="进程和线程"></a>进程和线程</h2><p>首先按教科书上现代操作系统的定义：</p>
+<ul>
+<li>进程是资源管理的最小单位</li>
+<li>线程是程序执行（系统调度）的最小单位</li>
+</ul>
+<p>简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销</p>
+<blockquote>
+<p>SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构<br>AMP——Asymmetric Multi-Processing (AMP) ，非对称多处理器结构</p>
+</blockquote>
+<p><em>SMP 最大的特点是：一个操作系统实例，多个 CPU，每个 CPU 结构相同，共享内存等系统资源。工作负载能够均匀的分配到所有处理器上</em></p>
+<p>进程这一概念的进入，对应用程序屏蔽了 CPU 调度、内存管理等硬件细节，极大的简化了上层复杂度。</p>
+<p>现代操作系统概念中，一个进程至少需要一个线程作为它的指令执行体，进程管理系统资源（内存，文件等），线程被分配到具体 CPU 上执行。</p>
+<h3 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h3><p>CPU 是通过时间片来分配执行资源的，当进程/线程时间片结束，或者因为 redis、mysql 等 IO 阻塞掉时，将会引发上下文切换<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">           运行</span><br><span class="line">       ^ /      \</span><br><span class="line">      / /        \</span><br><span class="line">     / / 时       \ IO</span><br><span class="line">  调/ / 间         \ 等待</span><br><span class="line"> 度/ / 片           \</span><br><span class="line">  / / 到             \</span><br><span class="line"> / /                  \</span><br><span class="line">/ v                    v</span><br><span class="line">就绪&lt;-----------------阻塞</span><br><span class="line">          IO结束</span><br></pre></td></tr></table></figure></p>
+<p>上下文切换的直接开销有：</p>
+<ul>
+<li>切换页表全局目录</li>
+<li>切换内核态堆栈</li>
+<li>切换硬件上下文（主要是寄存器数据载入）</li>
+<li>刷新 TLB(页表缓存)</li>
+<li>系统调度器的代码执行</li>
+</ul>
+<p>间接开销：</p>
+<ul>
+<li>跨 CPU 调度时，L1、L2 缓存预热（cache 的代码、数据没用了需要穿透到内存读取）</li>
+</ul>
+<blockquote>
+<p>操作系统中，通常 L1 L2 缓存是每个 CPU 一个的，L3 缓存由多个 CPU 共享<br>Cache 是一种又小又快的寄存器，用来弥补内存和 CPU 之间的速度差距</p>
+</blockquote>
+<h2 id="Linux-进程和线程实现"><a href="#Linux-进程和线程实现" class="headerlink" title="Linux 进程和线程实现"></a>Linux 进程和线程实现</h2><p>不同操作系统对于进程线程的实现是有很大不同的。早期的 Linux 内核是没有线程概念的，它的最小调度单元是 Task。<br>Linux 2.x 版本提供了轻量级进程的支持。轻量级进程和进程一样，都有自己独立的 task_struct 进程描述符，也都有自己的 pid，在操作系统调度器视角看，两者没有什么区别。<br>轻量级进程最大的区别是：可以共享同一内存地址空间、代码段、全局变量以及同一打开文件集（线程的特点）。两者都是通过调用 clone() 创建的，区别在于创建轻量级进程时会通过设置一系列 clone_flags 来规定其可以共享那些资源。而进程通常是资源隔离的。</p>
+<h3 id="扩展：Nginx-多进程模型"><a href="#扩展：Nginx-多进程模型" class="headerlink" title="扩展：Nginx 多进程模型"></a>扩展：Nginx 多进程模型</h3><p>Nginx 架构采用：多进程模型 + 异步非阻塞（IO 多路复用）事件处理<br>一般进程数会设置为与 CPU 核数一致（可以将进程与 CPU 核心绑定），好处：</p>
+<ul>
+<li>避免了竞争 CPU 资源所带来的上下文切换开销</li>
+<li>与多线程相比，进程间相互独立，资源相互不共享，无额外锁开销</li>
+</ul>
+<p>异步非阻塞：利用 event 驱动方式使用 select, poll, epoll, kqueue 等系统调用来实现复用</p>
+<p>工作进程在 accept() 到一个 request 时，会进行一系列预处理工作，然后把 request 转发到下游服务器，并使用 epoll(例)注册事件(文件描述符)，接着就可以处理其他 request 了，等接收到 fd 就绪通知后再处理 response。</p>
+<h2 id="Golang-调度模型"><a href="#Golang-调度模型" class="headerlink" title="Golang 调度模型"></a>Golang 调度模型</h2><p>golang 的调度器通过使用和 CPU 核心 数量相等的线程（GOMAXPROCS），以减少线程频繁切换的开销，同时在每个线程上执行开销更小的 Goroutine 来提高执行效率。</p>
+<h3 id="GMP-模型"><a href="#GMP-模型" class="headerlink" title="GMP 模型"></a>GMP 模型</h3><p>简化模型如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+--------+    +--------+    +----------------------------+</span><br><span class="line">|        |    |        |    |       |       |       |     </span><br><span class="line">|    M   |  &lt; |    P   |  &lt; |   G   |   G   |   G   |     </span><br><span class="line">|        |    |        |    |       |       |       |     </span><br><span class="line">+--------+    +--------+    +----------------------------+</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>M: 操作系统的线程(max M number to 10000)</li>
+<li>P: 本地处理器，运行在线程上</li>
+<li>G: Goroutine</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// runtime.p</span><br><span class="line">type p struct &#123;</span><br><span class="line">    m           muintptr</span><br><span class="line"></span><br><span class="line">    runqhead uint32</span><br><span class="line">    runqtail uint32</span><br><span class="line">    runq     [256]guintptr</span><br><span class="line">    runnext guintptr</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>处理器 P 本地队列是一个使用数组构成的环形链表，最多可以存储 256 个待执行任务。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">                                             global</span><br><span class="line">|   .   |     |   .   |     |   .   |        </span><br><span class="line">|   .   |     |   .   |     |   .   |      |       |      </span><br><span class="line">+-------+     +-------+     +-------+      +-------+  </span><br><span class="line">|       |     |       |     |       |      |       |  </span><br><span class="line">|   G   |     |   G   |     |   G   |      |   G   |  </span><br><span class="line">|       |     |       |     |       |      |       |     </span><br><span class="line">+-------+     +-------+     +-------+      +-------+  </span><br><span class="line">|       |     |       |     |       |      |       |  </span><br><span class="line">|   G   |     |   G   |     |   G   |      |   G   |        </span><br><span class="line">|       |     |       |     |       |      |       |        </span><br><span class="line">+-------+     +-------+     +-------+      +-------+        </span><br><span class="line">    |             |             |          |       |</span><br><span class="line">    v             v             v          |   G   |</span><br><span class="line">+-------+     +-------+     +-------+      |       |</span><br><span class="line">|       |     |       |     |       |      +-------+ </span><br><span class="line">|   P   |     |   P   |     |   P   |      |       | </span><br><span class="line">|       |     |       |     |       |       </span><br><span class="line">+-------+     +-------+     +-------+       </span><br><span class="line"></span><br><span class="line">+-------+     +-------+     +-------+ </span><br><span class="line">|       |     |       |     |       | </span><br><span class="line">|   M   |     |   M   |     |   M   | </span><br><span class="line">|       |     |       |     |       | </span><br><span class="line">+-------+     +-------+     +-------+ </span><br><span class="line"></span><br><span class="line">+-----------------------------------+</span><br><span class="line">|              Sys&amp;CPU              |</span><br><span class="line">+-----------------------------------+</span><br></pre></td></tr></table></figure></p>
+<p>模型中有两个运行队列：</p>
+<ol>
+<li>P 的本地队列</li>
+<li>全局运行队列</li>
+</ol>
+<p><code>runtime.runqput</code> 函数会将新创建的 Goroutine 放入运行队列</p>
+<ul>
+<li>当 runnext 空闲，就将 G 设置到 P 的 <code>runnext</code> 作为下一个处理的任务</li>
+<li>当 runnext 不空闲并且 local 队列未满时，将 G 加入 P 的 local 队列</li>
+<li>当 P 的 local 队列满了，就把 local 中的一部分 G(待确认) + 该 G 放入到 global 队列</li>
+</ul>
+<p><code>runtime.schedule</code> 函数为核心调度循环，它会从不同地方查找待执行的 G</p>
+<ul>
+<li>首先一定几率从 global 中拿 G (<code>_g_.m.p.ptr().schedtick%61 == 0</code>)</li>
+<li>其次从 local 中获取</li>
+</ul>
+<p><a href="https://github.com/golang/go/blob/64c22b70bf00e15615bb17c29f808b55bc339682/src/runtime/proc.go#L2504" target="_blank" rel="noopener">runtime/proc.go</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if gp == nil &#123;</span><br><span class="line">    // Check the global runnable queue once in a while to ensure fairness.</span><br><span class="line">    // Otherwise two goroutines can completely occupy the local runqueue</span><br><span class="line">    // by constantly respawning each other.</span><br><span class="line">    if _g_.m.p.ptr().schedtick%61 == 0 &amp;&amp; sched.runqsize &gt; 0 &#123;</span><br><span class="line">        lock(&amp;sched.lock)</span><br><span class="line">        gp = globrunqget(_g_.m.p.ptr(), 1)</span><br><span class="line">        unlock(&amp;sched.lock)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>Workflow</strong> 引用自 <a href="https://speakerdeck.com/retervision/go-runtime-scheduler?slide=14" target="_blank" rel="noopener">speakerdeck by Brandon Gao</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">                        +--------------------sysmon---------------//----+</span><br><span class="line">                        |                                               |</span><br><span class="line">                        |                                               |</span><br><span class="line">            +---+    +---+-------+               +--------+        +---+---+</span><br><span class="line">gofunc()---&gt;| G |---&gt;| P | local |&lt;===balance===&gt;| global |&lt;--//---| P | M |</span><br><span class="line">            +---+    +---+-------+               +--------+        +---+---+</span><br><span class="line">                       |                              |              |</span><br><span class="line">                       |     +---+                    |              |</span><br><span class="line">                       +----&gt;| M |&lt;---findrunnable----+---steal&lt;--//-+</span><br><span class="line">                             +---+</span><br><span class="line">                               |</span><br><span class="line">                               |</span><br><span class="line">           +---execute&lt;-----schedule</span><br><span class="line">           |                   |</span><br><span class="line">           |                   |</span><br><span class="line">           +--&gt;G.fn--&gt;goexit---+</span><br><span class="line"></span><br><span class="line">1.go creates a new goroutine</span><br><span class="line">2.newly created goroutine being put into local or global queue</span><br><span class="line">3.A M is being waken or created to execute goroutine</span><br><span class="line">4.Schedule loop</span><br><span class="line">5.Try its best toget a goroutine to execute</span><br><span class="line">6.Clear, reenter schedule loop</span><br></pre></td></tr></table></figure></p>
+<h3 id="协作式调度和抢占式调度"><a href="#协作式调度和抢占式调度" class="headerlink" title="协作式调度和抢占式调度"></a>协作式调度和抢占式调度</h3><p>golang 1.2 之前的早期调度器是不支持打断 or 抢占的，也就是说只能依靠 Goroutine 自己让出 CPU 资源才能触发调度。这会造成几个很大的问题：</p>
+<ol>
+<li>一些 Goroutine 可能会长时间占用 M，造成饥饿</li>
+<li>垃圾回收需要暂停整个程序（Stop-The-World），如果没有抢占手段，这将可能耗时很久，导致整体不可用</li>
+</ol>
+<p><strong>golang 1.2 版本引入了基于协作式的调度</strong>，其主要思路是：goroutine 在进行函数调用时会有机会进行运行时检查，来查看判断是否需要执行协作调度。<br>在实现上则是利用编译器在分段栈上插入函数 <code>runtime.morestack</code>，在 goroutine 发生函数调用时，会执行插入的函数 <code>runtime.morestack</code> 该函数会检查一个状态位来判断是否有协作调度。<br>其他的还有 golang 运行时会在垃圾回收暂停程序，以及系统监控发现有 goroutine 运行超过 10ms 时就会触发设置状态位来让该 G 让出 M。<br>但是这种协作式调度依然无法覆盖所有情况，比如 goroutine 在进行长时间 for 循环计算处理，并不进行函数调用，就不会触发协作状态检查。</p>
+<p><strong>golang 1.14 版本引入了基于信号的抢占式调度</strong>，不过当前直被应用在垃圾回收暂停任务时。其主要思路：利用系统信号 <code>SIGURG</code> 来触发异步抢占。<br>在实现上：<a href="https://github.com/golang/go/blob/62e53b79227dafc6afcd92240c89acb8c0e1dd56/src/runtime/signal_unix.go#L494" target="_blank" rel="noopener">runtime.sighandler</a></p>
+<ol>
+<li>在 sighandler 函数中注册了 <code>SIGURG</code> 信号的处理函数 <code>doSigPreempt(gp, c)</code></li>
+<li>当垃圾回收发生时，会做两件事：1. 将 <code>_Grunning</code> 状态的 G 标记为将被抢占；2. 向线程发送 <code>SIGURG</code> 信号</li>
+<li>操作系统会中断正在运行的线程，并执行注册的信号处理函数 <code>doSigPreempt</code></li>
+</ol>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>golang 运行时会根据需要动态调整函数栈大小，每个 goroutine 在创建时只会分配很小的栈空间（2KB, 4KB, 8KB 具体依赖实现）</p>
+<p><strong>僵尸进程和孤儿进程</strong></p>
+<ul>
+<li>僵尸进程：作为子进程已经执行完毕，但是在操作系统进程表中仍然存在未被回收。</li>
+<li>孤儿进程：在父进程执行完成后，仍继续运行的进程被称为孤儿进程。</li>
+</ul>
+<p><code>僵尸进程</code> 的成因主要是：子进程在结束后其退出状态并未被读取（<code>wait</code>系统调用），它需要保留表项以允许父进程读取自己的状态。一旦状态被通过 <code>wait</code>系统调用读取，僵尸进程就会从进程表中删除。<br>僵尸进程可能的危害：</p>
+<ul>
+<li>进程长时间保持僵尸状态一般都是错误导致的，并可能引起资源泄漏</li>
+<li>比如父进程 for 循环不停的 clone 子进程，一直不使用 <code>wait</code> 系统调用，进程表中的信息将一直不被释放，可能会导致进程号耗尽</li>
+<li>处理方式一般 kill 掉父进程，让 init 进程回收掉其状态就可以了</li>
+</ul>
+<p><code>孤儿进程</code> 在父进程结束后，会被挂到 init 进程下（收养），并由 init 进程来完成对其状态的收集工作。<br>孤儿进程的应用：</p>
+<ul>
+<li>一般情况下孤儿进程是没什么危害的（除了个别情况下属于空跑，白白消耗 cpu 资源）</li>
+<li><code>守护进程</code> 就是其一种应用，通过刻意制造孤儿进程使之与用户会话脱钩，转至后台运行。</li>
+</ul>
+<p>参考：</p>
+<ul>
+<li><a href="https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/" target="_blank" rel="noopener">https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/</a></li>
+<li><a href="https://assets.ctfassets.net/oxjq45e8ilak/48lwQdnyDJr2O64KUsUB5V/5d8343da0119045c4b26eb65a83e786f/100545_516729073_DMITRII_VIUKOV_Go_scheduler_Implementing_language_with_lightweight_concurrency.pdf" target="_blank" rel="noopener">https://assets.ctfassets.net/oxjq45e8ilak/48lwQdnyDJr2O64KUsUB5V/5d8343da0119045c4b26eb65a83e786f/100545_516729073_DMITRII_VIUKOV_Go_scheduler_Implementing_language_with_lightweight_concurrency.pdf</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/79772089" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/79772089</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/linux/kernel/l-thread/" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/linux/kernel/l-thread/</a></li>
+<li><a href="https://www.timqi.com/2020/05/15/how-does-gmp-scheduler-work/" target="_blank" rel="noopener">https://www.timqi.com/2020/05/15/how-does-gmp-scheduler-work/</a></li>
+</ul>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Golang/" rel="tag">#Golang</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/12/55-DDIA-Base/" rel="next" title="DDIA-分布式存储-基础">
+                <i class="fa fa-chevron-left"></i> DDIA-分布式存储-基础
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/15/57-DDIA-Replication/" rel="prev" title="DDIA-分布式存储-复制">
+                DDIA-分布式存储-复制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2019/11/16/56-Go-Concurrency-Model/"
+           data-title="Golang 并发模型" data-url="http://elibinary.com/2019/11/16/56-Go-Concurrency-Model/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#进程和线程"><span class="nav-number">1.</span> <span class="nav-text">进程和线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#上下文切换"><span class="nav-number">1.1.</span> <span class="nav-text">上下文切换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux-进程和线程实现"><span class="nav-number">2.</span> <span class="nav-text">Linux 进程和线程实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展：Nginx-多进程模型"><span class="nav-number">2.1.</span> <span class="nav-text">扩展：Nginx 多进程模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Golang-调度模型"><span class="nav-number">3.</span> <span class="nav-text">Golang 调度模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GMP-模型"><span class="nav-number">3.1.</span> <span class="nav-text">GMP 模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#协作式调度和抢占式调度"><span class="nav-number">3.2.</span> <span class="nav-text">协作式调度和抢占式调度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">4.</span> <span class="nav-text">其他</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

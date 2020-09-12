@@ -1,0 +1,761 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="db," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="什么是分区分区的目的分区的目标是将数据和查询负载均匀的分布到各个节点上 思考 索引如何与分区配合 分区如何实现可伸缩 分区与复制的关系  首先第三个问题，分区和复制其实没有直接关系，但是通常会结合使用，使得每个分区的副本可以存储在多个节点上，用以获得更高的容错能力 分区的方式按键分区根据键范围进行分区把健的取值范围进行分段（就像英文词典的 a-z 目录一样），每个分区负责存储某个分段的数据在这种存">
+<meta name="keywords" content="db">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DDIA-分布式存储-分区">
+<meta property="og:url" content="http://elibinary.com/2020/04/12/58-DDIA-Partition/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="什么是分区分区的目的分区的目标是将数据和查询负载均匀的分布到各个节点上 思考 索引如何与分区配合 分区如何实现可伸缩 分区与复制的关系  首先第三个问题，分区和复制其实没有直接关系，但是通常会结合使用，使得每个分区的副本可以存储在多个节点上，用以获得更高的容错能力 分区的方式按键分区根据键范围进行分区把健的取值范围进行分段（就像英文词典的 a-z 目录一样），每个分区负责存储某个分段的数据在这种存">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-09-12T05:28:58.936Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DDIA-分布式存储-分区">
+<meta name="twitter:description" content="什么是分区分区的目的分区的目标是将数据和查询负载均匀的分布到各个节点上 思考 索引如何与分区配合 分区如何实现可伸缩 分区与复制的关系  首先第三个问题，分区和复制其实没有直接关系，但是通常会结合使用，使得每个分区的副本可以存储在多个节点上，用以获得更高的容错能力 分区的方式按键分区根据键范围进行分区把健的取值范围进行分段（就像英文词典的 a-z 目录一样），每个分区负责存储某个分段的数据在这种存">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> DDIA-分布式存储-分区 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                DDIA-分布式存储-分区
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2020-04-12T13:28:22+08:00" content="2020-04-12">
+              2020-04-12
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2020/04/12/58-DDIA-Partition/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/04/12/58-DDIA-Partition/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="什么是分区"><a href="#什么是分区" class="headerlink" title="什么是分区"></a>什么是分区</h2><h2 id="分区的目的"><a href="#分区的目的" class="headerlink" title="分区的目的"></a>分区的目的</h2><p>分区的目标是将数据和查询负载均匀的分布到各个节点上</p>
+<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><ol>
+<li>索引如何与分区配合</li>
+<li>分区如何实现可伸缩</li>
+<li>分区与复制的关系</li>
+</ol>
+<p>首先第三个问题，分区和复制其实没有直接关系，但是通常会结合使用，使得每个分区的副本可以存储在多个节点上，用以获得更高的容错能力</p>
+<h2 id="分区的方式"><a href="#分区的方式" class="headerlink" title="分区的方式"></a>分区的方式</h2><h3 id="按键分区"><a href="#按键分区" class="headerlink" title="按键分区"></a>按键分区</h3><p><strong>根据键范围进行分区</strong><br>把健的取值范围进行分段（就像英文词典的 a-z 目录一样），每个分区负责存储某个分段的数据<br>在这种存储方式下，可以按照一定的顺序来保存键值，这让我们可以很方便的进行范围扫描。但这样的方式也同样存在一些问题，比如在一些特定场景下的热点问题（如按时间戳顺序存储，那么最近的时间戳所存在的节点将会成为热点）<br>当然，我们可以复合更多的信息到分区键上（像联合索引那样），比如时间戳+用户ID个数位，但是这样一来当需要获得 time-range 数据时就需要进行多次查询进行合并</p>
+<p><strong>根据键散列值进行分区</strong><br>许多分布式存储使用散列函数（hash）结果来确定分区，以此来规避数据偏斜和热点风险<br>我们可以给每个分区分配一个散列范围，这样可以有助于后续分裂 or rebalance 操作（一致性哈希思路）<br>通过散列进行分区的缺点是，这样就不能进行高效的范围查询操作，范围查询将需要聚集所有分区的查询结果</p>
+<h3 id="次级索引"><a href="#次级索引" class="headerlink" title="次级索引"></a>次级索引</h3><p>次级索引是关系型数据库的基础<br>次级索引的问题是：它们不能整齐的映射到分区<br>两种常见方式：</p>
+<ol>
+<li>基于文档的分区（document-based）</li>
+<li>基于关键词的分区（term-based）</li>
+</ol>
+<p>思考：</p>
+<ul>
+<li>本地索引和全局索引</li>
+<li>全局索引的分区问题，索引数据更新问题</li>
+</ul>
+<h2 id="Rebalance"><a href="#Rebalance" class="headerlink" title="Rebalance"></a>Rebalance</h2><p>需要 rebalance 的场景有很多，比如：</p>
+<ol>
+<li>需要横向扩展来增加负载和吞吐</li>
+<li>需要收缩来减配降耗</li>
+<li>节点故障导致的节点机器切换</li>
+</ol>
+<p>一般 rebalance 需要能够满足一些要求：</p>
+<ol>
+<li>rebalance 后，流量&amp;存储负载均匀</li>
+<li>rebalance 过程应该是平滑不停机的，整体服务需要能够继续接受处理请求</li>
+<li>应该避免全部数据的 rebalance（最简单的像一致性哈希思路）</li>
+</ol>
+<p>常见的几种辅助 rebalance 的分区方案：</p>
+<ol>
+<li>固定分区数量</li>
+<li>动态分区</li>
+<li>按节点比例分区</li>
+</ol>
+<h3 id="固定分区数量"><a href="#固定分区数量" class="headerlink" title="固定分区数量"></a>固定分区数量</h3><p>就像标题一样，这种方法很简单，就是创建比节点数量多的固定数量的分区，并把这些分区均匀地分布在所有节点上</p>
+<p>当新加节点的时候，总分区数量不变，而是去现有节点中窃取分区来达到再平衡。删除节点时则反之。</p>
+<p>这种方式的特点：</p>
+<ol>
+<li>总分区数在创建时固定，不再增减</li>
+<li>只有分区在不同节点上移动，key 对应的分区不变</li>
+<li>初始的总分区数也代表了最大节点数</li>
+<li>分区在节点间移动不是即时的，在此期间原分区需要能够接受请求</li>
+</ol>
+<p>综上所述，这种方式下选定合适的初始分区数量是非常重要的<br>但是在数据集的总大小难以预估的情况下，合理选择是困难的</p>
+<h3 id="动态分区"><a href="#动态分区" class="headerlink" title="动态分区"></a>动态分区</h3><p>在使用键范围分区的情境下，固定分区数量是非常不便的<br><code>HBase</code> 这种按键范围分区的数据库会使用动态分区方案，在 Hbase 中分区文件的传输是通过 HDFS 来实现的</p>
+<p>动态分区的主要思路是：</p>
+<ul>
+<li>每个分区数据会有一组 min, max 限制</li>
+<li>增长超过 max 限制，将会触发分裂</li>
+<li>删除等导致小于 min 限制，将会触发合并</li>
+</ul>
+<p>动态分区最大的优点就是分区数量适应总数据量</p>
+<h3 id="按节点比例分区"><a href="#按节点比例分区" class="headerlink" title="按节点比例分区"></a>按节点比例分区</h3><p>这种方式使分区数和节点数成正比，也就是说每个节点上有固定数量的分区<br>当增加节点的时候，该节点会建立同样固定数量的分区，并从已有分区上拆分数据过来，反之亦然</p>
+<p>总结<br>每个分区理论上都是独立运行的（分布式可扩展性的基础），不过这也同样导致了麻烦，比如需要同时写入多个分区时，由于每个分区独立运行，那么保证整个操作符合预期将变得困难，这也就引入了分布式事务的概念</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/db/" rel="tag">#db</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/15/57-DDIA-Replication/" rel="next" title="DDIA-分布式存储-复制">
+                <i class="fa fa-chevron-left"></i> DDIA-分布式存储-复制
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/14/59-Go-Sourse-Context/" rel="prev" title="源码阅读-Go Context">
+                源码阅读-Go Context <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2020/04/12/58-DDIA-Partition/"
+           data-title="DDIA-分布式存储-分区" data-url="http://elibinary.com/2020/04/12/58-DDIA-Partition/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">86</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是分区"><span class="nav-number">1.</span> <span class="nav-text">什么是分区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区的目的"><span class="nav-number">2.</span> <span class="nav-text">分区的目的</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#思考"><span class="nav-number">2.1.</span> <span class="nav-text">思考</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区的方式"><span class="nav-number">3.</span> <span class="nav-text">分区的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#按键分区"><span class="nav-number">3.1.</span> <span class="nav-text">按键分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#次级索引"><span class="nav-number">3.2.</span> <span class="nav-text">次级索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rebalance"><span class="nav-number">4.</span> <span class="nav-text">Rebalance</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#固定分区数量"><span class="nav-number">4.1.</span> <span class="nav-text">固定分区数量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态分区"><span class="nav-number">4.2.</span> <span class="nav-text">动态分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#按节点比例分区"><span class="nav-number">4.3.</span> <span class="nav-text">按节点比例分区</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>

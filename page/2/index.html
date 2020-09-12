@@ -238,8 +238,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/27/XXXVII-Ruby-Python-By-MQ/" itemprop="url">
-                  基于 RabbitMQ 的 Ruby 与 Python 服务间通讯
+                <a class="post-title-link" href="/2019/03/05/54-Master-Slave-Lag/" itemprop="url">
+                  MySQL master-slave lag
                 </a>
               
             
@@ -252,8 +252,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-08-27T13:12:18+08:00" content="2017-08-27">
-              2017-08-27
+            <time itemprop="dateCreated" datetime="2019-03-05T23:13:29+08:00" content="2019-03-05">
+              2019-03-05
             </time>
           </span>
 
@@ -263,8 +263,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/08/27/XXXVII-Ruby-Python-By-MQ/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/27/XXXVII-Ruby-Python-By-MQ/" itemprop="commentsCount"></span>
+                <a href="/2019/03/05/54-Master-Slave-Lag/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/05/54-Master-Slave-Lag/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -286,9 +286,645 @@
 
       
         
-          RabbitMQ 是一套开源的消息队列服务软件，是基于高级消息队列协议 AMQP 的开源实现，其基础服务由 Erlang 实现。
+          
+            <p>MySQL master-slave 同步的执行过程：</p>
+<p>整个过程主要涉及到两个线程：</p>
+<ul>
+<li>IO_THREAD: 从 master 读取 binlog file 并写入本地中继日志</li>
+<li>SQL_THREAD: 从中继日志读取的事件，并在 slave 端执行</li>
+</ul>
+<p>当发生 lag 时，第一步就需要先确认是哪个线程的问题</p>
+<h3 id="IO-THREAD-延迟"><a href="#IO-THREAD-延迟" class="headerlink" title="IO_THREAD 延迟"></a>IO_THREAD 延迟</h3><p>主要可能是两个服务器之间的网络链接状况差，延迟高</p>
+<h3 id="SQL-THREAD-延迟"><a href="#SQL-THREAD-延迟" class="headerlink" title="SQL_THREAD 延迟"></a>SQL_THREAD 延迟</h3><p>可能性较多</p>
+<ol>
+<li>主从两个机子的硬件性能差别较大，导致同样的 binlog 事件在 slave 上需要更多的执行时间</li>
+<li>可能是由于不同的索引配置导致执行时间的差异</li>
+<li>也可能是负荷不同</li>
+<li>大事务也会导致 block SQL_THREAD，从而影响同步速度</li>
+</ol>
+<h3 id="原因查找"><a href="#原因查找" class="headerlink" title="原因查找"></a>原因查找</h3><p>使用 pt stalk 收集 lag 发生时，mysql 相关的诊断数据</p>
+<blockquote>
+<p>pt-stalk - Collect forensic data about MySQL when problems occur.</p>
+</blockquote>
+<p><a href="https://www.percona.com/doc/percona-toolkit/2.2/pt-stalk.html" target="_blank" rel="noopener">https://www.percona.com/doc/percona-toolkit/2.2/pt-stalk.html</a></p>
+<hr>
+<p>参考：<br><a href="https://www.percona.com/blog/2014/05/02/how-to-identify-and-cure-mysql-replication-slave-lag/" target="_blank" rel="noopener">https://www.percona.com/blog/2014/05/02/how-to-identify-and-cure-mysql-replication-slave-lag/</a></p>
+
+          
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/02/25/51-Ruby-Design-Aesthetics/" itemprop="url">
+                  Ruby 的设计美学
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-02-25T20:57:08+08:00" content="2019-02-25">
+              2019-02-25
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2019/02/25/51-Ruby-Design-Aesthetics/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/02/25/51-Ruby-Design-Aesthetics/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>There are many ways to do it.</p>
+</blockquote>
+<blockquote>
+<p>最小惊讶原则 (Matz)</p>
+</blockquote>
+<blockquote>
+<p>璀璨微笑理念 (DHH)</p>
+</blockquote>
+<h2 id="对象与类的构成"><a href="#对象与类的构成" class="headerlink" title="对象与类的构成"></a>对象与类的构成</h2><h3 id="面向对象设计"><a href="#面向对象设计" class="headerlink" title="面向对象设计"></a>面向对象设计</h3><blockquote>
+<p>在 ruby 中，一些皆是对象</p>
+</blockquote>
+<p>哪怕是基本数据类型<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">2.5.1 :001 &gt; 1.class</span><br><span class="line"> =&gt; Integer</span><br><span class="line">2.5.1 :002 &gt; true.class</span><br><span class="line"> =&gt; TrueClass</span><br><span class="line">2.5.1 :006 &gt; &quot;a&quot;.class</span><br><span class="line"> =&gt; String</span><br></pre></td></tr></table></figure></p>
+<p>甚至是类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">2.5.1 :003 &gt; class A</span><br><span class="line">2.5.1 :004?&gt; end</span><br><span class="line"> =&gt; nil</span><br><span class="line">2.5.1 :005 &gt; A.class</span><br><span class="line"> =&gt; Class</span><br></pre></td></tr></table></figure></p>
+<p>简单归结起来，一个 ruby 程序其实就是由一组对象和这组对象彼此间发送的消息组成的</p>
+<blockquote>
+<p>Ruby是面向对象语言，面向对象最基本的特性之一，就是消息传递。 </p>
+</blockquote>
+<p>当然这并不是说，在使用 ruby 时你只能应用面向对象设计<br>事实上 ruby 借鉴了 lisp 的部分理念，这就是 ruby 中的 block (闭包)  及 lambda 设计，函数在 ruby 中是作为一等公民出现的</p>
+<blockquote>
+<p>Ruby 的 block 本质上和高阶函数是一样的，高阶函数是接受函数作为参数的函数</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">def rescue_error</span><br><span class="line">  # do some things</span><br><span class="line">  begin</span><br><span class="line">    yield</span><br><span class="line">  rescue =&gt; e</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">2.5.1 :008 &gt; rescue_error do</span><br><span class="line">2.5.1 :009 &gt;     puts &quot;I am err&quot;</span><br><span class="line">2.5.1 :010?&gt;   end</span><br><span class="line">I am err</span><br><span class="line"> =&gt; nil</span><br><span class="line"> </span><br><span class="line"># or</span><br><span class="line">succ = lambda &#123; |x| x + 1 &#125;</span><br><span class="line"># ||</span><br><span class="line">succ = -&gt;(x)&#123; x + 1 &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="深入对象内部"><a href="#深入对象内部" class="headerlink" title="深入对象内部"></a>深入对象内部</h3><blockquote>
+<p>每个 Ruby 对象都是类指针和实例变量数组的组合</p>
+</blockquote>
+<p>让我们深入对象内部看看它到底是如何构成的</p>
+<p>每个自定义对象都保存在 RObject 的结构体中 (c struct)</p>
+<p>RObject 中包含了内部 RBasic 结构体和一些特有信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/ruby.h</span><br><span class="line"></span><br><span class="line">struct RUBY_ALIGNAS(SIZEOF_VALUE) RBasic &#123;</span><br><span class="line">    VALUE flags;</span><br><span class="line">    const VALUE klass;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RObject &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    union &#123;</span><br><span class="line">        struct &#123;</span><br><span class="line">            uint32_t numiv;</span><br><span class="line">            VALUE *ivptr;</span><br><span class="line">            void *iv_index_tbl; /* shortcut for RCLASS_IV_INDEX_TBL(rb_obj_class(obj)) */</span><br><span class="line">        &#125; heap;</span><br><span class="line">        VALUE ary[ROBJECT_EMBED_LEN_MAX];</span><br><span class="line">    &#125; as;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><em><code>open ruby-robject.png</code></em></p>
+<p><em>一组 flags 的布尔值，用来存储各种内部专用的值</em></p>
+<p>所有自定义对象的底层存储结构皆是如此</p>
+<p>上面曾说过基础数据类型也是对象，那么它们的底层存储也是如此吗</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/ruby.h</span><br><span class="line"></span><br><span class="line">struct RString &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    union &#123;</span><br><span class="line">        struct &#123;</span><br><span class="line">            long len;</span><br><span class="line">            char *ptr;</span><br><span class="line">            union &#123;</span><br><span class="line">                long capa;</span><br><span class="line">                VALUE shared;</span><br><span class="line">            &#125; aux;</span><br><span class="line">        &#125; heap;</span><br><span class="line">        char ary[RSTRING_EMBED_LEN_MAX + 1];</span><br><span class="line">    &#125; as;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RArray &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    union &#123;</span><br><span class="line">        struct &#123;</span><br><span class="line">            long len;</span><br><span class="line">            union &#123;</span><br><span class="line">                long capa;</span><br><span class="line">                VALUE shared;</span><br><span class="line">            &#125; aux;</span><br><span class="line">            const VALUE *ptr;</span><br><span class="line">        &#125; heap;</span><br><span class="line">        const VALUE ary[RARRAY_EMBED_LEN_MAX];</span><br><span class="line">    &#125; as;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RRegexp &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    struct re_pattern_buffer *ptr;</span><br><span class="line">    const VALUE src;</span><br><span class="line">    unsigned long usecnt;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RFile &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    struct rb_io_t *fptr;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct RData &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    void (*dmark)(void*);</span><br><span class="line">    void (*dfree)(void*);</span><br><span class="line">    void *data;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>Ruby 中使用一些不一样的结构来保存每个基本数据类型的值</p>
+<p>那么简单立即值呢，比如整形，true，false<br>事实上，这些简单立即值是没有结构体的，它们的值直接存储在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VALUE</span><br></pre></td></tr></table></figure></p>
+<p>中，ruby 会在 <code>VALUE</code> 的前几个 bits 保存一串比特标记来标明这些值的类，这类 <code>VALUE</code> 就不是指针了，而是立即值本身<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0100...100|00000001</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">#if USE_FLONUM</span><br><span class="line">    RUBY_Qfalse = 0x00,     /* ...0000 0000 */</span><br><span class="line">    RUBY_Qtrue  = 0x14,     /* ...0001 0100 */</span><br><span class="line">    RUBY_Qnil   = 0x08,     /* ...0000 1000 */</span><br><span class="line">    RUBY_Qundef = 0x34,     /* ...0011 0100 */</span><br><span class="line"></span><br><span class="line">    RUBY_IMMEDIATE_MASK = 0x07,</span><br><span class="line">    RUBY_FIXNUM_FLAG    = 0x01, /* ...xxxx xxx1 */</span><br><span class="line">    RUBY_FLONUM_MASK    = 0x03,</span><br><span class="line">    RUBY_FLONUM_FLAG    = 0x02, /* ...xxxx xx10 */</span><br><span class="line">    RUBY_SYMBOL_FLAG    = 0x0c, /* ...0000 1100 */</span><br><span class="line">#else</span><br><span class="line">    RUBY_Qfalse = 0,        /* ...0000 0000 */</span><br><span class="line">    RUBY_Qtrue  = 2,        /* ...0000 0010 */</span><br><span class="line">    RUBY_Qnil   = 4,        /* ...0000 0100 */</span><br><span class="line">    RUBY_Qundef = 6,        /* ...0000 0110 */</span><br><span class="line"></span><br><span class="line">    RUBY_IMMEDIATE_MASK = 0x03,</span><br><span class="line">    RUBY_FIXNUM_FLAG    = 0x01, /* ...xxxx xxx1 */</span><br><span class="line">    RUBY_FLONUM_MASK    = 0x00, /* any values ANDed with FLONUM_MASK cannot be FLONUM_FLAG */</span><br><span class="line">    RUBY_FLONUM_FLAG    = 0x02,</span><br><span class="line">    RUBY_SYMBOL_FLAG    = 0x0e, /* ...0000 1110 */</span><br><span class="line">#endif</span><br><span class="line">    RUBY_SPECIAL_SHIFT  = 8</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>那么方法呢？</p>
+<p><strong>深入类的内部</strong></p>
+<p>每个对象都是通过保存指向 <code>RClass</code> 结构体的指针来标记自身的类<br>那么 <code>RClass</code> 内部又是怎么构成的呢</p>
+<p>要搞清楚这个问题，我们需要现在思考一下，类中都保存那些信息。</p>
+<p>首先非常容易想到，类中保存有方法定义，实例变量名，常量，以及必不可少的类指针</p>
+<p>上面有提到过，RObject 结构体中有存一个 ivptr 的指针指向实例变量值数组，也就是说 RObject 中保存了实例变量的值，但其实并没有保存实例变量的名字，实例变量名实际被保存在对象的类中。</p>
+<p>除此之外还有些什么呢？不要忘了类中是可以定义类级的实例变量以及变量的，那么类实例变量和类变量是怎么保存的。</p>
+<p>先来看看类实例变量，所谓类实例变量，如果你还没有转过来这个弯的话不妨再回想一下上面反复说道的一句话：ruby 中一切皆对象。这样一来是不是就非常容易理解所谓类实例变量到底是个啥了，类也是对象，是对象就有类指针和实例变量。</p>
+<p>其实类级别的实例变量就是在类的上下文中创建的实例变量，如同对象级别的实例变量就是在对象上下文中创建的实例变量一样。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class Myclass</span><br><span class="line">  @variable_alpha</span><br><span class="line"></span><br><span class="line">  def self.variable_alpha=(value)</span><br><span class="line">    @variable_alpha = value</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def self.variable_alpha</span><br><span class="line">    @variable_alpha</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Myclass.variable_alpha</span><br><span class="line">#=&gt; nil</span><br><span class="line">Myclass.variable_alpha = &apos;go&apos;</span><br><span class="line">Myclass.variable_alpha</span><br><span class="line">#=&gt; &quot;go&quot;</span><br></pre></td></tr></table></figure>
+<p>如果说类实例变量是把类看做一个对象来在其上下文中创建的实例变量的话，类变量就是把类就看做是类来在其上下文中创建的变量。</p>
+<p><em>创建类变量时，Ruby 会在该类中创建唯一的值，并在其任意子类中共享该值。<br>如果是类实例变量，Ruby 会在该类和其子类中创建各自独立使用的值。</em></p>
+<p>除此之外，在创建类时，Ruby 允许随意指定一个超类来实现单继承。如果没有指定超类，Ruby 会默认指派 Object 类作为超类。这就需要存储一个指向其超类的指针</p>
+<blockquote>
+<p>Ruby 类就是包含方法定义，属性名称，超类指针和常量表的 Ruby 对象</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/ruby.h</span><br><span class="line"></span><br><span class="line">struct rb_classext_struct &#123;</span><br><span class="line">    struct st_table *iv_index_tbl;</span><br><span class="line">    struct st_table *iv_tbl;</span><br><span class="line">    struct rb_id_table *const_tbl;</span><br><span class="line">    struct rb_id_table *callable_m_tbl;</span><br><span class="line">    rb_subclass_entry_t *subclasses;</span><br><span class="line">    rb_subclass_entry_t **parent_subclasses;</span><br><span class="line">    /**</span><br><span class="line">     * In the case that this is an `ICLASS`, `module_subclasses` points to the link</span><br><span class="line">     * in the module&apos;s `subclasses` list that indicates that the klass has been</span><br><span class="line">     * included. Hopefully that makes sense.</span><br><span class="line">     */</span><br><span class="line">    rb_subclass_entry_t **module_subclasses;</span><br><span class="line">    rb_serial_t class_serial;</span><br><span class="line">    const VALUE origin_;</span><br><span class="line">    VALUE refined_class;</span><br><span class="line">    rb_alloc_func_t allocator;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">typedef struct rb_classext_struct rb_classext_t;</span><br><span class="line"></span><br><span class="line">#undef RClass</span><br><span class="line">struct RClass &#123;</span><br><span class="line">    struct RBasic basic;</span><br><span class="line">    VALUE super;</span><br><span class="line">    rb_classext_t *ptr;</span><br><span class="line">    struct rb_id_table *m_tbl;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>m_tbl</code>: 以方法名为 key，每个方法定义的指针（编译好的 YARV 指令）为 value</li>
+<li><code>super</code>: 指向超类的 RClass 结构体的指针</li>
+<li><code>iv_tbl</code>: 类实例变量和类变量的名字和值</li>
+<li><code>allocator</code>: ruby 内部使用 allocator 为类的每个新的实例分配内存</li>
+</ul>
+<p>反复出现的 <code>st_table</code> 结构是 ruby 的散列表数据结构<br>而 <code>rb_id_table</code> 其实是 ruby 2.4 时引入的改进，主要用来优化 ID key table 的性能，具体的可以看下面的 feature 描述👇<br><a href="https://bugs.ruby-lang.org/issues/11420" target="_blank" rel="noopener">https://bugs.ruby-lang.org/issues/11420</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># ruby/id_table.c</span><br><span class="line"></span><br><span class="line">struct rb_id_table &#123;</span><br><span class="line">    int capa;</span><br><span class="line">    int num;</span><br><span class="line">    int used;</span><br><span class="line">    item_t *items;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># include/ruby/st.h</span><br><span class="line"></span><br><span class="line">struct st_table &#123;</span><br><span class="line">    /* Cached features of the table -- see st.c for more details.  */</span><br><span class="line">    unsigned char entry_power, bin_power, size_ind;</span><br><span class="line">    /* How many times the table was rebuilt.  */</span><br><span class="line">    unsigned int rebuilds_num;</span><br><span class="line">    const struct st_hash_type *type;</span><br><span class="line">    /* Number of entries currently in the table.  */</span><br><span class="line">    st_index_t num_entries;</span><br><span class="line">    /* Array of bins used for access by keys.  */</span><br><span class="line">    st_index_t *bins;</span><br><span class="line">    /* Start and bound index of entries in array entries.</span><br><span class="line">       entries_starts and entries_bound are in interval</span><br><span class="line">       [0,allocated_entries].  */</span><br><span class="line">    st_index_t entries_start, entries_bound;</span><br><span class="line">    /* Array of size 2^entry_power.  */</span><br><span class="line">    st_table_entry *entries;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>klass ptr 与 super ptr</strong></p>
+<p>Class 类在理论上是每个 Ruby 类的类</p>
+<ul>
+<li>klass 指针标示该类是哪个类的实例</li>
+<li>super 指针则标示该类的超类</li>
+</ul>
+<blockquote>
+<p>metaclass &amp; singleton class</p>
+</blockquote>
+<p>首先实例对象的方法是定义在其对应的类中的，那么是不是类的方法将被定义在类的类中呢？</p>
+<p>在 ruby 中默认情况下所有类的类都是 Class，显而易见肯定是不能把类方法定义在其中的。实际上当创建新的类的时候，ruby 会创建两个类，类本身以及 metaclass ，然后 ruby 会把新类的 RClass 结构体中的 klass 指针指向 metaclass。而类方法将会被放在类对应的 metaclass 中。</p>
+<p><a href="http://elibinary.com/2017/07/08/XXXI-Ruby-Method-Definition/">http://elibinary.com/2017/07/08/XXXI-Ruby-Method-Definition/</a></p>
+<p><strong>常量</strong></p>
+<p>常量以大写字母开头，在当前类的作用域内有效</p>
+<p><em>类名，module名都是常量</em></p>
+<hr>
+<p>ps</p>
+<blockquote>
+<p>A monkey patch is a way for a program to extend or modify supporting system software locally (affecting only the running instance of the program).</p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/02/24/50-DeadLock-LiveLock-Hunger/" itemprop="url">
+                  死锁、活锁和饥饿
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-02-24T18:59:52+08:00" content="2019-02-24">
+              2019-02-24
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2019/02/24/50-DeadLock-LiveLock-Hunger/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/02/24/50-DeadLock-LiveLock-Hunger/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><p>又是一个老生常谈的问题，所谓死锁，自并发模式出现就伴随而生的老大难问题。</p>
+<p>来自 wiki 的描述简洁易懂：当两个以上的运算单元，双方都在等待对方停止运行，以获取系统资源，但是没有一方提前退出时，就称为死锁。</p>
+<p>先来回顾下发生死锁的四要素：</p>
+<ol>
+<li>互斥，资源不可共享</li>
+<li>持有与等待</li>
+<li>不可剥夺，不能强占别人的资源</li>
+<li>环路等待</li>
+</ol>
+<p>死锁避免的几种思路：</p>
+<p><strong>顺序获取</strong></p>
+<p>死锁之所以会产生，其根本是因为有竞争资源的存在，这种避免死锁方法的思路就是打破 <em>环路等待</em> ，其做法是这样的</p>
+<p>把所有竞争资源列出来，按照一定的顺序排序（这个顺序本身不是要关注的重点），然后规定要获取资源的进程/线程必须按照顺序来获取，比如现有竞争资源<br>\begin{array}{cc}<br>\mathrm{rs}\<br>\hline \<br>\mathrm{A} \<br>\mathrm{B} \<br>\mathrm{C} \<br>\mathrm{D} \<br>\mathrm{E} \<br>\end{array}</p>
+<p>规定资源获取顺序为 E -&gt; A<br>有请求者需要获取资源 (B, D, E) 来处理请求，那么它必须按照 E -&gt; D -&gt; B 依次获取需要的资源，从而打破 <em>环路等待</em></p>
+<p>这种方法的缺点是你必须要罗列出所有的竞争资源（非独立资源）</p>
+<p><strong>超时处理</strong></p>
+<p>这种思路很简单，就是规定持有的资源的最大时间，超过这个时间就释放这个资源</p>
+<p><strong>银行家算法</strong></p>
+<p>此算法是一个著名的避免死锁算法，其核心思想概括下来就是在可满足的情况下一次性分配请求者所需全部资源并在结束时回收</p>
+<p>\begin{array}{cc}<br>\mathrm{} &amp; \mathrm{A} &amp; \mathrm{B} &amp; \mathrm{C}\<br>\hline \<br>\mathrm{P_1} &amp; 1 &amp; 0 &amp; 3 \<br>\mathrm{P_2} &amp; 0 &amp; 4 &amp; 2 \<br>\mathrm{P_3} &amp; 2 &amp; 2 &amp; 5 \<br>\mathrm{P_4} &amp; 1 &amp; 1 &amp; 1 \<br>\mathrm{P_5} &amp; 3 &amp; 2 &amp; 3 \<br>\end{array}</p>
+<p>（经典算法，就不展开详细解释了）<br>需要注意的是，你可能需要设置优先级队列来避免当一直有新的请求者进来时，可能会出现的饥饿进程出现</p>
+<h2 id="活锁"><a href="#活锁" class="headerlink" title="活锁"></a>活锁</h2><p>所谓活锁，简单描述来就是进程/线程处在活跃状态，但是却无法完成对自身任务的处理。<br>活锁的情况有很多种，比如在这样的一种情境下：线程 P1 和 P2 ，P1 拥有资源 A，P2 拥有资源 B，P1 请求资源 B 发现被锁于是释放 A，P2 请求资源 A 发现被锁于是释放 B，然后两个线程重复获取-释放的过程</p>
+<p>还有其实无限 retry 也是活锁的一种，一个线程要执行一个任务，失败了 retry 然后重复这个过程。虽然线程处于活跃状态，但是却无法推进任务的完成</p>
+<h2 id="饥饿"><a href="#饥饿" class="headerlink" title="饥饿"></a>饥饿</h2><p>饥饿是指一个线程所需的资源一直被强占，从而一直得不到执行的一种状态。<br>饥饿主要是由于资源调度分配不公导致的，解决方法可以考虑优先级队列、公平策略</p>
+
+          
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2019/01/12/49-GoTips-Generate-Random-String/" itemprop="url">
+                  GoTips - 生成随机字符串
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2019-01-12T12:58:55+08:00" content="2019-01-12">
+              2019-01-12
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2019/01/12/49-GoTips-Generate-Random-String/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/12/49-GoTips-Generate-Random-String/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近写一个小工具需要用到随机字符串，就到网上看了下大家的实现方案，很多简单粗暴的方式，本着 (learn - understand - output) 的套路，总结记录下相关思路和一些个人理解以备将来回顾查看</p>
+<h2 id="Easy-To-Think"><a href="#Easy-To-Think" class="headerlink" title="Easy To Think"></a>Easy To Think</h2><p>首先最容易想到的一个简单粗暴的实现就是通过 n 次 <code>#rand</code> 来生成<br>过程：</p>
+<ol>
+<li>列出所需字符串包含的内容（a-zA-Z）</li>
+<li>通过 <code>#rand</code> 方法得到一个随机数</li>
+<li>通过 mod 方法取到下标，拿到对应字符（or <code>#Intn()</code>）</li>
+<li>重复 2，3</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">import &quot;math/rand&quot;</span><br><span class="line"></span><br><span class="line">const letters = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span><br><span class="line"></span><br><span class="line">func randString(n int) string &#123;</span><br><span class="line">    b := make([]byte, n)</span><br><span class="line">    for i := range b &#123;</span><br><span class="line">        b[i] = letters[rand.Intn(len(letters))]</span><br><span class="line">    &#125;</span><br><span class="line">    return string(b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种方式由于需要 n 次 <code>#rand</code> 所以效率不高</p>
+<h2 id="Better"><a href="#Better" class="headerlink" title="Better"></a>Better</h2><p>还看到另外一种更加巧妙的方式，是使用 <code>#Int63()</code> 方法，利用位运算来大幅减少 <code>#rand()</code> 的次数</p>
+<p>其思路也非常清晰易懂：</p>
+<p>假如目标字符库为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const letters = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span><br></pre></td></tr></table></figure></p>
+<p>其长度为 52 故使用二进制表示的话只需要 6 bits (63) 就可以表示</p>
+<p>那么使用 <code>#Int63()</code> 来生成一个随机 int64 (63-bit) 的值，可以对这个 63-bit 的值加以充分利用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// ex: 5215597282745260129</span><br><span class="line">&quot;100100001100001100001100001100001100001100001100001100001100001&quot;</span><br><span class="line"></span><br><span class="line">// 100_100001_100001_100001_100001_100001_100001_100001_100001_100001_100001</span><br></pre></td></tr></table></figure>
+<p>这样就可以一次得到 10 个最大值为 63 和 1 个最大值为 7 的随机数字</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">const (</span><br><span class="line">    letterBytes    = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span><br><span class="line">    letterIdxBits  = 6                    // 6 bits to represent a letter index</span><br><span class="line">    letterIdxMask  = 1&lt;&lt;letterIdxBits - 1 // All 1-bits, as many as letterIdxBits</span><br><span class="line">    letterIdxMax   = 63 / letterIdxBits</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func randString(n int) string &#123;</span><br><span class="line">    b := make([]byte, n)</span><br><span class="line">    for i, r, remain := n-1, randsrc.Int63(), letterIdxMax; i &gt;= 0; &#123;</span><br><span class="line">        // when n &gt; 10</span><br><span class="line">        if remain == 0 &#123;</span><br><span class="line">            r, remain = randsrc.Int63(), letterIdxMax</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        idx := int(r &amp; letterIdxMask)</span><br><span class="line">        // idx max value is 63</span><br><span class="line">        if idx &gt;= len(letterBytes) &#123;</span><br><span class="line">            idx &gt;&gt;= 1</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        b[i] = letterBytes[idx]</span><br><span class="line">        i--</span><br><span class="line"></span><br><span class="line">        r &gt;&gt;= letterIdxBits</span><br><span class="line">        remain--</span><br><span class="line">    &#125;</span><br><span class="line">    return string(b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>1. 按位与</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// r &amp; letterIdxMask</span><br><span class="line">100100001100001100001100001100001100001100001100001100001100001 &amp; 111111</span><br></pre></td></tr></table></figure></p>
+<p>来拿到一个 index</p>
+<p><strong>2. 右移</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// r &gt;&gt;= 6</span><br><span class="line">// r 右移 6 bits</span><br><span class="line">// tips: 右移 n bits 相当于除以 2^n</span><br><span class="line"></span><br><span class="line">// r.value</span><br><span class="line">000000100100001100001100001100001100001100001100001100001100001</span><br></pre></td></tr></table></figure></p>
+<p><strong>3. 重复 1，2</strong></p>
+<p>理解了思路，那么就可以做变通了</p>
+<p>比如字符串内容扩展</p>
+<p><code>&quot;1234567890!-_&amp;.^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</code></p>
+<p>现在长度是 68 那么就可以调整通过 7 bits 来表示<br>这时一个 Int64 的数字将能够得到 <code>63/7</code> 个随机字符的 index</p>
+<hr>
+<p>参考：</p>
+<p><a href="https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go" target="_blank" rel="noopener">https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go</a></p>
+
+          
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/11/23/48-TopN-By-Time/" itemprop="url">
+                  限定时间内的 top n 问题
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-11-23T18:53:32+08:00" content="2018-11-23">
+              2018-11-23
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/11/23/48-TopN-By-Time/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/11/23/48-TopN-By-Time/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>需求：获取 m 天内 feeds （或者说动态）点赞数的 top n</p>
+<p>功能点剖析：</p>
+<ul>
+<li>创建时间在 m 天内的动态</li>
+<li>因为是对点赞数排序，点赞数会实时变动（增/减）</li>
+</ul>
+<h3 id="思路一"><a href="#思路一" class="headerlink" title="思路一"></a>思路一</h3><p>因为涉及到频繁变动的数据排序，并且在限定时间内，数据量可控。优先想到使用 <code>Redis#SortedSet</code> </p>
+<p>首先使用一个 <code>SortedSet</code> 结构存储点赞数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; source_id: likes_count &#125;</span><br></pre></td></tr></table></figure>
+<p>主要涉及到的操作有</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># zincrby</span><br><span class="line"># zrevrange</span><br><span class="line"># zrem</span><br></pre></td></tr></table></figure>
+<p>再使用一个 <code>SortedSet</code> 结构存储过期数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; source_id: created_at &#125;</span><br></pre></td></tr></table></figure>
+<p>主要涉及到的操作有</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># zadd</span><br><span class="line"># zrangebyscore</span><br><span class="line"># zremrangebyscore</span><br></pre></td></tr></table></figure>
+<p>这种方法有个很大的问题是，需要定期执行过期操作（cron），执行过期时对 redis 的操作比较重</p>
+<h3 id="思路二"><a href="#思路二" class="headerlink" title="思路二"></a>思路二</h3><p>按创建时间存储，每小时一个 <code>SortedSet</code> 并设置 TTL，过期时间为 24 * m 小时，存储结构为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SortedSet Key: created_at.beginning_of_hour.to_i</span><br><span class="line"></span><br><span class="line">content: &#123; source_id: likes_count &#125;</span><br></pre></td></tr></table></figure>
+<p>对应创建时间的动态点赞数变动操作对应时间的 key</p>
+<p>主要涉及到的操作有</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># zincrby</span><br><span class="line"># zrevrange</span><br></pre></td></tr></table></figure>
+<p>然后在获取 top n 的时候</p>
+<ol>
+<li>对最近 <code>24 * m</code> 小时的 <code>24 * m</code> 个 <code>SortedSet</code> 分别取 top n</li>
+<li>合并排序再取 top n</li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/09/22/47-ORM-In-Rails/" itemprop="url">
+                  ActiveRecord In Rails
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-09-22T15:56:46+08:00" content="2018-09-22">
+              2018-09-22
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/09/22/47-ORM-In-Rails/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/09/22/47-ORM-In-Rails/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          ORM In Rails
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/27/XXXVII-Ruby-Python-By-MQ/">
+            <a class="btn" href="/2018/09/22/47-ORM-In-Rails/">
               Read more &raquo;
             </a>
           </div>
@@ -331,8 +967,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/20/XXXVI-NLP-Segmentation-ABC/" itemprop="url">
-                  笔记 - 了解分词
+                <a class="post-title-link" href="/2018/08/26/46-ActiveRecord-connection-pool/" itemprop="url">
+                  ActiveRecord 的 connection pool 设计
                 </a>
               
             
@@ -345,8 +981,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-08-20T12:26:12+08:00" content="2017-08-20">
-              2017-08-20
+            <time itemprop="dateCreated" datetime="2018-08-26T15:36:35+08:00" content="2018-08-26">
+              2018-08-26
             </time>
           </span>
 
@@ -356,8 +992,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/08/20/XXXVI-NLP-Segmentation-ABC/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/20/XXXVI-NLP-Segmentation-ABC/" itemprop="commentsCount"></span>
+                <a href="/2018/08/26/46-ActiveRecord-connection-pool/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/26/46-ActiveRecord-connection-pool/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -379,9 +1015,9 @@
 
       
         
-          最近在做的几项工作都需要对文本做预处理，这里就介绍一下常见的分词算法以及好用的实现
+          本文基于 ActiveRecord 5.2
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/20/XXXVI-NLP-Segmentation-ABC/">
+            <a class="btn" href="/2018/08/26/46-ActiveRecord-connection-pool/">
               Read more &raquo;
             </a>
           </div>
@@ -424,8 +1060,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/12/XXXV-Text-Naive-Bayes-Classification/" itemprop="url">
-                  基于朴素贝叶斯的广告识别分类尝试
+                <a class="post-title-link" href="/2018/08/02/45-Upgrade-Rails-form4-to5/" itemprop="url">
+                  Rails 5 升级日记
                 </a>
               
             
@@ -438,8 +1074,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-08-12T17:06:58+08:00" content="2017-08-12">
-              2017-08-12
+            <time itemprop="dateCreated" datetime="2018-08-02T19:54:39+08:00" content="2018-08-02">
+              2018-08-02
             </time>
           </span>
 
@@ -449,8 +1085,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/08/12/XXXV-Text-Naive-Bayes-Classification/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/12/XXXV-Text-Naive-Bayes-Classification/" itemprop="commentsCount"></span>
+                <a href="/2018/08/02/45-Upgrade-Rails-form4-to5/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/02/45-Upgrade-Rails-form4-to5/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -472,9 +1108,9 @@
 
       
         
-          因为最近伙伴部分各种广告过于猖獗且很难有效管理，所以打算搞一个广告识别过滤的模块，下面是基于朴素贝叶斯的广告分类模型构建及具体思路的尝试
+          Rails 5 升级笔记
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/12/XXXV-Text-Naive-Bayes-Classification/">
+            <a class="btn" href="/2018/08/02/45-Upgrade-Rails-form4-to5/">
               Read more &raquo;
             </a>
           </div>
@@ -517,8 +1153,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/" itemprop="url">
-                  文本特征提取
+                <a class="post-title-link" href="/2018/04/06/44-Ruby-Constant-Look-Up/" itemprop="url">
+                  由 'uninitialized constant' 引发的关于常量查找和词法作用域的思考
                 </a>
               
             
@@ -531,8 +1167,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-08-05T19:53:50+08:00" content="2017-08-05">
-              2017-08-05
+            <time itemprop="dateCreated" datetime="2018-04-06T14:40:31+08:00" content="2018-04-06">
+              2018-04-06
             </time>
           </span>
 
@@ -542,8 +1178,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/05/XXXIV-NLP-Text-Feature-Extraction/" itemprop="commentsCount"></span>
+                <a href="/2018/04/06/44-Ruby-Constant-Look-Up/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/06/44-Ruby-Constant-Look-Up/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -565,9 +1201,9 @@
 
       
         
-          主要介绍两种文本特征提取的算法，以及在广告动态文本集的尝试效果
+          由 'uninitialized constant' 引发的关于常量查找和词法作用域的思考
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/05/XXXIV-NLP-Text-Feature-Extraction/">
+            <a class="btn" href="/2018/04/06/44-Ruby-Constant-Look-Up/">
               Read more &raquo;
             </a>
           </div>
@@ -610,8 +1246,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/07/30/XXXIII-MachineLearning-Linear-Regression/" itemprop="url">
-                  简单机器学习模型 - Linear Regression
+                <a class="post-title-link" href="/2018/03/23/43-Ruby-Sort-Benchmark/" itemprop="url">
+                  对比 Ruby int 和 time 的比较和排序
                 </a>
               
             
@@ -624,8 +1260,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-07-30T14:34:31+08:00" content="2017-07-30">
-              2017-07-30
+            <time itemprop="dateCreated" datetime="2018-03-23T18:45:06+08:00" content="2018-03-23">
+              2018-03-23
             </time>
           </span>
 
@@ -635,8 +1271,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/07/30/XXXIII-MachineLearning-Linear-Regression/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/30/XXXIII-MachineLearning-Linear-Regression/" itemprop="commentsCount"></span>
+                <a href="/2018/03/23/43-Ruby-Sort-Benchmark/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/23/43-Ruby-Sort-Benchmark/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -658,474 +1294,9 @@
 
       
         
-          回归算法是监督式机器学习算法非常重要且常用的一个分类，经常被用来建立各种预测模型。本篇对其进行大致介绍，并用健康习惯记录 - 打卡记录训练数据尝试建立线性回归模型的例子来帮助理解
+          Benchmark for compare and sort
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/07/30/XXXIII-MachineLearning-Linear-Regression/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/23/XXXII-Design-Ranking-List/" itemprop="url">
-                  排行榜的设计
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-07-23T09:34:22+08:00" content="2017-07-23">
-              2017-07-23
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/07/23/XXXII-Design-Ranking-List/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/23/XXXII-Design-Ranking-List/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          排行榜的目标：获取 TOP N，获取指定对象的排名
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/07/23/XXXII-Design-Ranking-List/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/08/XXXI-Ruby-Method-Definition/" itemprop="url">
-                  学习总结 深入 Ruby 方法定义
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-07-08T17:41:47+08:00" content="2017-07-08">
-              2017-07-08
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/07/08/XXXI-Ruby-Method-Definition/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/08/XXXI-Ruby-Method-Definition/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          一旦学会了 Ruby 元编程内部的实现原理，理解它就会更加容易
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/07/08/XXXI-Ruby-Method-Definition/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/01/XXX-Ruby-Closure/" itemprop="url">
-                  Ruby 中的闭包及应用
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-07-01T13:34:21+08:00" content="2017-07-01">
-              2017-07-01
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/07/01/XXX-Ruby-Closure/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/01/XXX-Ruby-Closure/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          简单来说，闭包就是引用了自由变量的函数
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/07/01/XXX-Ruby-Closure/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/17/XXIX-Password-Securty/" itemprop="url">
-                  关于密码安全
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-06-17T16:28:05+08:00" content="2017-06-17">
-              2017-06-17
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/06/17/XXIX-Password-Securty/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/06/17/XXIX-Password-Securty/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          关于散列函数、碰撞和爆破
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/06/17/XXIX-Password-Securty/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/11/XXVIII-Ruby-Module/" itemprop="url">
-                  读书笔记 Ruby 的 Module 扩展
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2017-06-11T13:15:05+08:00" content="2017-06-11">
-              2017-06-11
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/06/11/XXVIII-Ruby-Module/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/06/11/XXVIII-Ruby-Module/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          上篇中有简单说到 module 的 include，下面来看一些稍复杂的使用情况以及 ruby 是如何处理的
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/06/11/XXVIII-Ruby-Module/">
+            <a class="btn" href="/2018/03/23/43-Ruby-Sort-Benchmark/">
               Read more &raquo;
             </a>
           </div>
@@ -1152,7 +1323,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1193,7 +1364,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">71</span>
+              <span class="site-state-item-count">86</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1203,7 +1374,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">19</span>
                 <span class="site-state-item-name">tags</span>
               </a>
             </div>
@@ -1241,7 +1412,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="icon-next-heart fa fa-heart"></i>
   </span>
