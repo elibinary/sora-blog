@@ -57,18 +57,18 @@
 
 
 
-<meta name="description" content="MySQL master-slave 同步的执行过程： 整个过程主要涉及到两个线程：  IO_THREAD: 从 master 读取 binlog file 并写入本地中继日志 SQL_THREAD: 从中继日志读取的事件，并在 slave 端执行  当发生 lag 时，第一步就需要先确认是哪个线程的问题 IO_THREAD 延迟主要可能是两个服务器之间的网络链接状况差，延迟高 SQL_THREA">
+<meta name="description" content="MySQL master-slave">
 <meta name="keywords" content="db">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL master-slave lag">
 <meta property="og:url" content="http://elibinary.com/2019/03/05/54-Master-Slave-Lag/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="MySQL master-slave 同步的执行过程： 整个过程主要涉及到两个线程：  IO_THREAD: 从 master 读取 binlog file 并写入本地中继日志 SQL_THREAD: 从中继日志读取的事件，并在 slave 端执行  当发生 lag 时，第一步就需要先确认是哪个线程的问题 IO_THREAD 延迟主要可能是两个服务器之间的网络链接状况差，延迟高 SQL_THREA">
+<meta property="og:description" content="MySQL master-slave">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-09-12T05:20:07.015Z">
+<meta property="og:updated_time" content="2020-09-12T05:44:49.062Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL master-slave lag">
-<meta name="twitter:description" content="MySQL master-slave 同步的执行过程： 整个过程主要涉及到两个线程：  IO_THREAD: 从 master 读取 binlog file 并写入本地中继日志 SQL_THREAD: 从中继日志读取的事件，并在 slave 端执行  当发生 lag 时，第一步就需要先确认是哪个线程的问题 IO_THREAD 延迟主要可能是两个服务器之间的网络链接状况差，延迟高 SQL_THREA">
+<meta name="twitter:description" content="MySQL master-slave">
 
 
 

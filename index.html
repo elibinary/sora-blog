@@ -290,65 +290,12 @@
 
       
         
-          
-            <p>在接触到 redis 的时候，看到最多的关于 redis 特性的介绍就是：单线程处理模式，高吞吐，内存 k-v 等等。随着使用和了解的加深，一定会产生很多疑问：</p>
-<ul>
-<li>redis 所有操作都是在一个线程上执行的吗？</li>
-<li>为啥 redis 单线程也能有这么高吞吐量？</li>
-<li>redis 为啥不用多线程呢？</li>
-<li>redis 的 I/O 多路复用具体体现在哪一块？</li>
-</ul>
-<h2 id="单线程模型"><a href="#单线程模型" class="headerlink" title="单线程模型"></a>单线程模型</h2><p>Redis 最初设计时选择了使用单线程模型，这个选择其实有多方面考量，当然其主要依据点也出发自最关键的：单线程模型到底对运行性能的影响有多大。关于这一点，<a href="https://redis.io/topics/faq#redis-is-single-threaded-how-can-i-exploit-multiple-cpu--cores" target="_blank" rel="noopener">Redis FAQ 有一个问答</a></p>
-<blockquote>
-<p><strong>Redis is single threaded. How can I exploit multiple CPU / cores?</strong><br>It’s not very frequent that CPU becomes your bottleneck with Redis, as usually Redis is either memory or network bound. For instance, using pipelining Redis running on an average Linux system can deliver even 1 million requests per second, so if your application mainly uses O(N) or O(log(N)) commands, it is hardly going to use too much CPU.<br>…</p>
-</blockquote>
-<p>我们知道，多线程技术能够帮助我们充分利用 CPU 资源来并发的执行任务，减少 CPU 空闲时间。但正如上面回答所说，CPU 并不是 Redis 的性能瓶颈，Redis 并不是一个 <a href="https://zh.wikipedia.org/wiki/CPU%E5%AF%86%E9%9B%86%E5%9E%8B" target="_blank" rel="noopener">CPU 密集型应用</a>。(<a href="https://stackoverflow.com/questions/868568/what-do-the-terms-cpu-bound-and-i-o-bound-mean" target="_blank" rel="noopener">What do the terms “CPU bound” and “I/O bound” mean?</a>)</p>
-<p>所有的 Redis 操作都会在内存中完成，并不会涉及到任何的 I/O 操作（这里是指 c-s 正常读写操作，不包括 AOF 备份，RDB 保存等）。数据的读写只发生在内存中，其处理速度是非常快的（if RAM is rated at 3200 MHz, it performs 3.2 billion cycles per second）。正如上面 FQA 所说，在一个普通的 Linux 服务起上 Redis 也能在 1s 处理 1,000,000 个 requests。</p>
-<p>Redis 服务的瓶颈还是在于网络 I/O：等待&amp;读取客户端请求数据，写入&amp;传输结果数据。Redis 使用 I/O 多路复用机制来并发处理来自客户端的多个连接，同时等待多个连接发送的请求。</p>
-<h3 id="同步非阻塞-I-O"><a href="#同步非阻塞-I-O" class="headerlink" title="同步非阻塞 I/O"></a>同步非阻塞 I/O</h3><p>传统的 <code>阻塞 I/O</code> 工作方式是：当对一个文件描述符(fd)进行 read/write 操作时，如果当前 fd 不可读或不可写（比如数据未就绪），那么当前执行线程就会阻塞等待，直到 fd 可操作。该方式简单直观，同时也是我们经常用到的方式。</p>
-<p>Redis 服务器是一个事件驱动程序，它基于 Reactor 模式实现了自己的网络事件处理器（file event handler）：</p>
-<ul>
-<li>事件处理器使用 I/O 多路复用程序来同时监听多个 socket</li>
-<li>socket ready 事件有 accept、read、write、close 等</li>
-<li>handler 监听到对应 ready 事件产生后，就会调用 socket 之前关联好的处理函数</li>
-</ul>
-<p>虽然<code>事件处理器</code>是以单线程方式运行的，但通过 I/O 多路复用技术，这即实现了高性能的网络通信模型，又能很好的与 Redis 服务中的其他同样是单线程方式运行的模块进行对接。</p>
-<p>Redis 的 I/O 多路复用程序的所有功能都是通过封装常见 I/O 多路复用函数库(select, epoll, evport, kqueue 等)来实现的。在编译的时候会自动选择系统中支持的性能最高的函数库来使用。</p>
-<h3 id="Redis-是否所有操作都是在一个线程上执行"><a href="#Redis-是否所有操作都是在一个线程上执行" class="headerlink" title="Redis 是否所有操作都是在一个线程上执行"></a>Redis 是否所有操作都是在一个线程上执行</h3><p>Redis 使用单线程来处理客户端命令的一系列操作：</p>
-<ul>
-<li>请求获取(socket 读)</li>
-<li>数据解析</li>
-<li>命令执行</li>
-<li>结果返回(socket 写)</li>
-</ul>
-<p>其请求命令的执行是完全串行执行的（在主线程上）<br>但其实 Redis 也有其他线程在工作，比如 4.x 版本之后引入的异步处理线程，主要用来异步处理一些耗时的删除操作：</p>
-<ul>
-<li>UNLINK</li>
-<li>FLUSHALL ASYNC</li>
-<li>FLUSHDB ASUNC</li>
-</ul>
-<p>其主要目的是：避免在删除一些超大键值时，长时间的 block 主线程导致服务吞吐降低。想 UNLINK 命令在主线程中其实只是把 key 从元数据中删除，真正的删除释放操作会在后台异步执行。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>Redis 使用单线程模型来处理 request 主要是因为 CPU 不是 Redis 的瓶颈，而使用多线程模型在可能获得有限的性能提升的同时也将带来高出很多的开发成本和维护成本。</p>
-<p>但从另一方面看，单线程模型也限制了单个 Redis 服务对 CPU 多核的利用，对此官方 FQA 是这么建议的：</p>
-<blockquote>
-<p>However, to maximize CPU usage you can start multiple instances of Redis in the same box and treat them as different servers. At some point a single box may not be enough anyway, so if you want to use multiple CPUs you can start thinking of some way to shard earlier.</p>
-</blockquote>
-<p>官方建议可以开启多个 Redis 实例，并通过分区来分担压力，关于分区可以参阅：<a href="https://redis.io/topics/partitioning" target="_blank" rel="noopener">Partitioning: how to split data among multiple Redis instances.</a><br>但同时数据分区也会引入分布式存储常见的问题：</p>
-<ul>
-<li>热点数据问题</li>
-<li>数据偏斜</li>
-<li>扩/缩节点和重新分配问题</li>
-</ul>
-<p>上面问题是分布式存储复制&amp;分区所要面对的常见问题，在这里不展开了</p>
-<h2 id="Redis-6-0-引入的多线程模型"><a href="#Redis-6-0-引入的多线程模型" class="headerlink" title="Redis 6.0 引入的多线程模型"></a>Redis 6.0 引入的多线程模型</h2><p>在上一章中有提到 Redis 的主要瓶颈在于网络 I/O（request socket 读/写），之前版本使用单线程来处理这些逻辑，6.0 版本引入的多线程模型主要针对此进行改进。</p>
-<p>Redis 主线程的时间主要消耗的两方面：</p>
-<ul>
-<li>逻辑计算</li>
-<li>同步 I/O 读写，数据拷贝</li>
-</ul>
-<p>新的多线程模型，使用一组单独的线程专门处理 socket 读/写调用以及数据解析工作，命令执行依然由主线程来串行执行。</p>
-
-          
+          redis 所有操作都是在一个线程上执行的吗?
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2020/07/08/62-Redis-Thread-Model/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -436,116 +383,12 @@
 
       
         
-          
-            <p>事务的基本定义：事务中的所有读写操作被视为单个操作来执行，整个事务要么成功，要么失败回滚，不存在执行一半的情况。如果失败，应用程序可以安全的重试</p>
-<p>思考：</p>
-<ol>
-<li>事务提供了哪些安全保障</li>
-<li>事务所实现的保障需要付出的代价是什么</li>
-<li>什么时候需要事务</li>
-<li>事务的优势和局限性有哪些</li>
-</ol>
-<h2 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h2><p>著名的 ACID 标准：</p>
-<ul>
-<li>原子性(Atomicity)</li>
-<li>一致性(Consistency)</li>
-<li>隔离性(Isolation)</li>
-<li>持久性(Durability)</li>
-</ul>
-<p>不同数据库对于 ACID 的实现并不相同，甚至含义思路也有差别</p>
-<p><strong><code>原子性</code></strong> 的定义特征：能够在错误发生时终止事务，并丢弃该事务所有的写入变更。原子性简化了处理操作中间状态的问题：如果事务被终止，应用程序可以确定它没改变任何东西，可以安全重试</p>
-<p><strong><code>一致性</code></strong> 的概念定义：对数据的一组特定陈述必须始终成立。但是，一致性的这种概念取决于应用程序对不变量的观念。<br>另外一致性这个词被用来很多概念里，并且含义都不尽相同，比如：复制中的副本一致性，一致性哈希以及著名的 CAP 中的一致性<br>简单来讲，在 ACID 的意义上一致性是应用程序的属性，粗暴来讲数据库只管存储</p>
-<p><strong><code>隔离性</code></strong> 是用来描述解决并发问题的：同时执行的事务是相互隔离的</p>
-<p><strong><code>持久性</code></strong> 顾名思义就是承诺一旦事务成功完成，即使发生硬件故障或数据库崩溃，写入的数据也不会丢失</p>
-<p>事务的一个关键特性：如果发生错误，它可以终止并安全的重试。<br>ACID 基于同样的哲学：如果数据库有违反原子性、隔离性、持久性的危险，则宁愿完全放弃事务，而不是留下半成品。</p>
-<h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><blockquote>
-<p>四种隔离级别：</p>
-<ol>
-<li>读未提交</li>
-<li>读已提交</li>
-<li>可重复读</li>
-<li>可序列化</li>
-</ol>
-</blockquote>
-<p>事务的竞争问题：如果两个事务不触及相同的数据，那么它们可以安全的并行执行。当一个事务读取另一个事务同时修改的数据，或两个事务同时修改相同的数据时，并发问题就出现了。</p>
-<p>通常数据库的并发问题很难通过测试找到，也比较难以重现。因此多数数据库会提供 <code>事务隔离</code> 来隐藏应用程序开发者的并发问题。</p>
-<ul>
-<li>弱隔离级别</li>
-<li>可序列化级别</li>
-</ul>
-<p>可序列化的隔离级别表示数据库保证事务的效果和连续执行（one by one）是一样的，同时它的性能损耗也将很大<br>所以很多数据库提供了一些不同严格程度的弱隔离级别</p>
-<h3 id="读已提交"><a href="#读已提交" class="headerlink" title="读已提交"></a>读已提交</h3><p>Read Committed: 最基本的事务隔离级别，主要提供两个保证：</p>
-<ol>
-<li>没有脏读：只能读到已提交的数据</li>
-<li>没有脏写：只会覆盖已提交的数据</li>
-</ol>
-<p><code>防止脏写</code>：数据库实现通常使用行锁来防止脏写<br><code>防止赃读</code>：一种选择是使用相同的锁，但是由于读操作会被写操作 block 导致及其影响吞吐，所以很多数据库会选择使用快照（记住旧的已提交值）的方式来实现</p>
-<h3 id="可重复度"><a href="#可重复度" class="headerlink" title="可重复度"></a>可重复度</h3><p><code>快照隔离</code> 是这个问题最常见的解决方案，主要思路：每个事务都从数据库的一致快照中读取，事务可以看到事务开始时在数据库中提交的所有数据，而不会读到该时间点之后被其他事务修改的新值</p>
-<p>快照隔离对长时间运行的只读查询（如备份和分析）非常有用</p>
-<p><strong><code>快照隔离</code> 的实现</strong> 首先快照隔离的关键原则是：读不阻塞写，写不阻塞读。<br>快照隔离的一般实现方式是利用 <code>多版本并发控制(MVCC)</code> ，数据库会并排维护一个对象的几个不同的提交版本</p>
-<p>通常支持快照隔离的存储引擎也使用 MVCC 来实现 <code>读已提交</code></p>
-<p>*思考：</p>
-<ol>
-<li>索引如何在多版本数据库中工作*</li>
-</ol>
-<h3 id="防止丢失更新"><a href="#防止丢失更新" class="headerlink" title="防止丢失更新"></a>防止丢失更新</h3><p>当存在并发的 读取-修改-写入 模式时，可能会发生丢失更新的问题</p>
-<p>基于此，很多数据库实现了原子写语义，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UPDATE counters SET value = value + 1 WHERE key = &apos;foo&apos;;</span><br></pre></td></tr></table></figure></p>
-<p>原子操作通常是通过在读取对象时，获取其上的排他锁来实现的。当然还有一种方式是强制所有原子操作都在单一线程上执行。</p>
-<p><strong><code>CAS</code></strong>  Compare And Set<br>此操作的目的也是为了避免丢失更新，只有当前值从上次读取后一直未改变，才允许更新发生。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UPDATE counters SET value = 5 WHERE key = &apos;foo&apos; AND value = 1;</span><br></pre></td></tr></table></figure></p>
-<p>可以发现，常用的乐观锁的 version 实现思路沿用同样的设计</p>
-<h3 id="可序列化"><a href="#可序列化" class="headerlink" title="可序列化"></a>可序列化</h3><p><code>可序列化(Serializability)</code>：通常被认为是最强的隔离级别。它保证即使事务可以并行执行，最终的结果也是一样的，就像他们是 one by one 执行的一样。</p>
-<p>目前常见的实现方式：</p>
-<ol>
-<li>真的串行执行</li>
-<li>两相锁定(2PL, two-phase locking) </li>
-<li>乐观并发控制技术（如可序列化的快照隔离）</li>
-</ol>
-<h4 id="真的串行执行"><a href="#真的串行执行" class="headerlink" title="真的串行执行"></a>真的串行执行</h4><p>虽然看起来串行将成为整个系统瓶颈，但是在特定约束下，真的串行执行事务已经成为可行方法：</p>
-<ol>
-<li>每个事务都必须小而快</li>
-<li>仅限于活跃数据可以放入内存的情况。如果事务所涉及的数据需要从磁盘加载，系统将会被极大拖慢</li>
-<li>写入吞吐必须低到能在单核 CPU 上处理，不然就必须进行事务分区</li>
-<li>跨分区事务是可行的，不过由于需要额外协调者参与，其有很大限制</li>
-</ol>
-<h4 id="两相锁定-2PL"><a href="#两相锁定-2PL" class="headerlink" title="两相锁定(2PL)"></a>两相锁定(2PL)</h4><p><em>与之很相似的一个词是两阶段提交（2PC），它们是完全不同的两个概念</em></p>
-<p><code>2PL</code> 提供了可序列化的性质，它可以防止所有竞争条件，包括丢失更新和写入偏差。</p>
-<p>相比于之前防止脏写，<code>2PL</code> 对锁的要求更强：当没有写入时，允许多事务同时读取同一个对象；当对象有写入，就需要独占访问权限（排他）。</p>
-<p><code>2PL</code> 和 <code>快照隔离</code> 最大的区别：2PL 中写入不仅会阻塞其他写入，也会阻塞读，反之读也会阻塞写。</p>
-<p>MySQL(InnoDB) 和 SQL Server 中的可序列化隔离使用了 2PL 方式实现。读和写的阻塞是通过为 db 中每个对象加锁（共享锁&amp;排他锁）来实现的：</p>
-<ul>
-<li>读事务：需要先获取共享锁，共享锁允许多事务同时持有；若该对象上有排他锁，则读事务等待（block）</li>
-<li>写事务：需要先获取排他锁，若该对象上有任何锁存在，该事务都需等待</li>
-<li>读写事务：读时获取共享锁，写时需要进行锁升级；升级锁和直接获取排他锁过程相同</li>
-<li>事务获取锁之后，必须继续持有锁直到事务结束</li>
-</ul>
-<p>两阶段锁定最大的缺点就是性能问题：</p>
-<ol>
-<li>获取和释放锁的开销</li>
-<li>并发性的大幅降低，慢事务对于系统影响极大</li>
-<li>由于大量使用了锁，死锁发生的频率也极大被提升，虽然数据库会自动检查并解决死锁，但是事务的重试将造成很大的浪费</li>
-</ol>
-<h4 id="谓词锁和索引范围锁-间隙锁"><a href="#谓词锁和索引范围锁-间隙锁" class="headerlink" title="谓词锁和索引范围锁(间隙锁)"></a>谓词锁和索引范围锁(间隙锁)</h4><p>在上面 2PL 中还有一个重要的细节需要讨论：特殊情况下的幻读问题，一个简单的场景：</p>
-<ol>
-<li>事务A 进行范围查询：where date between ‘2019-11-12’ and ‘2019-12-12’</li>
-<li>事务B 插入一条在此范围间的一条数据</li>
-<li>事务A 在进行下一步操作时将可能出现错误判断</li>
-</ol>
-<p>简单来说就是，我们需要加锁的不是特定的对象（某一行数据），而是符合某些搜索条件的对象，此时我们就需要一个谓词锁。</p>
-<p>但是由于检测匹配的谓词锁非常耗时，性能不佳。大多数数据库会用索引范围锁（间隙锁）来替代，间隙锁是一个简化版的谓词锁。</p>
-<p>索引范围锁的思路是：给谓词匹配一个近似的、更大的集合来加锁，并简化匹配过程<br>搜索条件的近似值会被附加到其中一个索引上，当写操作更新到索引的相同部分时，会遇到共享锁并被迫等待</p>
-<p>需要注意的是：当没有可以挂载间隙锁的索引时，数据库将退化到使用表锁。</p>
-<h4 id="可序列化的快照隔离"><a href="#可序列化的快照隔离" class="headerlink" title="可序列化的快照隔离"></a>可序列化的快照隔离</h4><p><code>可序列化快照隔离(SSI)</code> serializable snapshot isolation, 这是一个相当新的算法，它提供了完整的可序列化隔离级别，同时相比快照隔离只有很小的性能损耗。</p>
-<p>事务中的查询和写入可能存在因果依赖，当应用进行查询时，数据库不知道应用逻辑如何使用查询结果。数据库需要能够监测到结果集变更，并终止事务，有两种情况需要考虑：</p>
-<ol>
-<li>检测对旧 MVCC 对象版本的读取（读之前存在未提交的写入）</li>
-<li>检测影响先前读取的写入（读之后发生写入）</li>
-</ol>
-<p>第一种情况：首先 MVCC 的实现，当一个事务从一致快照读时，会忽略尚未提交的任何其他事务的写入。这将可能导致 <code>写入偏差</code>。<br>未解决该问题，数据库需要跟踪其他被忽略的事务的写入，当事务提交时，数据库检查是否有被忽略的写入已经被提交，如果有则事务必须终止。</p>
-<p>第二种情况：需要考虑另一个事务在读取数据之后修改数据</p>
-<h4 id="悲观和乐观并发控制"><a href="#悲观和乐观并发控制" class="headerlink" title="悲观和乐观并发控制"></a>悲观和乐观并发控制</h4><p><code>两阶段锁</code> 是一种悲观并发控制，它基于悲观原则：如果可能出错，最好等情况安全后再做其他事情。从这种意义上，串行化可谓是悲观到了极致。</p>
-<p><code>可序列化快照隔离</code> 是一种乐观并发控制，它基于乐观原则：即使存在潜在的危险也会继续执行，当事务进行提交时再检查是否有危险，有的话将被终止并重试</p>
-
-          
+          事务的基本定义：事务中的所有读写操作被视为单个操作来执行，整个事务要么成功，要么失败回滚，不存在执行一半的情况。如果失败，应用程序可以安全的重试
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2020/06/22/61-DDIA-Transaction/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -633,21 +476,12 @@
 
       
         
-          
-            <blockquote>
-<p>Package sync provides basic synchronization primitives such as mutual exclusion locks. Other than the Once and WaitGroup types, most are intended for use by low-level library routines. Higher-level synchronization is better done via channels and communication.</p>
-</blockquote>
-<p>sync pkg 是我们在并发编程中经常使用到的一个包，它提供了锁，信号同步，单次加载等非常有用的功能</p>
-<h2 id="Once"><a href="#Once" class="headerlink" title="Once"></a>Once</h2><blockquote>
-<p>Once is an object that will perform exactly one action.</p>
-</blockquote>
-<p><code>Once</code> 经常被用来保证初始化之类的逻辑在并发环境下仅执行一次<br>它的实现也非常简洁，仅有一个 struct 定义和对外暴露的 <code>Do</code> 方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">type Once struct &#123;</span><br><span class="line">    done uint32</span><br><span class="line">    m    Mutex</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (o *Once) Do(f func()) &#123;</span><br><span class="line">    // [Comment By Eli] 使用原子操作判断状态位</span><br><span class="line">    if atomic.LoadUint32(&amp;o.done) == 0 &#123;</span><br><span class="line">        // Outlined slow-path to allow inlining of the fast-path.</span><br><span class="line">        o.doSlow(f)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func (o *Once) doSlow(f func()) &#123;</span><br><span class="line">    o.m.Lock()</span><br><span class="line">    defer o.m.Unlock()</span><br><span class="line">    // [Comment By Eli] 加锁后再一次判断状态位，避免竞争发生</span><br><span class="line">    if o.done == 0 &#123;</span><br><span class="line">        // [Comment By Eli] 在 f() 执行完毕后再进行状态改变</span><br><span class="line">        defer atomic.StoreUint32(&amp;o.done, 1)</span><br><span class="line">        f()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>源码里也给出了一个错误的实现方式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// Note: Here is an incorrect implementation of Do:</span><br><span class="line">//</span><br><span class="line">//  if atomic.CompareAndSwapUint32(&amp;o.done, 0, 1) &#123;</span><br><span class="line">//      f()</span><br><span class="line">//  &#125;</span><br></pre></td></tr></table></figure></p>
-<p>上面使用 CAS 实现最大的一个问题就是它是先尝试改变状态位，再执行 <code>f()</code><br>这样就可能出现 caller 在 f() 方法还未执行完就返回了并开始继续执行下面的逻辑，这可能会导致严重错误发生</p>
-<h2 id="Lock"><a href="#Lock" class="headerlink" title="Lock"></a>Lock</h2><p>// TODO</p>
-<p><em>Package atomic provides low-level atomic memory primitives, useful for implementing synchronization algorithms.</em></p>
-
-          
+          sync pkg 是我们在并发编程中经常使用到的一个包，它提供了锁，信号同步，单次加载等非常有用的功能
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2020/06/16/60-Go-Sourse-Sync/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -899,66 +733,12 @@
 
       
         
-          
-            <h2 id="什么是分区"><a href="#什么是分区" class="headerlink" title="什么是分区"></a>什么是分区</h2><h2 id="分区的目的"><a href="#分区的目的" class="headerlink" title="分区的目的"></a>分区的目的</h2><p>分区的目标是将数据和查询负载均匀的分布到各个节点上</p>
-<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><ol>
-<li>索引如何与分区配合</li>
-<li>分区如何实现可伸缩</li>
-<li>分区与复制的关系</li>
-</ol>
-<p>首先第三个问题，分区和复制其实没有直接关系，但是通常会结合使用，使得每个分区的副本可以存储在多个节点上，用以获得更高的容错能力</p>
-<h2 id="分区的方式"><a href="#分区的方式" class="headerlink" title="分区的方式"></a>分区的方式</h2><h3 id="按键分区"><a href="#按键分区" class="headerlink" title="按键分区"></a>按键分区</h3><p><strong>根据键范围进行分区</strong><br>把健的取值范围进行分段（就像英文词典的 a-z 目录一样），每个分区负责存储某个分段的数据<br>在这种存储方式下，可以按照一定的顺序来保存键值，这让我们可以很方便的进行范围扫描。但这样的方式也同样存在一些问题，比如在一些特定场景下的热点问题（如按时间戳顺序存储，那么最近的时间戳所存在的节点将会成为热点）<br>当然，我们可以复合更多的信息到分区键上（像联合索引那样），比如时间戳+用户ID个数位，但是这样一来当需要获得 time-range 数据时就需要进行多次查询进行合并</p>
-<p><strong>根据键散列值进行分区</strong><br>许多分布式存储使用散列函数（hash）结果来确定分区，以此来规避数据偏斜和热点风险<br>我们可以给每个分区分配一个散列范围，这样可以有助于后续分裂 or rebalance 操作（一致性哈希思路）<br>通过散列进行分区的缺点是，这样就不能进行高效的范围查询操作，范围查询将需要聚集所有分区的查询结果</p>
-<h3 id="次级索引"><a href="#次级索引" class="headerlink" title="次级索引"></a>次级索引</h3><p>次级索引是关系型数据库的基础<br>次级索引的问题是：它们不能整齐的映射到分区<br>两种常见方式：</p>
-<ol>
-<li>基于文档的分区（document-based）</li>
-<li>基于关键词的分区（term-based）</li>
-</ol>
-<p>思考：</p>
-<ul>
-<li>本地索引和全局索引</li>
-<li>全局索引的分区问题，索引数据更新问题</li>
-</ul>
-<h2 id="Rebalance"><a href="#Rebalance" class="headerlink" title="Rebalance"></a>Rebalance</h2><p>需要 rebalance 的场景有很多，比如：</p>
-<ol>
-<li>需要横向扩展来增加负载和吞吐</li>
-<li>需要收缩来减配降耗</li>
-<li>节点故障导致的节点机器切换</li>
-</ol>
-<p>一般 rebalance 需要能够满足一些要求：</p>
-<ol>
-<li>rebalance 后，流量&amp;存储负载均匀</li>
-<li>rebalance 过程应该是平滑不停机的，整体服务需要能够继续接受处理请求</li>
-<li>应该避免全部数据的 rebalance（最简单的像一致性哈希思路）</li>
-</ol>
-<p>常见的几种辅助 rebalance 的分区方案：</p>
-<ol>
-<li>固定分区数量</li>
-<li>动态分区</li>
-<li>按节点比例分区</li>
-</ol>
-<h3 id="固定分区数量"><a href="#固定分区数量" class="headerlink" title="固定分区数量"></a>固定分区数量</h3><p>就像标题一样，这种方法很简单，就是创建比节点数量多的固定数量的分区，并把这些分区均匀地分布在所有节点上</p>
-<p>当新加节点的时候，总分区数量不变，而是去现有节点中窃取分区来达到再平衡。删除节点时则反之。</p>
-<p>这种方式的特点：</p>
-<ol>
-<li>总分区数在创建时固定，不再增减</li>
-<li>只有分区在不同节点上移动，key 对应的分区不变</li>
-<li>初始的总分区数也代表了最大节点数</li>
-<li>分区在节点间移动不是即时的，在此期间原分区需要能够接受请求</li>
-</ol>
-<p>综上所述，这种方式下选定合适的初始分区数量是非常重要的<br>但是在数据集的总大小难以预估的情况下，合理选择是困难的</p>
-<h3 id="动态分区"><a href="#动态分区" class="headerlink" title="动态分区"></a>动态分区</h3><p>在使用键范围分区的情境下，固定分区数量是非常不便的<br><code>HBase</code> 这种按键范围分区的数据库会使用动态分区方案，在 Hbase 中分区文件的传输是通过 HDFS 来实现的</p>
-<p>动态分区的主要思路是：</p>
-<ul>
-<li>每个分区数据会有一组 min, max 限制</li>
-<li>增长超过 max 限制，将会触发分裂</li>
-<li>删除等导致小于 min 限制，将会触发合并</li>
-</ul>
-<p>动态分区最大的优点就是分区数量适应总数据量</p>
-<h3 id="按节点比例分区"><a href="#按节点比例分区" class="headerlink" title="按节点比例分区"></a>按节点比例分区</h3><p>这种方式使分区数和节点数成正比，也就是说每个节点上有固定数量的分区<br>当增加节点的时候，该节点会建立同样固定数量的分区，并从已有分区上拆分数据过来，反之亦然</p>
-<p>总结<br>每个分区理论上都是独立运行的（分布式可扩展性的基础），不过这也同样导致了麻烦，比如需要同时写入多个分区时，由于每个分区独立运行，那么保证整个操作符合预期将变得困难，这也就引入了分布式事务的概念</p>
-
-          
+          什么是分区, 分区的目的是什么
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2020/04/12/58-DDIA-Partition/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1046,71 +826,12 @@
 
       
         
-          
-            <p>数据在分布式存储下有两种常见方式：</p>
-<ol>
-<li>复制-replication<ul>
-<li>在不同节点存储数据的相同副本</li>
-<li>replication 提供了冗余</li>
-</ul>
-</li>
-<li>分区-partitioning</li>
-</ol>
-<p>replication 和 partitioning 是两种不同的机制，但它们经常一起使用（比如 kafka 的存储）</p>
-<h2 id="复制-Replication"><a href="#复制-Replication" class="headerlink" title="复制 Replication"></a>复制 Replication</h2><p><strong>几个目的：</strong></p>
-<ol>
-<li>使地理上更接近，降低传输延迟</li>
-<li>灾备，提高可用性</li>
-<li>横向扩展处理 read 请求的节点，提高吞吐</li>
-</ol>
-<p><strong>复制操作最常见的三种模式：</strong></p>
-<ol>
-<li>单领导者-single leader</li>
-<li>多领导者-multi leader</li>
-<li>无领导者-leaderless</li>
-</ol>
-<p>单主复制：<br>client 把写操作发给 master，master 会把写入同步给 slaves；读操作可以在任意节点进行。<br>多主复制：<br>client 把写操作发送给 masters 中的任一个，每个 master 都可以接受写操作，master 会把写入同步给其他 masters 以及 slaves。<br>无主复制：<br>client 把写操作发送给几个或全部节点（n 个节点返回成功即可认为成功），读取时从多个节点读取（节点数最小为 n+1）</p>
-<p><strong>快速拉起一个新从库：</strong></p>
-<ol>
-<li>获取主库某一时刻（最新）的快照</li>
-<li>将快照复制到新的 slave 节点</li>
-<li>slave 连上 master，并开始拉取&amp;同步快照后的所有数据变更。（例如 MySQL 的 binlog）</li>
-<li>当 slave 处理完所有挤压数据变更（追平），就可以正式投入工作</li>
-</ol>
-<p><strong>主库故障切换（failover）：</strong></p>
-<ol>
-<li>确认 master 故障，自动化流程中大多数系统会使用简单的超时来判断：比如各节点间有定时心跳检查，如果一段时间内无响应就认为挂了</li>
-<li>选择一个新的 master，共识算法</li>
-<li>重新配置系统以启用新的 master</li>
-</ol>
-<p><strong>分布式系统中的基本问题：节点故障，不可靠的网络，对副本一致性&amp;持久性&amp;可用性&amp;延迟的权衡</strong></p>
-<h3 id="多从库读取的问题"><a href="#多从库读取的问题" class="headerlink" title="多从库读取的问题"></a>多从库读取的问题</h3><p>当一个用户的重复读取操作落在了不同的从库上，不同从库同步延迟过大时就可能出现：多次读取结果不一致的情况。<br><strong>单调读：</strong> 这时候一般的处理方式就是保证一个用户的读取操作都落在同一个 slave 上</p>
-<p>还有一种特殊情况，比如问答（在线对话）的数据写入是有顺序性的，但由于延迟等不一致情况下，用户可能出现对话顺序错乱的问题<br><strong>一直前缀读：</strong> 一种解决方案是，确保任何有因果顺序的写入都写到相同的分区。如果因为一些情况无法确保这种操作，那就需要一些跟踪因果依赖关系的算法来处理</p>
-<p><em>明明是异步复制，却假设复制是同步的，这是很多麻烦的根源</em></p>
-<h3 id="多主写入冲突"><a href="#多主写入冲突" class="headerlink" title="多主写入冲突"></a>多主写入冲突</h3><p><code>多主复制</code> 是基于领导者的复制模型的一种延伸。与单领导者相对的是它允许多个节点接受写入，且这些节点必须把写入同步给所有节点。</p>
-<p>多主模式具有更高的复杂性，比较常见于拥有多个数据中心的情况。由于复杂度关系单数据中心使用多主性价比较低。</p>
-<p>在多数据中心的场景下，一般每个数据中心都会配备有主库。在数据中心之间，每个数据中心的主库都需要将写入复制到其他数据中心的主库。</p>
-<p>虽然在多主时，可以让一个写操作同步写所有的主库，并全部成功才算成功。但这样一来整体系统的性能和吞吐将急剧下降，且对网络延迟非常敏感。<br>并且在多活配置中，必须能够容忍单个数据中心的临时宕机，每个数据中心应该可以独立于其他数据中心运行。<br>所以通常还是需要采用异步复制的方式来进行写同步。但这也正式麻烦的来源：</p>
-<ul>
-<li>自增主键问题</li>
-<li>写入冲突</li>
-</ul>
-<p>自增主键问题还好解决，多领导者复制的最大问题是可能发生写冲突：当多个数据中心同时接收到同一条数据的写操作时，在后续异步复制过程中将大概率面临数据冲突。常见解决方式：</p>
-<ul>
-<li>通过设置写范围来避免冲突</li>
-<li>通过收敛至一致状态来合并冲突</li>
-</ul>
-<p><strong>避免冲突</strong><br>可以通过应用逻辑层增加处理，保证特定用户/特定数据的写操作始终路由到同一个数据中心，从而杜绝多数据中心同时修改同一数据的问题。由于很多冲突解决实现上都有副作用，相比之下避免冲突是一种经常推荐的做法。</p>
-<p>但需要注意的是，当数据中心宕机时，该路由需要能够重新路由到另外的数据中心。</p>
-<p><strong>合并冲突</strong><br><code>合并冲突</code> 必须保证所有节点在复制完成后的数据一致性，也就是说到最后所有节点的状态必须收敛到一致。一般有两种思路：</p>
-<ol>
-<li>Last Write Wins，最后写入胜利(LWW)</li>
-<li>保留所有冲突数据，并交由应用层处理</li>
-</ol>
-<p>在多主配置中，写入顺序没有定义，每个主库只能看到自己的写入顺序。所以在 LWW 思路中一般会给每个写入一个递增的唯一 ID（分布式唯一 ID），最后合并冲突时保留 ID 最大的，丢弃掉其他写入。<br>LWW 这种方式非常流行，但它有一个很大的缺点就是会造成数据丢失。</p>
-<p>还有另一种处理方式是，数据层面会把所有的写入按一定规则拼起来（或利用一些数据结构）从而把所有写入都存下来，让后交由应用层（用户）处理冲突。</p>
-
-          
+          replication 和 partitioning 是两种不同的机制，但它们经常一起使用（比如 kafka 的存储）
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2020/02/15/57-DDIA-Replication/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1198,110 +919,12 @@
 
       
         
-          
-            <p>在介绍 golang 的并发调度模型之前，先来看下几个基础知识</p>
-<h2 id="进程和线程"><a href="#进程和线程" class="headerlink" title="进程和线程"></a>进程和线程</h2><p>首先按教科书上现代操作系统的定义：</p>
-<ul>
-<li>进程是资源管理的最小单位</li>
-<li>线程是程序执行（系统调度）的最小单位</li>
-</ul>
-<p>简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销</p>
-<blockquote>
-<p>SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构<br>AMP——Asymmetric Multi-Processing (AMP) ，非对称多处理器结构</p>
-</blockquote>
-<p><em>SMP 最大的特点是：一个操作系统实例，多个 CPU，每个 CPU 结构相同，共享内存等系统资源。工作负载能够均匀的分配到所有处理器上</em></p>
-<p>进程这一概念的进入，对应用程序屏蔽了 CPU 调度、内存管理等硬件细节，极大的简化了上层复杂度。</p>
-<p>现代操作系统概念中，一个进程至少需要一个线程作为它的指令执行体，进程管理系统资源（内存，文件等），线程被分配到具体 CPU 上执行。</p>
-<h3 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h3><p>CPU 是通过时间片来分配执行资源的，当进程/线程时间片结束，或者因为 redis、mysql 等 IO 阻塞掉时，将会引发上下文切换<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">           运行</span><br><span class="line">       ^ /      \</span><br><span class="line">      / /        \</span><br><span class="line">     / / 时       \ IO</span><br><span class="line">  调/ / 间         \ 等待</span><br><span class="line"> 度/ / 片           \</span><br><span class="line">  / / 到             \</span><br><span class="line"> / /                  \</span><br><span class="line">/ v                    v</span><br><span class="line">就绪&lt;-----------------阻塞</span><br><span class="line">          IO结束</span><br></pre></td></tr></table></figure></p>
-<p>上下文切换的直接开销有：</p>
-<ul>
-<li>切换页表全局目录</li>
-<li>切换内核态堆栈</li>
-<li>切换硬件上下文（主要是寄存器数据载入）</li>
-<li>刷新 TLB(页表缓存)</li>
-<li>系统调度器的代码执行</li>
-</ul>
-<p>间接开销：</p>
-<ul>
-<li>跨 CPU 调度时，L1、L2 缓存预热（cache 的代码、数据没用了需要穿透到内存读取）</li>
-</ul>
-<blockquote>
-<p>操作系统中，通常 L1 L2 缓存是每个 CPU 一个的，L3 缓存由多个 CPU 共享<br>Cache 是一种又小又快的寄存器，用来弥补内存和 CPU 之间的速度差距</p>
-</blockquote>
-<h2 id="Linux-进程和线程实现"><a href="#Linux-进程和线程实现" class="headerlink" title="Linux 进程和线程实现"></a>Linux 进程和线程实现</h2><p>不同操作系统对于进程线程的实现是有很大不同的。早期的 Linux 内核是没有线程概念的，它的最小调度单元是 Task。<br>Linux 2.x 版本提供了轻量级进程的支持。轻量级进程和进程一样，都有自己独立的 task_struct 进程描述符，也都有自己的 pid，在操作系统调度器视角看，两者没有什么区别。<br>轻量级进程最大的区别是：可以共享同一内存地址空间、代码段、全局变量以及同一打开文件集（线程的特点）。两者都是通过调用 clone() 创建的，区别在于创建轻量级进程时会通过设置一系列 clone_flags 来规定其可以共享那些资源。而进程通常是资源隔离的。</p>
-<h3 id="扩展：Nginx-多进程模型"><a href="#扩展：Nginx-多进程模型" class="headerlink" title="扩展：Nginx 多进程模型"></a>扩展：Nginx 多进程模型</h3><p>Nginx 架构采用：多进程模型 + 异步非阻塞（IO 多路复用）事件处理<br>一般进程数会设置为与 CPU 核数一致（可以将进程与 CPU 核心绑定），好处：</p>
-<ul>
-<li>避免了竞争 CPU 资源所带来的上下文切换开销</li>
-<li>与多线程相比，进程间相互独立，资源相互不共享，无额外锁开销</li>
-</ul>
-<p>异步非阻塞：利用 event 驱动方式使用 select, poll, epoll, kqueue 等系统调用来实现复用</p>
-<p>工作进程在 accept() 到一个 request 时，会进行一系列预处理工作，然后把 request 转发到下游服务器，并使用 epoll(例)注册事件(文件描述符)，接着就可以处理其他 request 了，等接收到 fd 就绪通知后再处理 response。</p>
-<h2 id="Golang-调度模型"><a href="#Golang-调度模型" class="headerlink" title="Golang 调度模型"></a>Golang 调度模型</h2><p>golang 的调度器通过使用和 CPU 核心 数量相等的线程（GOMAXPROCS），以减少线程频繁切换的开销，同时在每个线程上执行开销更小的 Goroutine 来提高执行效率。</p>
-<h3 id="GMP-模型"><a href="#GMP-模型" class="headerlink" title="GMP 模型"></a>GMP 模型</h3><p>简化模型如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+--------+    +--------+    +----------------------------+</span><br><span class="line">|        |    |        |    |       |       |       |     </span><br><span class="line">|    M   |  &lt; |    P   |  &lt; |   G   |   G   |   G   |     </span><br><span class="line">|        |    |        |    |       |       |       |     </span><br><span class="line">+--------+    +--------+    +----------------------------+</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>M: 操作系统的线程(max M number to 10000)</li>
-<li>P: 本地处理器，运行在线程上</li>
-<li>G: Goroutine</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// runtime.p</span><br><span class="line">type p struct &#123;</span><br><span class="line">    m           muintptr</span><br><span class="line"></span><br><span class="line">    runqhead uint32</span><br><span class="line">    runqtail uint32</span><br><span class="line">    runq     [256]guintptr</span><br><span class="line">    runnext guintptr</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>处理器 P 本地队列是一个使用数组构成的环形链表，最多可以存储 256 个待执行任务。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">                                             global</span><br><span class="line">|   .   |     |   .   |     |   .   |        </span><br><span class="line">|   .   |     |   .   |     |   .   |      |       |      </span><br><span class="line">+-------+     +-------+     +-------+      +-------+  </span><br><span class="line">|       |     |       |     |       |      |       |  </span><br><span class="line">|   G   |     |   G   |     |   G   |      |   G   |  </span><br><span class="line">|       |     |       |     |       |      |       |     </span><br><span class="line">+-------+     +-------+     +-------+      +-------+  </span><br><span class="line">|       |     |       |     |       |      |       |  </span><br><span class="line">|   G   |     |   G   |     |   G   |      |   G   |        </span><br><span class="line">|       |     |       |     |       |      |       |        </span><br><span class="line">+-------+     +-------+     +-------+      +-------+        </span><br><span class="line">    |             |             |          |       |</span><br><span class="line">    v             v             v          |   G   |</span><br><span class="line">+-------+     +-------+     +-------+      |       |</span><br><span class="line">|       |     |       |     |       |      +-------+ </span><br><span class="line">|   P   |     |   P   |     |   P   |      |       | </span><br><span class="line">|       |     |       |     |       |       </span><br><span class="line">+-------+     +-------+     +-------+       </span><br><span class="line"></span><br><span class="line">+-------+     +-------+     +-------+ </span><br><span class="line">|       |     |       |     |       | </span><br><span class="line">|   M   |     |   M   |     |   M   | </span><br><span class="line">|       |     |       |     |       | </span><br><span class="line">+-------+     +-------+     +-------+ </span><br><span class="line"></span><br><span class="line">+-----------------------------------+</span><br><span class="line">|              Sys&amp;CPU              |</span><br><span class="line">+-----------------------------------+</span><br></pre></td></tr></table></figure></p>
-<p>模型中有两个运行队列：</p>
-<ol>
-<li>P 的本地队列</li>
-<li>全局运行队列</li>
-</ol>
-<p><code>runtime.runqput</code> 函数会将新创建的 Goroutine 放入运行队列</p>
-<ul>
-<li>当 runnext 空闲，就将 G 设置到 P 的 <code>runnext</code> 作为下一个处理的任务</li>
-<li>当 runnext 不空闲并且 local 队列未满时，将 G 加入 P 的 local 队列</li>
-<li>当 P 的 local 队列满了，就把 local 中的一部分 G(待确认) + 该 G 放入到 global 队列</li>
-</ul>
-<p><code>runtime.schedule</code> 函数为核心调度循环，它会从不同地方查找待执行的 G</p>
-<ul>
-<li>首先一定几率从 global 中拿 G (<code>_g_.m.p.ptr().schedtick%61 == 0</code>)</li>
-<li>其次从 local 中获取</li>
-</ul>
-<p><a href="https://github.com/golang/go/blob/64c22b70bf00e15615bb17c29f808b55bc339682/src/runtime/proc.go#L2504" target="_blank" rel="noopener">runtime/proc.go</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if gp == nil &#123;</span><br><span class="line">    // Check the global runnable queue once in a while to ensure fairness.</span><br><span class="line">    // Otherwise two goroutines can completely occupy the local runqueue</span><br><span class="line">    // by constantly respawning each other.</span><br><span class="line">    if _g_.m.p.ptr().schedtick%61 == 0 &amp;&amp; sched.runqsize &gt; 0 &#123;</span><br><span class="line">        lock(&amp;sched.lock)</span><br><span class="line">        gp = globrunqget(_g_.m.p.ptr(), 1)</span><br><span class="line">        unlock(&amp;sched.lock)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><strong>Workflow</strong> 引用自 <a href="https://speakerdeck.com/retervision/go-runtime-scheduler?slide=14" target="_blank" rel="noopener">speakerdeck by Brandon Gao</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">                        +--------------------sysmon---------------//----+</span><br><span class="line">                        |                                               |</span><br><span class="line">                        |                                               |</span><br><span class="line">            +---+    +---+-------+               +--------+        +---+---+</span><br><span class="line">gofunc()---&gt;| G |---&gt;| P | local |&lt;===balance===&gt;| global |&lt;--//---| P | M |</span><br><span class="line">            +---+    +---+-------+               +--------+        +---+---+</span><br><span class="line">                       |                              |              |</span><br><span class="line">                       |     +---+                    |              |</span><br><span class="line">                       +----&gt;| M |&lt;---findrunnable----+---steal&lt;--//-+</span><br><span class="line">                             +---+</span><br><span class="line">                               |</span><br><span class="line">                               |</span><br><span class="line">           +---execute&lt;-----schedule</span><br><span class="line">           |                   |</span><br><span class="line">           |                   |</span><br><span class="line">           +--&gt;G.fn--&gt;goexit---+</span><br><span class="line"></span><br><span class="line">1.go creates a new goroutine</span><br><span class="line">2.newly created goroutine being put into local or global queue</span><br><span class="line">3.A M is being waken or created to execute goroutine</span><br><span class="line">4.Schedule loop</span><br><span class="line">5.Try its best toget a goroutine to execute</span><br><span class="line">6.Clear, reenter schedule loop</span><br></pre></td></tr></table></figure></p>
-<h3 id="协作式调度和抢占式调度"><a href="#协作式调度和抢占式调度" class="headerlink" title="协作式调度和抢占式调度"></a>协作式调度和抢占式调度</h3><p>golang 1.2 之前的早期调度器是不支持打断 or 抢占的，也就是说只能依靠 Goroutine 自己让出 CPU 资源才能触发调度。这会造成几个很大的问题：</p>
-<ol>
-<li>一些 Goroutine 可能会长时间占用 M，造成饥饿</li>
-<li>垃圾回收需要暂停整个程序（Stop-The-World），如果没有抢占手段，这将可能耗时很久，导致整体不可用</li>
-</ol>
-<p><strong>golang 1.2 版本引入了基于协作式的调度</strong>，其主要思路是：goroutine 在进行函数调用时会有机会进行运行时检查，来查看判断是否需要执行协作调度。<br>在实现上则是利用编译器在分段栈上插入函数 <code>runtime.morestack</code>，在 goroutine 发生函数调用时，会执行插入的函数 <code>runtime.morestack</code> 该函数会检查一个状态位来判断是否有协作调度。<br>其他的还有 golang 运行时会在垃圾回收暂停程序，以及系统监控发现有 goroutine 运行超过 10ms 时就会触发设置状态位来让该 G 让出 M。<br>但是这种协作式调度依然无法覆盖所有情况，比如 goroutine 在进行长时间 for 循环计算处理，并不进行函数调用，就不会触发协作状态检查。</p>
-<p><strong>golang 1.14 版本引入了基于信号的抢占式调度</strong>，不过当前直被应用在垃圾回收暂停任务时。其主要思路：利用系统信号 <code>SIGURG</code> 来触发异步抢占。<br>在实现上：<a href="https://github.com/golang/go/blob/62e53b79227dafc6afcd92240c89acb8c0e1dd56/src/runtime/signal_unix.go#L494" target="_blank" rel="noopener">runtime.sighandler</a></p>
-<ol>
-<li>在 sighandler 函数中注册了 <code>SIGURG</code> 信号的处理函数 <code>doSigPreempt(gp, c)</code></li>
-<li>当垃圾回收发生时，会做两件事：1. 将 <code>_Grunning</code> 状态的 G 标记为将被抢占；2. 向线程发送 <code>SIGURG</code> 信号</li>
-<li>操作系统会中断正在运行的线程，并执行注册的信号处理函数 <code>doSigPreempt</code></li>
-</ol>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>golang 运行时会根据需要动态调整函数栈大小，每个 goroutine 在创建时只会分配很小的栈空间（2KB, 4KB, 8KB 具体依赖实现）</p>
-<p><strong>僵尸进程和孤儿进程</strong></p>
-<ul>
-<li>僵尸进程：作为子进程已经执行完毕，但是在操作系统进程表中仍然存在未被回收。</li>
-<li>孤儿进程：在父进程执行完成后，仍继续运行的进程被称为孤儿进程。</li>
-</ul>
-<p><code>僵尸进程</code> 的成因主要是：子进程在结束后其退出状态并未被读取（<code>wait</code>系统调用），它需要保留表项以允许父进程读取自己的状态。一旦状态被通过 <code>wait</code>系统调用读取，僵尸进程就会从进程表中删除。<br>僵尸进程可能的危害：</p>
-<ul>
-<li>进程长时间保持僵尸状态一般都是错误导致的，并可能引起资源泄漏</li>
-<li>比如父进程 for 循环不停的 clone 子进程，一直不使用 <code>wait</code> 系统调用，进程表中的信息将一直不被释放，可能会导致进程号耗尽</li>
-<li>处理方式一般 kill 掉父进程，让 init 进程回收掉其状态就可以了</li>
-</ul>
-<p><code>孤儿进程</code> 在父进程结束后，会被挂到 init 进程下（收养），并由 init 进程来完成对其状态的收集工作。<br>孤儿进程的应用：</p>
-<ul>
-<li>一般情况下孤儿进程是没什么危害的（除了个别情况下属于空跑，白白消耗 cpu 资源）</li>
-<li><code>守护进程</code> 就是其一种应用，通过刻意制造孤儿进程使之与用户会话脱钩，转至后台运行。</li>
-</ul>
-<p>参考：</p>
-<ul>
-<li><a href="https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/" target="_blank" rel="noopener">https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/</a></li>
-<li><a href="https://assets.ctfassets.net/oxjq45e8ilak/48lwQdnyDJr2O64KUsUB5V/5d8343da0119045c4b26eb65a83e786f/100545_516729073_DMITRII_VIUKOV_Go_scheduler_Implementing_language_with_lightweight_concurrency.pdf" target="_blank" rel="noopener">https://assets.ctfassets.net/oxjq45e8ilak/48lwQdnyDJr2O64KUsUB5V/5d8343da0119045c4b26eb65a83e786f/100545_516729073_DMITRII_VIUKOV_Go_scheduler_Implementing_language_with_lightweight_concurrency.pdf</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/79772089" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/79772089</a></li>
-<li><a href="https://www.ibm.com/developerworks/cn/linux/kernel/l-thread/" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/linux/kernel/l-thread/</a></li>
-<li><a href="https://www.timqi.com/2020/05/15/how-does-gmp-scheduler-work/" target="_blank" rel="noopener">https://www.timqi.com/2020/05/15/how-does-gmp-scheduler-work/</a></li>
-</ul>
-
-          
+          在介绍 golang 的并发调度模型之前，先来看下几个基础知识
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2019/11/16/56-Go-Concurrency-Model/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1389,61 +1012,12 @@
 
       
         
-          
-            <blockquote>
-<p>设计数据密集型应用</p>
-</blockquote>
-<h3 id="关系型数据库-vs-文档型数据库-vs-图形数据库"><a href="#关系型数据库-vs-文档型数据库-vs-图形数据库" class="headerlink" title="关系型数据库 vs 文档型数据库 vs 图形数据库"></a>关系型数据库 vs 文档型数据库 vs 图形数据库</h3><ul>
-<li>应用程序存在多对多关系，文档模型吸引力将会降低</li>
-<li>对于高度相连的数据，文档模型最差，关系模型尚可，图形模型最优</li>
-<li>文档数据库应用场景：数据是自我包含的，文档之间的关系较少</li>
-<li>图形数据库：任意事物都可以与任何事物相关联</li>
-</ul>
-<h3 id="命令式语言-amp-声明式语言"><a href="#命令式语言-amp-声明式语言" class="headerlink" title="命令式语言 &amp; 声明式语言"></a>命令式语言 &amp; 声明式语言</h3><p>命令式语言：告诉计算机以特定顺序和方式执行某些操作，达成某些结果<br>声明式语言：指定结果必须符合哪些条件，以及如何将数据转换（排序，组合等），而不需要说明如何去实现这一目的（这一步由查询优化器，执行器负责）</p>
-<p>声明式语言优雅且应用广泛，如 SQL，CSS 等</p>
-<h3 id="日志结构存储引擎-vs-面向页面存储引擎"><a href="#日志结构存储引擎-vs-面向页面存储引擎" class="headerlink" title="日志结构存储引擎 vs 面向页面存储引擎"></a>日志结构存储引擎 vs 面向页面存储引擎</h3><p><strong>日志型key/value存储模型 Bitcask</strong><br>特点：</p>
-<ol>
-<li>写入方式为仅追加（类似日志服务），物理文件保持顺序写入，写入性能极好</li>
-<li>删除时，新增一条相同 key 的记录，并把 value 置为删除标记</li>
-<li>修改时，新增一条相同 key 的记录，把 value 设置为新值</li>
-<li>使用 hash 表索引，hash 表加载在内存中</li>
-<li>文件到大小阈值，建立新文件</li>
-<li>通过定期 merge 操作来处理旧数据，释放磁盘空间</li>
-</ol>
-<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><p>大致思想和目的：存储一些额外元数据作为路标，帮助你找到想要的数据</p>
-<ul>
-<li>Hash 表索引<br>缺点： </li>
-</ul>
-<ol>
-<li>散列表必须能放进内存，磁盘 hash 映射表现很差，因为需要大量的随机 I/O</li>
-<li>范围查询效率较低，你必须在散列映射中单独查找每个 key</li>
-</ol>
-<ul>
-<li>SSTables<br>全称 Sorted String Table（排序字符串表）<br>主要特点是：内容按 key 排序</li>
-</ul>
-<ol>
-<li>拥有稀疏的索引表，因为 key 有序，可以通过附近的索引快速扫描查找</li>
-<li>在内存中维护树形结构（红黑树 or AVL 树 or 其他方便健值查找的数据结构），写入时先写入内存表，达到阈值落磁盘</li>
-<li>查找是先查内存表，再查磁盘段</li>
-<li>后台定期合并和压缩段</li>
-<li>通过在磁盘维护 change logs 来避免，异常崩溃导致的数据丢失</li>
-</ol>
-<ul>
-<li>LSM 树<br>全称 Log-Structured Merge Tree（日志结构合并树）<br>查阅：<a href="https://juejin.im/post/5bbbf7615188255c59672125" target="_blank" rel="noopener">https://juejin.im/post/5bbbf7615188255c59672125</a><br>基本思想：保存一系列在后台合并的 SSTables</li>
-</ul>
-<ol>
-<li>判断 key 是否存在，可以使用 bloom filter</li>
-</ol>
-<ul>
-<li>B 树</li>
-</ul>
-<ol>
-<li>固定大小的块或页面，传统大小 4KB，且一次只能读取 or 写入一个页面，（磁盘也被分割在固定大小的块）</li>
-<li>具有 n 个键的 B 数总是具有 O(log n) 的深度，分支因子为 500 的 4KB 页面的四级树可以存储 256TB 数据</li>
-<li>为了处理崩溃导致的脏数据，一般会维护一个磁盘数据结构：预写式日志（追加式文件），用以崩溃恢复</li>
-</ol>
-
-          
+          分布式存储-基础
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2019/07/12/55-DDIA-Base/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1531,55 +1105,12 @@
 
       
         
-          
-            <p>参数时听到 PingCAP 的 topic 讲到 TiDB 使用 <a href="https://arrow.apache.org/" target="_blank" rel="noopener">Apache Arrow</a> 结构格式来存储数据，非常感兴趣，会后看了一些简介和文档</p>
-<blockquote>
-<p>Apache Arrow: A cross-language development platform for in-memory data. It specifies a standardized language-independent columnar memory format for flat and hierarchical data, organized for efficient analytic operations on modern hardware.</p>
-</blockquote>
-<p>Apache Arrow 是一种基于内存的列式数据存储结构，再继续之前还是先来看下列式存储与行式存储</p>
-<blockquote>
-<p>OLTP: On-Line Transaction Processing<br>OLAP: On-Line Analytical Processing</p>
-</blockquote>
-<h2 id="行式存储"><a href="#行式存储" class="headerlink" title="行式存储"></a>行式存储</h2><p>传统 OLTP 数据库通常使用的是 <code>行式存储</code><br>这种存储方式把所有 column 排列组成一行（一条）数据让后进行存储，并配合 B+ Tree （如 MySQL）或者 SS-Tree 索引来实现快速查询</p>
-<p>举个例子，现在我们有一份用户数据存储在行式存储数据库中<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+----+----------+------------+</span><br><span class="line">| id | nickname | avatar_url |</span><br><span class="line">+----+----------+------------+</span><br><span class="line">|  1 | b2b406   | img1.png    |</span><br><span class="line">|  2 | f537df   | img2.png    |</span><br><span class="line">|  3 | c59db7   | img3.png    |</span><br><span class="line">|  4 | 55c184   | img4.png    |</span><br><span class="line">|  5 | a6920f   | img5.png    |</span><br><span class="line">+----+----------+------------+</span><br></pre></td></tr></table></figure></p>
-<p>那么它将以每一行的值串联的形式存储进内存或磁盘，然后存储下一行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1,b2b406,img1.png;2,f537df,img2.png...</span><br></pre></td></tr></table></figure>
-<p>行式存储对于绝大多数 OLTP 场景都非常实用，性能良好。因为这种场景大多是基于处理单一实体的多个属性，这种应用程序某一实体（基于行）工作做，所以在从磁盘获取数据时操作的存储页很少很高效 </p>
-<h2 id="列式存储"><a href="#列式存储" class="headerlink" title="列式存储"></a>列式存储</h2><blockquote>
-<p>列式数据库可以是关系型、也可以是 NoSQL，这和是否是列式并无关系</p>
-</blockquote>
-<p>与行式存储不同的是，列式存储会把一列中的数据串起来存储，然后再存储下一列，还是以上面那份数据为例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+----+----------+------------+</span><br><span class="line">| id | nickname | avatar_url |</span><br><span class="line">+----+----------+------------+</span><br><span class="line">|  1 | b2b406   | img1.png    |</span><br><span class="line">|  2 | f537df   | img2.png    |</span><br><span class="line">|  3 | c59db7   | img3.png    |</span><br><span class="line">|  4 | 55c184   | img4.png    |</span><br><span class="line">|  5 | a6920f   | img5.png    |</span><br><span class="line">+----+----------+------------+</span><br></pre></td></tr></table></figure>
-<p>按列存储</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1,2,3,4,5;b2b406,f537df,c59db7,55c184,a6920f;...</span><br></pre></td></tr></table></figure>
-<p>这种存储方式非常适合 OLAP 类场景，此类场景常常需要对某一列或某几列数据进行分析处理</p>
-<p>如果使用行式存储那么在处理时将不得不把每一行的数据都整个取出来，I/O 利用率很低，并且即使数据都在内存中，也需要消耗大量 CUP 资源来将一行中的所有列拼接起来</p>
-<p>当然基于行的数据库在对列做某一些操作时并不一定会真的把整行数据扫出来操作，它们增加了很多方法来处理常用列式操作，比如 <code>sum</code> </p>
-<p>另一方面来说，单纯给列式存储的表增加索引存储，并不能使 OLTP 类操作很高效，行信息都分散在很多存储页中，并且取出来后也同样需要消耗 CPU 资源把数据拼起来</p>
-<p>列式存储的优点：</p>
-<ol>
-<li>拥有极高的装载速度</li>
-<li>同时因为数据同格式聚合，可以实现极高的压缩率，不仅节省储存空间也节省计算内存和CPU</li>
-<li>非常适合做聚合操作</li>
-</ol>
-<p>但是它同样在某些方面表现不佳：</p>
-<ol>
-<li>不适合做小量数据扫描</li>
-<li>实时更新及删除的效率很差</li>
-</ol>
-<h2 id="Apache-Arrow"><a href="#Apache-Arrow" class="headerlink" title="Apache Arrow"></a>Apache Arrow</h2><blockquote>
-<p>Columnar memory layout allows applications to avoid unnecessary IO and accelerate analytical processing performance on modern CPUs and GPUs.</p>
-</blockquote>
-<p><img src="https://static001.infoq.cn/resource/image/c6/57/c6c772ff7ca8338b94bc9900ffbf3c57.png" alt="Performance Advantage of Columnar In-Memory"></p>
-<p>这种来自 Arrow 官网的图很清晰的呈现出两种存储方式的差异</p>
-<p>Apache Arrow 不是一个存储系统，而是处理分层的列式内存数据的一系列格式和算法。</p>
-<p>下面就暂时先不对 Apache Arrow 的具体结构及算法特性展开展开了，另外现在已经有许多开源项目都已经支持了 Arrow，有兴趣可以深入了解一下</p>
-<hr>
-<ul>
-<li>BigTable（HBase）是列式存储吗？</li>
-</ul>
-
-          
+          参会时听到 PingCAP 的 topic 讲到 TiDB 使用 [Apache Arrow][1] 结构格式来存储数据，非常感兴趣，会后看了一些简介和文档
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2019/05/22/53-Columnar-Apache-Arrow/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -1667,17 +1198,12 @@
 
       
         
-          
-            <p>让我们直接进入正题，先来看下 Rack::Request instance 是怎么获取参数的<br><code>/rack-2.0.5/lib/rack/request.rb:357</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"># Returns the data received in the query string.</span><br><span class="line">def GET</span><br><span class="line">  ...</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># Returns the data received in the request body.</span><br><span class="line">#</span><br><span class="line"># This method support both application/x-www-form-urlencoded and</span><br><span class="line"># multipart/form-data.</span><br><span class="line">def POST</span><br><span class="line">  if get_header(RACK_INPUT).nil?</span><br><span class="line">    raise &quot;Missing rack.input&quot;</span><br><span class="line">  elsif get_header(RACK_REQUEST_FORM_INPUT) == get_header(RACK_INPUT)</span><br><span class="line">    get_header(RACK_REQUEST_FORM_HASH)</span><br><span class="line">  elsif form_data? || parseable_data?</span><br><span class="line">    ...</span><br><span class="line">    ...</span><br><span class="line">  else</span><br><span class="line">    &#123;&#125;</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"># The union of GET and POST data.</span><br><span class="line">#</span><br><span class="line"># Note that modifications will not be persisted in the env. Use update_param or delete_param if you want to destructively modify params.</span><br><span class="line">def params</span><br><span class="line">  self.GET.merge(self.POST)</span><br><span class="line">rescue EOFError</span><br><span class="line">  self.GET.dup</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
-<p>可以看到当是 <code>POST</code> 请求时，只支持拿 <code>application/x-www-form-urlencoded</code> 和 <code>multipart/form-data</code> 的内容。</p>
-<p>如果想要在 middleware 中取 body 中的参数的话，可以使用 rails 的 <code>ActionDispatch::ParamsParser</code> middleware 中提供的方法来轻松获取</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">def call(env)</span><br><span class="line">  if params = parse_formatted_parameters(env)</span><br><span class="line">    env[&quot;action_dispatch.request.request_parameters&quot;] = params</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  @app.call(env)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">private</span><br><span class="line">  def parse_formatted_parameters(env)</span><br><span class="line">    request = Request.new(env)</span><br><span class="line"></span><br><span class="line">    return false if request.content_length.zero?</span><br><span class="line"></span><br><span class="line">    strategy = @parsers[request.content_mime_type]</span><br><span class="line"></span><br><span class="line">    return false unless strategy</span><br><span class="line"></span><br><span class="line">    case strategy</span><br><span class="line">    when Proc</span><br><span class="line">      strategy.call(request.raw_post)</span><br><span class="line">    when :json</span><br><span class="line">      data = ActiveSupport::JSON.decode(request.raw_post)</span><br><span class="line">      data = &#123;:_json =&gt; data&#125; unless data.is_a?(Hash)</span><br><span class="line">      Request::Utils.deep_munge(data).with_indifferent_access</span><br><span class="line">    else</span><br><span class="line">      false</span><br><span class="line">    end</span><br><span class="line">  rescue =&gt; e # JSON or Ruby code block errors</span><br><span class="line">    logger(env).debug &quot;Error occurred while parsing request parameters.\nContents:\n\n#&#123;request.raw_post&#125;&quot;</span><br><span class="line"></span><br><span class="line">    raise ParseError.new(e.message, e)</span><br><span class="line">  end</span><br></pre></td></tr></table></figure>
-<p>获取方式：<br><code>env[&quot;action_dispatch.request.request_parameters&quot;][&#39;your_params_name&#39;]</code></p>
-<p>需要注意的是使用的地方要在 <code>ActionDispatch::ParamsParser</code> 之后</p>
-<hr>
-<p>当然，也可以自己读取解析，自己动手丰衣足食</p>
-
-          
+          Rack::Request 获取 params 的问题
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2019/05/11/52-Rack-Request-Pramas-QA/">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>

@@ -57,18 +57,18 @@
 
 
 
-<meta name="description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识 进程和线程首先按教科书上现代操作系统的定义：  进程是资源管理的最小单位 线程是程序执行（系统调度）的最小单位  简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销  SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构AMP——">
+<meta name="description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang 并发模型">
 <meta property="og:url" content="http://elibinary.com/2019/11/16/56-Go-Concurrency-Model/index.html">
 <meta property="og:site_name" content="Sora">
-<meta property="og:description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识 进程和线程首先按教科书上现代操作系统的定义：  进程是资源管理的最小单位 线程是程序执行（系统调度）的最小单位  简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销  SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构AMP——">
+<meta property="og:description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-09-12T05:25:49.273Z">
+<meta property="og:updated_time" content="2020-09-12T05:45:56.863Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang 并发模型">
-<meta name="twitter:description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识 进程和线程首先按教科书上现代操作系统的定义：  进程是资源管理的最小单位 线程是程序执行（系统调度）的最小单位  简单来说就是进程提供计算资源，线程进行计算。从进程演化出线程，最主要的目的是更好的支持 SMP 及减少上下文切换开销  SMP——Symmetric Multi-Processing (SMP)，对称多处理器结构AMP——">
+<meta name="twitter:description" content="在介绍 golang 的并发调度模型之前，先来看下几个基础知识">
 
 
 
