@@ -1,0 +1,767 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="db," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="本片主要讨论通常业务系统的缓存机制构建问题">
+<meta name="keywords" content="db">
+<meta property="og:type" content="article">
+<meta property="og:title" content="聊聊缓存">
+<meta property="og:url" content="http://elibinary.com/2020/10/23/64-About-Cache/index.html">
+<meta property="og:site_name" content="Sora">
+<meta property="og:description" content="本片主要讨论通常业务系统的缓存机制构建问题">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-10-24T04:20:09.218Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="聊聊缓存">
+<meta name="twitter:description" content="本片主要讨论通常业务系统的缓存机制构建问题">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> 聊聊缓存 | Sora </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en,zh-Hans,zh-hk,default">
+
+  
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <!-- <span class="logo-line-before"><i></i></span> -->
+      <span class="site-title">Sora</span>
+      <!-- <span class="logo-line-after"><i></i></span> -->
+    </a>
+  </div>
+  <p class="site-subtitle">Trick</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                聊聊缓存
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2020-10-23T18:48:28+08:00" content="2020-10-23">
+              2020-10-23
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2020/10/23/64-About-Cache/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/10/23/64-About-Cache/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本片主要讨论通常业务系统的缓存机制构建问题。主要结合 redis、memcached 或其他本地内存缓存组件和数据库场景进行阐述。</p>
+<p>在日常开发中，缓存是相当有效的一种提升性能、缓解 DB 压力的方式。在我们大量使用缓存的同时，也有许多细节需要细心处理。</p>
+<p>通常开发中使用缓存存储的数据形式可以分成两大类：</p>
+<ul>
+<li>元数据（如模型层缓存）</li>
+<li>组合数据或计算结果数据</li>
+</ul>
+<h2 id="如何保证数据一致性"><a href="#如何保证数据一致性" class="headerlink" title="如何保证数据一致性"></a>如何保证数据一致性</h2><p>首先通常在使用缓存时，都会设置合理的过期时间。这在自动过期掉命中率低缓存的同时，还能为数据不一致的情况提供一个兜底时间（最长不一致时间）。</p>
+<p>由于缓存主要目的是 cache 住热点数据，提高访问效率并降低 db 压力，<strong>缓存命中率这一指标也是缓存设计及使用的首要关注指标</strong>。</p>
+<p>在这种场景下，通常缓存和 db 是两个独立系统（存储），这样不可避免的就会遇到第一个问题：如何保证缓存和 db 的数据一致性？</p>
+<p>这其实已经算是一个比较典型的分布式数据一致的场景，在分布式场景下一般保证数据一致性分两大种：最终一致、强一致</p>
+<h3 id="最终一致"><a href="#最终一致" class="headerlink" title="最终一致"></a>最终一致</h3><p>从目的出发，在系统中引入缓存机制其最大目的是为了提高效率，并能够容忍短暂的数据不一致。在这种需求下，我们可以通过操作顺序来实现最终一致，常见做法就是 <strong>Cache Aside</strong><br>思路其实非常简单（通常也是我们第一反应的做法）：</p>
+<ol>
+<li>R 先读缓存，缓存命中直接返回</li>
+<li>R 读缓存未命中，回源并更新缓存</li>
+<li>W 写 DB，成功后删除缓存</li>
+</ol>
+<p>上面主要的讨论点可能会集中在第三点上：</p>
+<ol>
+<li>先删缓存，再写 DB 行不行？</li>
+<li>为什么删缓存，而不是写完直接更新缓存？</li>
+<li>写 DB 和删缓存是两步操作，删缓存失败怎么办？</li>
+<li>并发写入时，导致数据不一致如何解决？<ul>
+<li>W1 写 DB 并清除缓存，记为 data_v1</li>
+<li>R 读缓存未命中，回源查到 data_v1</li>
+<li>W2 写 DB 并清除缓存（此时其实缓存已清理），记为 data_v2</li>
+<li>R 更新 data_v1 到缓存，并设置过期时间</li>
+</ul>
+</li>
+<li>在 Master-Slave 读写分离场景下，数据不一致如何解决？<ul>
+<li>W 写 Master 并清除缓存，记为 data_new</li>
+<li>R 读缓存未命中，回源读 Slave 得到 data_old（或 null）</li>
+<li>R 更新 data_old 到缓存，并设置过期时间</li>
+<li>Slave 同步到 data_new </li>
+</ul>
+</li>
+</ol>
+<p>一个一个来看</p>
+<p><strong>先删缓存，再写 DB 行不行？</strong><br>首先第一个问题比较容易理解，如果先删缓存就有可能在 DB 写入前，新的 R 回源更新了旧数据到缓存中。直到下次 W 或者直到缓存过期才会进行更新，从而导致长时间的数据不一致。</p>
+<p><strong>为什么删缓存，而不是写完直接更新缓存？</strong><br>为什么不写完直接更新缓存，其实主要从两方面考虑：首先一种情况是缓存存储的可能是聚合数据或者经过计算的结果数据，此时把更新缓存的操作耦合到写操作上并不是一个好的选择；另外可以统一回源入口，仅在一处（R 时）进行回源，这样可以让代码更加易读，也更容易扩展。</p>
+<p><strong>写 DB 和删缓存是两步操作，删缓存失败怎么办？</strong><br>第三个问题是非常重要的问题，该场景下的容错处理非常重要。最容易想到的解决方案是增加重试，这种方案的局限性在于如果操作失败是由于执行线程意外中断，或者网络问题导致的丢包超时，短时间连续重试效果并不理想，而递增式重试会长时间 block 当前请求（且存在意外丢失风险）。<br>虽然通常情况下上面设计已经可以处理绝大多数问题，但能不能进一步提高容错能力呢，答案是肯定的（但同时也是有代价的）。其中有个思路就是通过把清理缓存这一过程异步化来解决本地重试不可靠的问题，下面是一种参考做法思路：</p>
+<ol>
+<li>通过引入额外 binlog watch + MQ 来进行异步清理</li>
+<li>单线程顺序处理 binlog write 事件，写入 MQ</li>
+<li>写 MQ 失败可以使用时间递增式重试</li>
+<li>Consumer 使用 At-Least-Once 策略消费 MQ 消息，清理缓存</li>
+</ol>
+<p>因为要保证 At-Least-Once 的生产/消费，整体系统复杂度又将增加不少，后续对于这一套异步清理的可用性保证、监控等也要增加不少实现复杂度。所以整体设计还是要看业务场景，权衡利弊。</p>
+<p><strong>并发写入时，导致数据不一致如何解决？</strong><br>这个问题本质其实是执行顺序问题，存在交叉执行的情况，这种问题最容易想到也是最简单的方法就是加锁。其实本质类似于实现事务的隔离性（单独展开又是一个很大的话题，具体可以参考 DDIA-第七章-事务 一章）。<br>但是对于缓存场景，其实只要保证缓存中是最新数据就可以了，所以可以选择一种折中做法：通过记录 version 来强制 R 请求回源，每次更新 version 只增不减，大致过程：</p>
+<ol>
+<li>在缓存值中增加 version 存储（具体实现可以是两个 key 可以选 hash 结构，也可以暴力直接存储）</li>
+<li>W 写 DB 后，判断并更新缓存 version 值（比如通过 CAS）</li>
+<li>R 读缓存对比当前 version 和最新 version，旧则回源更新</li>
+</ol>
+<p>不过在选择实现时，请慎重考虑各种方式对并发性能的影响，毕竟应用缓存的首要目标还是提高访问效率。</p>
+<p><strong>在 Master-Slave 读写分离场景下，数据不一致如何解决？</strong><br>这种场景下的不一致，主要由于主从同步延迟导致的。解决方式依旧可以参考问题 3、4 的思路。<br>不同点在于应用监听 binlog 方式时，需要监听的是 Slave 的，也就是 Slave 落库时才清理缓存。而如果使用 version 方式时，需要考虑 Slave 落后这段时间内缓存穿透的问题（由于数据一直是旧的，每次都需要穿透到 Slave 读）。</p>
+<h3 id="强一致"><a href="#强一致" class="headerlink" title="强一致"></a>强一致</h3><p>写在最前面，如果真的有强一致的场景，建议考虑依据具体场景定制的方案，不要使用通用缓存策略。因为无论是单纯引入分布式事务，还是在分布式事务的基础上追加保证高隔离级别（比如引入复杂锁机制），无疑都会极大的影响性能，这与我们引入缓存的目的背道而驰。</p>
+<h2 id="缓存穿透-amp-缓存击穿"><a href="#缓存穿透-amp-缓存击穿" class="headerlink" title="缓存穿透 &amp; 缓存击穿"></a>缓存穿透 &amp; 缓存击穿</h2><p>这两种场景有些差别：<br><strong>缓存穿透</strong>一般在说某个值在 db 中不存在，每一次请求到缓存中那数据拿不到都会回源查 db<br>最简单解决思路是缓存个空值，这种方式简单有效，但同时也存在缺点：当有很多这种读请求时，将会缓存大量这种数据，在一些恶意攻击中甚至可能会把真正的热点数据挤出缓存。<br>解决上述问题的一个思路是在读缓存前，再增加一步 check key exist，比如使用 bitmap 或者 bloom filter 快速判断，方便快捷。但同样存在问题：bitmap 或 bloom filter 无论选择存储在本地内存还是存储到 redis 都将面临分布式一致性的问题，同时如果存储到 redis 之类的第三方存储系统，就意味着所有请求都将多一次网络调用。</p>
+<p><strong>缓存击穿</strong>一般在说某个 key 失效了，此时如果不加保护，就会有大量读请求穿透到 DB<br>一般的解决方案也比较简单，在回源时加互斥锁就可以了，以此保证缓存失效后仅有一个请求触发回源更新，其他请求阻塞等待。</p>
+<h3 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h3><p>雪崩是一种特殊场景：当缓存大批量同时失效，或者进一步缓存服务宕机了，此时即使已经进行了击穿保护，依然会有大量请求穿透到 db，增加 db 压力引发 db 宕机风险。解决思路一般从几个方面考虑：</p>
+<ul>
+<li>首先尽量避免缓存集中失效，比如分散过期时间</li>
+<li>另一方面保证缓存系统高可用，比如使用集群化解决方案</li>
+<li>如果整个集群都挂了，那就需要一些兜底方案+限流策略，比如退化使用本地缓存，触发限流丢掉处理不过来的请求保护 DB</li>
+<li>另外缓存服务刚启起来时，需要进行一段时间缓存预热，此时最好慢慢放开流量</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在进行方案设计时，应该根据具体场景进行权衡，在实现时免不了要进行各种取舍，适合当前场景的方案才是最好的方案。</p>
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/db/" rel="tag">#db</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/04/63-Current-Limiting/" rel="next" title="限流思路与实现">
+                <i class="fa fa-chevron-left"></i> 限流思路与实现
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2020/10/23/64-About-Cache/"
+           data-title="聊聊缓存" data-url="http://elibinary.com/2020/10/23/64-About-Cache/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="Eli Binary" />
+          <p class="site-author-name" itemprop="name">Eli Binary</p>
+          <p class="site-description motion-element" itemprop="description">First I have a dream.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">88</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+          
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何保证数据一致性"><span class="nav-number">1.</span> <span class="nav-text">如何保证数据一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#最终一致"><span class="nav-number">1.1.</span> <span class="nav-text">最终一致</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#强一致"><span class="nav-number">1.2.</span> <span class="nav-text">强一致</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缓存穿透-amp-缓存击穿"><span class="nav-number">2.</span> <span class="nav-text">缓存穿透 &amp; 缓存击穿</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存雪崩"><span class="nav-number">2.1.</span> <span class="nav-text">缓存雪崩</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Eli Binary</span>
+</div>
+
+<div>
+  Better late than never.
+</div>
+<!-- <div class="powered-by"> -->
+  <!-- Powered by <a class="theme-link" href="http://hexo.io">Hexo</a> -->
+<!-- </div> -->
+
+<!-- <div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div> -->
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sooraa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+</body>
+</html>
